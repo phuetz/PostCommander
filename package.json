@@ -1,0 +1,40 @@
+{
+  "name": "postcommander",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
+    "start": "npm run start -w server",
+    "test": "npm run test:shared && npm run test:server",
+    "test:shared": "npm test -w @postcommander/shared",
+    "test:server": "npm test -w @postcommander/server",
+    "test:e2e": "playwright test",
+    "verify": "npm run lint && npm run build && npm run test",
+    "verify:release": "npm run verify && npm run test:e2e",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w client",
+    "db:reset": "node -e \"require('node:fs').rmSync('server/data', { recursive: true, force: true })\"",
+    "db:backup": "node scripts/backup-db.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "@typescript-eslint/parser": "^8.57.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "prettier": "^3.8.1",
+    "typescript": "^5.7.0"
+  }
+}
