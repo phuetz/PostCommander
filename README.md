@@ -15,6 +15,7 @@ An intelligent social media content generation and publishing platform powered b
   - **Ghostwriter (/ai):** Type `/ai` in native social media comment boxes to auto-generate context-aware replies
   - **Shadow Profiling:** Silently extract CRM data from visited LinkedIn profiles
   - **Virality Checker:** Real-time post quality scoring overlay on LinkedIn
+- **Autopilot (Blog Generation)** — Set up customizable recurring background jobs to automatically draft expert-level blog articles based on your tone and preferred references.
 - **Image Generation** — Generate and attach images to posts
 - **A/B Testing** — Test different post variations to optimize engagement
 - **Hooks & Templates** — Pre-built templates for different content types
@@ -94,6 +95,7 @@ npm run db:backup --keep 5 --out backups/
 ## Architecture
 
 See [CLAUDE.md](./CLAUDE.md) for detailed architecture documentation including:
+
 - Monorepo structure and build order
 - Server boot sequence and job workers
 - Database migrations and schema
@@ -126,12 +128,14 @@ For detailed API routes, see `server/src/routes/`.
 See `.env.example` for all available options. Key variables:
 
 **Required in production:**
+
 - `JWT_SECRET` — Session token signing key
 - `ENCRYPTION_KEY` — User data encryption (32-byte hex)
 - `REDIS_URL` — Redis connection for job queue
 - At least one LLM provider key
 
 **Optional:**
+
 - `DEV_AUTO_LOGIN_EMAIL` — Auto-login in development
 - `ADMIN_EMAILS` — Comma-separated list of admin emails
 - `BASE_URL` — Public-facing URL (must be HTTPS for social platform callbacks)

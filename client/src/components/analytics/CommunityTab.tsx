@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MessageCircle, Bot, Send, User, Sparkles, Target, Flame, Snowflake, Handshake, AlertTriangle } from 'lucide-react';
+import {
+  MessageCircle,
+  Bot,
+  Send,
+  User,
+  Sparkles,
+  Target,
+  Flame,
+  Snowflake,
+  Handshake,
+  AlertTriangle,
+} from 'lucide-react';
 import { getSocialComments, runAgentStep, scoreComment } from '@/services/api';
 import type { SocialComment, LLMProviderId } from '@postcommander/shared';
 import { Card } from '@/components/ui/Card';
@@ -22,8 +33,12 @@ export function CommunityTab() {
   });
 
   const agentMutation = useMutation({
-    mutationFn: (params: { id: string; providerId: string; modelId: string; userMessage?: string }) =>
-      runAgentStep(params.id, params),
+    mutationFn: (params: {
+      id: string;
+      providerId: string;
+      modelId: string;
+      userMessage?: string;
+    }) => runAgentStep(params.id, params),
     onMutate: (variables) => {
       setGeneratingId(variables.id);
     },
@@ -91,7 +106,9 @@ export function CommunityTab() {
     <div className="space-y-6">
       <Card>
         <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Auto-Reply Configuration</h3>
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Auto-Reply Configuration
+          </h3>
           <div className="mt-3">
             <LLMSelector
               provider={provider}
@@ -110,16 +127,22 @@ export function CommunityTab() {
               <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center flex-shrink-0 text-brand-600 dark:text-brand-400">
                   {comment.authorAvatarUrl ? (
-                    <img src={comment.authorAvatarUrl} alt={comment.authorName} className="w-full h-full rounded-full object-cover" />
+                    <img
+                      src={comment.authorAvatarUrl}
+                      alt={comment.authorName}
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   ) : (
                     <User size={20} />
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <span className="font-semibold text-gray-900 dark:text-gray-100">{comment.authorName}</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        {comment.authorName}
+                      </span>
                       {comment.authorHandle && (
                         <span className="ml-2 text-sm text-gray-500">@{comment.authorHandle}</span>
                       )}
@@ -128,15 +151,19 @@ export function CommunityTab() {
                       {new Date(comment.publishedAt).toLocaleDateString()}
                     </span>
                   </div>
-                  
-                  <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{comment.content}</p>
+
+                  <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {comment.content}
+                  </p>
 
                   <div className="mt-4 flex justify-end">
                     {comment.agentState ? (
                       <div className="w-full bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
                         <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                           <Bot size={16} className="text-brand-500" />
-                          <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider">AI Agent Conversation</span>
+                          <span className="text-xs font-semibold text-brand-600 dark:text-brand-400 uppercase tracking-wider">
+                            AI Agent Conversation
+                          </span>
                           {comment.requiresHuman && (
                             <span className="ml-auto text-xs flex items-center gap-1 text-orange-500 bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 rounded-full">
                               <AlertTriangle size={12} /> Needs Human
@@ -148,9 +175,17 @@ export function CommunityTab() {
                             try {
                               const history = JSON.parse(comment.agentState);
                               return history.slice(1).map((msg: any, i: number) => (
-                                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                  <div className={`max-w-[85%] rounded-lg p-2 text-sm ${msg.role === 'user' ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-900 dark:text-brand-100' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'}`}>
-                                    {msg.content || (msg.toolCalls ? `[Tool Call: ${msg.toolCalls[0].toolName}]` : '[Agent action]')}
+                                <div
+                                  key={i}
+                                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                >
+                                  <div
+                                    className={`max-w-[85%] rounded-lg p-2 text-sm ${msg.role === 'user' ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-900 dark:text-brand-100' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'}`}
+                                  >
+                                    {msg.content ||
+                                      (msg.toolCalls
+                                        ? `[Tool Call: ${msg.toolCalls[0].toolName}]`
+                                        : '[Agent action]')}
                                   </div>
                                 </div>
                               ));
@@ -160,7 +195,7 @@ export function CommunityTab() {
                           })()}
                         </div>
                         <div className="mt-4 flex gap-2">
-                           <Button
+                          <Button
                             onClick={() => handleAgentStep(comment.id)}
                             loading={generatingId === comment.id}
                             disabled={generatingId !== null || comment.requiresHuman}
@@ -173,39 +208,45 @@ export function CommunityTab() {
                         </div>
                       </div>
                     ) : (
-                    <div className="flex gap-2">
-                      {comment.leadStatus === 'unscored' && (
+                      <div className="flex gap-2">
+                        {comment.leadStatus === 'unscored' && (
+                          <Button
+                            onClick={() => handleScoreLead(comment.id)}
+                            loading={scoringId === comment.id}
+                            disabled={scoringId !== null || generatingId !== null}
+                            icon={<Target size={16} />}
+                            size="sm"
+                            variant="secondary"
+                          >
+                            Analyze Lead
+                          </Button>
+                        )}
                         <Button
-                          onClick={() => handleScoreLead(comment.id)}
-                          loading={scoringId === comment.id}
-                          disabled={scoringId !== null || generatingId !== null}
-                          icon={<Target size={16} />}
+                          onClick={() => handleAgentStep(comment.id)}
+                          loading={generatingId === comment.id}
+                          disabled={generatingId !== null || scoringId !== null}
+                          icon={<Sparkles size={16} />}
                           size="sm"
-                          variant="secondary"
                         >
-                          Analyze Lead
+                          Start Agent
                         </Button>
-                      )}
-                      <Button
-                        onClick={() => handleAgentStep(comment.id)}
-                        loading={generatingId === comment.id}
-                        disabled={generatingId !== null || scoringId !== null}
-                        icon={<Sparkles size={16} />}
-                        size="sm"
-                      >
-                        Start Agent
-                      </Button>
-                    </div>
+                      </div>
                     )}
                   </div>
-                  
+
                   {comment.leadStatus !== 'unscored' && (
                     <div className="mt-3 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
-                        {comment.leadStatus === 'hot' && <Flame size={16} className="text-red-500" />}
-                        {comment.leadStatus === 'potential' && <Handshake size={16} className="text-brand-500" />}
-                        {comment.leadStatus === 'unqualified' && <Snowflake size={16} className="text-blue-400" />}
-                        
+                        {comment.leadStatus === 'hot' && (
+                          <Flame size={16} className="text-red-500" />
+                        )}
+                        {comment.leadStatus === 'potential' && (
+                          <Handshake size={16} className="text-brand-500" />
+                        )}
+                        {comment.leadStatus === 'unqualified' && (
+                          <Snowflake size={16} className="text-blue-400" />
+                        )}
+
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">
                           {comment.leadStatus} Lead (Score: {comment.leadScore})
                         </span>

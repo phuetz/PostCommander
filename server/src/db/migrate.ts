@@ -51,9 +51,7 @@ export function runMigrations(db: Database.Database): void {
 
   console.log(`Running ${pending.length} pending migration(s)...`);
 
-  const insertMigration = db.prepare(
-    'INSERT INTO _migrations (name) VALUES (?)',
-  );
+  const insertMigration = db.prepare('INSERT INTO _migrations (name) VALUES (?)');
 
   for (const file of pending) {
     const filePath = path.join(migrationsDir, file);

@@ -40,7 +40,9 @@ const mockDrizzle = {
   delete: vi.fn().mockReturnThis(),
 };
 
-(getDrizzle as unknown as { mockReturnValue: (value: typeof mockDrizzle) => void }).mockReturnValue(mockDrizzle);
+(getDrizzle as unknown as { mockReturnValue: (value: typeof mockDrizzle) => void }).mockReturnValue(
+  mockDrizzle,
+);
 
 const app = createApp();
 
@@ -59,10 +61,8 @@ describe('Auth Routes Integration', () => {
 
       // 1. Check existing user
       mockDrizzle.query.users.findFirst.mockResolvedValueOnce(null);
-      
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData);
+
+      const response = await request(app).post('/api/auth/register').send(userData);
 
       expect(response.status).toBe(201);
       expect(response.headers['set-cookie']).toBeDefined();
@@ -87,9 +87,7 @@ describe('Auth Routes Integration', () => {
       // Mock user already exists
       mockDrizzle.query.users.findFirst.mockResolvedValueOnce({ id: 'existing-id' });
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData);
+      const response = await request(app).post('/api/auth/register').send(userData);
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Email already in use');
@@ -110,7 +108,7 @@ describe('Auth Routes Integration', () => {
       const email = 'test@example.com';
       const password = 'password123';
       const passwordHash = await bcrypt.hash(password, 10);
-      
+
       const userRecord = {
         id: 'user-id-123',
         email,
@@ -123,9 +121,7 @@ describe('Auth Routes Integration', () => {
       // Mock user lookup
       mockDrizzle.query.users.findFirst.mockResolvedValueOnce(userRecord);
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({ email, password });
+      const response = await request(app).post('/api/auth/login').send({ email, password });
 
       expect(response.status).toBe(200);
       expect(response.headers['set-cookie']).toBeDefined();
@@ -137,7 +133,7 @@ describe('Auth Routes Integration', () => {
     it('should return 401 with wrong password', async () => {
       const email = 'test@example.com';
       const passwordHash = await bcrypt.hash('correct-password', 10);
-      
+
       const userRecord = {
         id: 'user-id-123',
         email,
@@ -170,8 +166,7 @@ describe('Auth Routes Integration', () => {
 
   describe('POST /api/auth/logout', () => {
     it('should clear the token cookie', async () => {
-      const response = await request(app)
-        .post('/api/auth/logout');
+      const response = await request(app).post('/api/auth/logout');
 
       expect(response.status).toBe(200);
       expect(response.headers['set-cookie']).toBeDefined();
@@ -197,9 +192,7 @@ describe('Auth Routes Integration', () => {
       expect(response.body.data.previewUrl).toContain('/reset-password?token=');
       expect(mockDrizzle.insert).toHaveBeenCalled();
       const insertArg = mockDrizzle.values.mock.calls.at(-1)?.[0];
-      expect(insertArg.token).not.toBe(
-        response.body.data.previewUrl.split('token=')[1],
-      );
+      expect(insertArg.token).not.toBe(response.body.data.previewUrl.split('token=')[1]);
       expect(sendPasswordResetEmail).not.toHaveBeenCalled();
     });
   });
@@ -226,7 +219,7 @@ describe('Auth Routes Integration', () => {
     it('should return current user with valid token in cookie', async () => {
       const userId = 'user-id-123';
       const token = jwt.sign({ userId }, config.JWT_SECRET);
-      
+
       const userRecord = {
         id: userId,
         email: 'test@example.com',
@@ -252,7 +245,7 @@ describe('Auth Routes Integration', () => {
     it('should return current user with valid token in Authorization header', async () => {
       const userId = 'user-id-123';
       const token = jwt.sign({ userId }, config.JWT_SECRET);
-      
+
       const userRecord = {
         id: userId,
         email: 'test@example.com',

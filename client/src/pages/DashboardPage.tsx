@@ -44,9 +44,20 @@ const platformIcons: Record<PlatformId, React.ElementType> = {
   pinterest: Pin,
 };
 
-const statusBadge: Record<string, { variant: 'default' | 'success' | 'warning' | 'danger' | 'info'; labelKey: string; defaultLabel: string }> = {
+const statusBadge: Record<
+  string,
+  {
+    variant: 'default' | 'success' | 'warning' | 'danger' | 'info';
+    labelKey: string;
+    defaultLabel: string;
+  }
+> = {
   draft: { variant: 'default', labelKey: 'dashboard.status.draft', defaultLabel: 'Draft' },
-  published: { variant: 'success', labelKey: 'dashboard.status.published', defaultLabel: 'Published' },
+  published: {
+    variant: 'success',
+    labelKey: 'dashboard.status.published',
+    defaultLabel: 'Published',
+  },
   scheduled: { variant: 'info', labelKey: 'dashboard.status.scheduled', defaultLabel: 'Scheduled' },
   failed: { variant: 'danger', labelKey: 'dashboard.status.failed', defaultLabel: 'Failed' },
 };
@@ -172,39 +183,37 @@ export function DashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {analyticsQuery.isLoading ? (
-          Array(3).fill(0).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <div className="flex items-center gap-4 h-12">
-                <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-gray-800" />
-                <div className="space-y-2">
-                  <div className="h-6 w-12 bg-gray-200 dark:bg-gray-800 rounded" />
-                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded" />
+        {analyticsQuery.isLoading
+          ? Array(3)
+              .fill(0)
+              .map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <div className="flex items-center gap-4 h-12">
+                    <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-gray-800" />
+                    <div className="space-y-2">
+                      <div className="h-6 w-12 bg-gray-200 dark:bg-gray-800 rounded" />
+                      <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded" />
+                    </div>
+                  </div>
+                </Card>
+              ))
+          : stats.map((stat) => (
+              <Card key={stat.label} hover>
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`flex items-center justify-center w-12 h-12 rounded-xl ${stat.color}`}
+                  >
+                    <stat.icon size={22} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {stat.value}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))
-        ) : (
-          stats.map((stat) => (
-            <Card key={stat.label} hover>
-              <div className="flex items-center gap-4">
-                <div
-                  className={`flex items-center justify-center w-12 h-12 rounded-xl ${stat.color}`}
-                >
-                  <stat.icon size={22} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {stat.value}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {stat.label}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))
-        )}
+              </Card>
+            ))}
       </div>
 
       {/* Quick Access Tools */}
@@ -218,13 +227,11 @@ export function DashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {toolCards.map((tool) => (
             <Link key={tool.to} to={tool.to}>
-              <Card
-                hover
-                padding="sm"
-                className="group text-center h-full"
-              >
+              <Card hover padding="sm" className="group text-center h-full">
                 <div className="flex flex-col items-center gap-2.5 py-2">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tool.color} group-hover:scale-110 transition-transform duration-200`}>
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${tool.color} group-hover:scale-110 transition-transform duration-200`}
+                  >
                     <tool.icon size={20} />
                   </div>
                   <div>
@@ -265,10 +272,7 @@ export function DashboardPage() {
               </div>
             ) : posts.length === 0 ? (
               <div className="text-center py-12 px-5">
-                <FileText
-                  size={40}
-                  className="mx-auto text-gray-300 dark:text-gray-600 mb-3"
-                />
+                <FileText size={40} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
                 <p className="text-gray-500 dark:text-gray-400 text-sm">
                   {t('dashboard.noPosts', 'No posts yet. Generate your first one!')}
                 </p>
@@ -291,11 +295,7 @@ export function DashboardPage() {
                             {post.platforms.map((pid) => {
                               const Icon = platformIcons[pid as PlatformId];
                               return Icon ? (
-                                <Icon
-                                  key={pid}
-                                  size={12}
-                                  className="text-gray-400"
-                                />
+                                <Icon key={pid} size={12} className="text-gray-400" />
                               ) : null;
                             })}
                           </div>
@@ -381,10 +381,7 @@ export function DashboardPage() {
                   const isConnected = connection?.connected || false;
 
                   return (
-                    <div
-                      key={pid}
-                      className="flex items-center justify-between px-5 py-3"
-                    >
+                    <div key={pid} className="flex items-center justify-between px-5 py-3">
                       <div className="flex items-center gap-3">
                         <div
                           className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
@@ -397,15 +394,9 @@ export function DashboardPage() {
                         </span>
                       </div>
                       {isConnected ? (
-                        <CheckCircle2
-                          size={18}
-                          className="text-green-500"
-                        />
+                        <CheckCircle2 size={18} className="text-green-500" />
                       ) : (
-                        <XCircle
-                          size={18}
-                          className="text-gray-300 dark:text-gray-600"
-                        />
+                        <XCircle size={18} className="text-gray-300 dark:text-gray-600" />
                       )}
                     </div>
                   );
@@ -447,15 +438,15 @@ export function DashboardPage() {
                         ? t('dashboard.activityScheduled', 'Scheduled a post')
                         : t('dashboard.activityDrafted', 'Created a draft');
                   const actionIcon =
-                    post.status === 'published' ? Send :
-                    post.status === 'scheduled' ? CalendarClock : FileText;
+                    post.status === 'published'
+                      ? Send
+                      : post.status === 'scheduled'
+                        ? CalendarClock
+                        : FileText;
                   const ActionIcon = actionIcon;
 
                   return (
-                    <div
-                      key={`activity-${post.id}`}
-                      className="flex items-center gap-3 px-5 py-3"
-                    >
+                    <div key={`activity-${post.id}`} className="flex items-center gap-3 px-5 py-3">
                       <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
                         <ActionIcon size={13} className="text-gray-500 dark:text-gray-400" />
                       </div>

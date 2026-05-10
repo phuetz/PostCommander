@@ -1,8 +1,5 @@
 import { Router } from 'express';
-import {
-  createStyleSchema,
-  generateInStyleSchema,
-} from '@postcommander/shared';
+import { createStyleSchema, generateInStyleSchema } from '@postcommander/shared';
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { requireFeature } from '../middleware/plan-limiter.js';
@@ -22,6 +19,11 @@ router.get('/', requireFeature('styles'), listStyles);
 router.post('/', requireFeature('styles'), validate(createStyleSchema), handleCreateStyle);
 router.get('/:id', requireFeature('styles'), getStyleById);
 router.delete('/:id', requireFeature('styles'), handleDeleteStyle);
-router.post('/:id/generate', requireFeature('styles'), validate(generateInStyleSchema), handleGenerateInStyle);
+router.post(
+  '/:id/generate',
+  requireFeature('styles'),
+  validate(generateInStyleSchema),
+  handleGenerateInStyle,
+);
 
 export default router;

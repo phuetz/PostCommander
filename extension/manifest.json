@@ -16,13 +16,6 @@
       "js": ["src/content/linkedin.tsx"]
     }
   ],
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting"
-  ],
-  "host_permissions": [
-    "http://localhost:3001/*",
-    "*://*.linkedin.com/*"
-  ]
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["http://localhost:3001/*", "*://*.linkedin.com/*"]
 }

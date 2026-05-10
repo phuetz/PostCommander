@@ -112,9 +112,7 @@ test.describe('Calendar interactions', () => {
 
     await page.goto('/app/calendar');
 
-    await expect(page.locator('h2')).toContainText(
-      new RegExp(String(today.getFullYear())),
-    );
+    await expect(page.locator('h2')).toContainText(new RegExp(String(today.getFullYear())));
     await expect(page.getByTestId(`calendar-post-post-1`)).toBeVisible();
 
     await page.getByTestId(`calendar-day-${todayKey}`).click();

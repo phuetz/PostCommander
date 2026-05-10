@@ -46,9 +46,12 @@ export async function generateVideoScript(
 ): Promise<VideoScriptResult> {
   const model = createModel(params.provider as LLMProviderId, params.model, userId);
 
-  const durationStr = 
-    params.duration === 'short' ? '15-30 seconds' :
-    params.duration === 'medium' ? '30-60 seconds' : '1-3 minutes';
+  const durationStr =
+    params.duration === 'short'
+      ? '15-30 seconds'
+      : params.duration === 'medium'
+        ? '30-60 seconds'
+        : '1-3 minutes';
 
   const system = `You are an expert video producer and social media strategist specializing in short-form vertical video (${params.platform}).
 Your job is to write an engaging video script that maximizes retention and engagement.

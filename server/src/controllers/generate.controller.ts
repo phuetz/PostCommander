@@ -10,10 +10,7 @@ import { requireRequestUser } from '../utils/request-user.js';
  * POST /api/generate
  * Generate a social media post using the specified LLM (JSON response).
  */
-export const handleGenerate = catchAsync(async (
-  req: Request,
-  res: Response,
-) => {
+export const handleGenerate = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
   const result = await generatePost(req.body, requestUser.id);
 
@@ -29,10 +26,7 @@ export const handleGenerate = catchAsync(async (
  * POST /api/generate/stream
  * Generate a social media post with Server-Sent Events streaming.
  */
-export const handleStreamGenerate = catchAsync(async (
-  req: Request,
-  res: Response,
-) => {
+export const handleStreamGenerate = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
   // Set up SSE headers
   res.writeHead(200, {
@@ -76,9 +70,7 @@ export const handleStreamGenerate = catchAsync(async (
     const errorMessage = err instanceof Error ? err.message : 'Unknown stream error';
     // If headers already sent, send error as SSE event
     if (res.headersSent) {
-      res.write(
-        `event: error\ndata: ${JSON.stringify({ error: errorMessage })}\n\n`,
-      );
+      res.write(`event: error\ndata: ${JSON.stringify({ error: errorMessage })}\n\n`);
       res.end();
     } else {
       throw new AppError(500, `Stream generation failed: ${errorMessage}`);
@@ -89,10 +81,7 @@ export const handleStreamGenerate = catchAsync(async (
 /**
  * POST /api/generate/video-script
  */
-export const handleVideoScriptGenerate = catchAsync(async (
-  req: Request,
-  res: Response,
-) => {
+export const handleVideoScriptGenerate = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
   const result = await generateVideoScript(req.body, requestUser.id);
 
@@ -102,4 +91,18 @@ export const handleVideoScriptGenerate = catchAsync(async (
   };
 
   res.json(response);
+});
+
+/**
+ * POST /api/generate/blog-article
+ */
+export const handleBlogArticleGenerate = catchAsync(async (req: Request, res: Response) => {
+  const requestUser = requireRequestUser(req);
+  const { generateBlogArticle } = await import('../services/llm/index.js');
+  const result = await generateBlogArticle(req.body, requestUser.id);
+
+  res.json({
+    success: true,
+    data: result,
+  });
 });

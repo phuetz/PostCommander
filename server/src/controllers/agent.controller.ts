@@ -85,7 +85,7 @@ export async function scrapeLeadHandler(req: Request, res: Response) {
     }
 
     const db = getDrizzle();
-    
+
     // We need a dummy post publication to attach scraped leads to for the agent to work.
     // In a real scenario, we might map sourceUrl to a known competitor post entity.
     const publicationId = randomUUID();
@@ -118,7 +118,9 @@ export async function scrapeLeadHandler(req: Request, res: Response) {
       enqueuedComments.push(commentId);
     }
 
-    logger.info(`Successfully scraped and enqueued ${enqueuedComments.length} leads from ${sourceUrl}.`);
+    logger.info(
+      `Successfully scraped and enqueued ${enqueuedComments.length} leads from ${sourceUrl}.`,
+    );
 
     res.status(200).json({
       success: true,
@@ -139,7 +141,7 @@ export async function scrapeLeadHandler(req: Request, res: Response) {
 export async function ghostwriteCommentHandler(req: Request, res: Response) {
   try {
     const { context } = req.body;
-    
+
     if (!context) {
       return res.status(400).json({
         success: false,
@@ -154,10 +156,9 @@ export async function ghostwriteCommentHandler(req: Request, res: Response) {
     res.status(200).json({
       success: true,
       data: {
-        text: aiResponse
-      }
+        text: aiResponse,
+      },
     });
-
   } catch (error: unknown) {
     logger.error({ error }, 'Failed to ghostwrite comment.');
     res.status(500).json({
@@ -185,9 +186,8 @@ export async function shadowProfileHandler(req: Request, res: Response) {
 
     res.status(200).json({
       success: true,
-      message: 'Profile captured silently.'
+      message: 'Profile captured silently.',
     });
-
   } catch (error: unknown) {
     logger.error({ error }, 'Failed to capture shadow profile.');
     res.status(500).json({

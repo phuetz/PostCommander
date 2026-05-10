@@ -40,9 +40,7 @@ export class TwitterAdapter extends BasePlatformAdapter {
   }
 
   async exchangeCode(code: string): Promise<OAuthTokens> {
-    const credentials = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64');
+    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
 
     const response = await fetch('https://api.twitter.com/2/oauth2/token', {
       method: 'POST',
@@ -64,9 +62,7 @@ export class TwitterAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,
@@ -77,9 +73,7 @@ export class TwitterAdapter extends BasePlatformAdapter {
   }
 
   async refreshToken(refreshToken: string): Promise<OAuthTokens> {
-    const credentials = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64');
+    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
 
     const response = await fetch('https://api.twitter.com/2/oauth2/token', {
       method: 'POST',
@@ -99,9 +93,7 @@ export class TwitterAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,

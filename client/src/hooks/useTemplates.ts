@@ -19,8 +19,13 @@ export function useTemplate(id: string) {
 
 export function useGenerateFromTemplate() {
   return useMutation({
-    mutationFn: ({ id, variables, provider, model }: { 
-      id: string; 
+    mutationFn: ({
+      id,
+      variables,
+      provider,
+      model,
+    }: {
+      id: string;
       variables: Record<string, string>;
       provider?: string;
       model?: string;

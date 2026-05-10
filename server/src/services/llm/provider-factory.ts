@@ -13,11 +13,7 @@ import { decryptSecret } from '../../utils/secret-crypto.js';
 /**
  * Retrieve an API key: first check env vars, then fall back to the settings DB.
  */
-function getApiKey(
-  settingKey: string,
-  userId?: string,
-  envValue?: string,
-): string | undefined {
+function getApiKey(settingKey: string, userId?: string, envValue?: string): string | undefined {
   if (envValue) return envValue;
   if (!userId) return undefined;
 
@@ -69,8 +65,7 @@ function getProviderConfig(providerId: LLMProviderId, userId?: string): Provider
       };
     case 'ollama':
       return {
-        baseUrl:
-          getSettingValue('ollamaBaseUrl', userId) || config.OLLAMA_BASE_URL,
+        baseUrl: getSettingValue('ollamaBaseUrl', userId) || config.OLLAMA_BASE_URL,
       };
     default:
       throw new Error(`Unknown provider: ${providerId}`);

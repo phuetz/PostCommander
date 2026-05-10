@@ -36,20 +36,17 @@ export class TikTokAdapter extends BasePlatformAdapter {
   }
 
   async exchangeCode(code: string): Promise<OAuthTokens> {
-    const response = await fetch(
-      'https://open.tiktokapis.com/v2/oauth/token/',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          client_key: this.clientKey,
-          client_secret: this.clientSecret,
-          code,
-          grant_type: 'authorization_code',
-          redirect_uri: this.redirectUri,
-        }),
-      },
-    );
+    const response = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_key: this.clientKey,
+        client_secret: this.clientSecret,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: this.redirectUri,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();
@@ -57,9 +54,7 @@ export class TikTokAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,
@@ -70,19 +65,16 @@ export class TikTokAdapter extends BasePlatformAdapter {
   }
 
   async refreshToken(refreshToken: string): Promise<OAuthTokens> {
-    const response = await fetch(
-      'https://open.tiktokapis.com/v2/oauth/token/',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          client_key: this.clientKey,
-          client_secret: this.clientSecret,
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken,
-        }),
-      },
-    );
+    const response = await fetch('https://open.tiktokapis.com/v2/oauth/token/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_key: this.clientKey,
+        client_secret: this.clientSecret,
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();
@@ -90,9 +82,7 @@ export class TikTokAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,
@@ -106,9 +96,7 @@ export class TikTokAdapter extends BasePlatformAdapter {
     // TikTok only supports video publishing — text-only is not supported.
     // The Content Posting API requires uploading a video.
     if (!options.mediaUrls || options.mediaUrls.length === 0) {
-      throw new Error(
-        'TikTok requires a video file. Text-only posts are not supported.',
-      );
+      throw new Error('TikTok requires a video file. Text-only posts are not supported.');
     }
 
     // Step 1: Initialize the upload

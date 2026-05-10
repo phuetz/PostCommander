@@ -30,10 +30,7 @@ function maskApiKey(value: string): string {
  * GET /api/settings
  * Return all settings with API keys masked.
  */
-export const getSettings = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getSettings = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const db = getDrizzle();
   const rows = await db
@@ -69,10 +66,7 @@ export const getSettings = catchAsync(async (
  * PUT /api/settings
  * Update settings. Only non-empty values are persisted; empty strings remove the key.
  */
-export const updateSettings = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const updateSettings = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const db = getDrizzle();
   const body = req.body as Record<string, string | undefined>;

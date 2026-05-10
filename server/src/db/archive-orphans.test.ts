@@ -9,9 +9,7 @@ const __dirname = path.dirname(__filename);
 const migrationPath = path.join(__dirname, 'migrations', '008_archive_orphaned_user_data.sql');
 
 function getCount(db: Database.Database, table: string): number {
-  const row = db
-    .prepare(`SELECT count(*) as count FROM ${table}`)
-    .get() as { count: number };
+  const row = db.prepare(`SELECT count(*) as count FROM ${table}`).get() as { count: number };
   return Number(row.count);
 }
 

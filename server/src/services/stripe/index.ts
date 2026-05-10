@@ -2,7 +2,11 @@ import Stripe from 'stripe';
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { getDrizzle } from '../../db/connection.js';
-import { users as usersTable, subscriptions as subscriptionsTable, invoices as invoicesTable } from '../../db/schema.js';
+import {
+  users as usersTable,
+  subscriptions as subscriptionsTable,
+  invoices as invoicesTable,
+} from '../../db/schema.js';
 import { getStripePriceId, planFromPriceId } from './plans.js';
 import type { PaidPlanId, BillingInterval } from './plans.js';
 
@@ -31,12 +35,12 @@ function getStripe(): Stripe {
 export async function getOrCreateUser(email: string, name?: string): Promise<any> {
   const db = getDrizzle();
   let [user] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
-  
+
   if (!user) {
     const id = randomUUID();
     const now = new Date().toISOString();
     const resetDate = getNextResetDate();
-    
+
     await db.insert(usersTable).values({
       id,
       email,
@@ -48,7 +52,7 @@ export async function getOrCreateUser(email: string, name?: string): Promise<any
       createdAt: now,
       updatedAt: now,
     });
-    
+
     [user] = await db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
   }
   return user;
@@ -90,7 +94,8 @@ export async function getOrCreateCustomer(email: string, name?: string): Promise
 
   // Link to user record
   const db = getDrizzle();
-  await db.update(usersTable)
+  await db
+    .update(usersTable)
     .set({ stripeCustomerId: customerId, updatedAt: new Date().toISOString() })
     .where(eq(usersTable.id, user.id));
 
@@ -158,7 +163,10 @@ export async function createCheckoutSession(
 /**
  * Create a Stripe customer portal session.
  */
-export async function createPortalSession(stripeCustomerId: string, returnUrl: string): Promise<string> {
+export async function createPortalSession(
+  stripeCustomerId: string,
+  returnUrl: string,
+): Promise<string> {
   const stripe = getStripe();
   const session = await stripe.billingPortal.sessions.create({
     customer: stripeCustomerId,
@@ -216,11 +224,19 @@ export async function syncSubscription(stripeSubscriptionId: string): Promise<vo
   const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId);
   const stripeCustomerId = sub.customer as string;
 
-  const [user] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.stripeCustomerId, stripeCustomerId)).limit(1);
+  const [user] = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.stripeCustomerId, stripeCustomerId))
+    .limit(1);
   if (!user) return;
 
-  const [existingSub] = await db.select({ id: subscriptionsTable.id }).from(subscriptionsTable).where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubscriptionId)).limit(1);
-  
+  const [existingSub] = await db
+    .select({ id: subscriptionsTable.id })
+    .from(subscriptionsTable)
+    .where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubscriptionId))
+    .limit(1);
+
   const status = sub.status;
   const priceId = sub.items.data[0]?.price?.id || '';
   const planInfo = planFromPriceId(priceId);
@@ -243,7 +259,10 @@ export async function syncSubscription(stripeSubscriptionId: string): Promise<vo
       updates.plan = planInfo.plan;
       updates.interval = planInfo.interval;
     }
-    await db.update(subscriptionsTable).set(updates).where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubscriptionId));
+    await db
+      .update(subscriptionsTable)
+      .set(updates)
+      .where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubscriptionId));
   } else if (planInfo) {
     await db.insert(subscriptionsTable).values({
       id: randomUUID(),
@@ -281,7 +300,7 @@ export function constructWebhookEvent(payload: Buffer, signature: string): Strip
  */
 export async function handleWebhookEvent(event: Stripe.Event): Promise<void> {
   const db = getDrizzle();
-  
+
   switch (event.type) {
     case 'checkout.session.completed':
       await handleCheckoutCompleted(db, event.data.object as Stripe.Checkout.Session);
@@ -309,7 +328,12 @@ async function handleCheckoutCompleted(db: any, session: Stripe.Checkout.Session
   const stripeCustomerId = session.customer as string | null;
 
   if (!userId || !plan || !interval || !stripeSubscriptionId) {
-    console.error('Checkout session missing metadata:', { userId, plan, interval, stripeSubscriptionId });
+    console.error('Checkout session missing metadata:', {
+      userId,
+      plan,
+      interval,
+      stripeSubscriptionId,
+    });
     return;
   }
 
@@ -319,7 +343,8 @@ async function handleCheckoutCompleted(db: any, session: Stripe.Checkout.Session
   const priceId = sub.items.data[0]?.price?.id || '';
 
   // Update user plan
-  await db.update(usersTable)
+  await db
+    .update(usersTable)
     .set({
       plan,
       planStatus: 'active',
@@ -330,10 +355,15 @@ async function handleCheckoutCompleted(db: any, session: Stripe.Checkout.Session
     .where(eq(usersTable.id, userId));
 
   // Upsert subscription record
-  const [existingSub] = await db.select({ id: subscriptionsTable.id }).from(subscriptionsTable).where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubscriptionId)).limit(1);
+  const [existingSub] = await db
+    .select({ id: subscriptionsTable.id })
+    .from(subscriptionsTable)
+    .where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubscriptionId))
+    .limit(1);
 
   if (existingSub) {
-    await db.update(subscriptionsTable)
+    await db
+      .update(subscriptionsTable)
       .set({
         plan,
         interval,
@@ -366,7 +396,10 @@ async function handleCheckoutCompleted(db: any, session: Stripe.Checkout.Session
   console.log(`Checkout completed: user=${userId} plan=${plan} interval=${interval}`);
 }
 
-async function handleSubscriptionUpdated(db: any, subscription: Stripe.Subscription): Promise<void> {
+async function handleSubscriptionUpdated(
+  db: any,
+  subscription: Stripe.Subscription,
+): Promise<void> {
   const stripeSubId = subscription.id;
   const status = subscription.status;
   const cancelAtPeriodEnd = subscription.cancel_at_period_end ? 1 : 0;
@@ -381,7 +414,11 @@ async function handleSubscriptionUpdated(db: any, subscription: Stripe.Subscript
   const planInfo = planFromPriceId(priceId);
 
   // Update subscription record
-  const [existingSub] = await db.select({ id: subscriptionsTable.id, userId: subscriptionsTable.userId }).from(subscriptionsTable).where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubId)).limit(1);
+  const [existingSub] = await db
+    .select({ id: subscriptionsTable.id, userId: subscriptionsTable.userId })
+    .from(subscriptionsTable)
+    .where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubId))
+    .limit(1);
 
   if (existingSub) {
     const updates: any = {
@@ -397,15 +434,22 @@ async function handleSubscriptionUpdated(db: any, subscription: Stripe.Subscript
       updates.plan = planInfo.plan;
       updates.interval = planInfo.interval;
     }
-    await db.update(subscriptionsTable).set(updates).where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubId));
+    await db
+      .update(subscriptionsTable)
+      .set(updates)
+      .where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubId));
 
     // Update user plan status
     const planStatus =
-      status === 'active' ? 'active' :
-      status === 'past_due' ? 'past_due' :
-      status === 'canceled' ? 'canceled' :
-      status === 'trialing' ? 'trialing' :
-      'active';
+      status === 'active'
+        ? 'active'
+        : status === 'past_due'
+          ? 'past_due'
+          : status === 'canceled'
+            ? 'canceled'
+            : status === 'trialing'
+              ? 'trialing'
+              : 'active';
 
     const userUpdates: any = {
       planStatus,
@@ -414,21 +458,29 @@ async function handleSubscriptionUpdated(db: any, subscription: Stripe.Subscript
     if (planInfo) {
       userUpdates.plan = planInfo.plan;
     }
-    
+
     await db.update(usersTable).set(userUpdates).where(eq(usersTable.id, existingSub.userId));
   }
 
   console.log(`Subscription updated: ${stripeSubId} status=${status}`);
 }
 
-async function handleSubscriptionDeleted(db: any, subscription: Stripe.Subscription): Promise<void> {
+async function handleSubscriptionDeleted(
+  db: any,
+  subscription: Stripe.Subscription,
+): Promise<void> {
   const stripeSubId = subscription.id;
 
-  const [existingSub] = await db.select({ id: subscriptionsTable.id, userId: subscriptionsTable.userId }).from(subscriptionsTable).where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubId)).limit(1);
+  const [existingSub] = await db
+    .select({ id: subscriptionsTable.id, userId: subscriptionsTable.userId })
+    .from(subscriptionsTable)
+    .where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubId))
+    .limit(1);
 
   if (existingSub) {
     // Mark subscription as canceled
-    await db.update(subscriptionsTable)
+    await db
+      .update(subscriptionsTable)
       .set({
         status: 'canceled',
         canceledAt: new Date().toISOString(),
@@ -437,7 +489,8 @@ async function handleSubscriptionDeleted(db: any, subscription: Stripe.Subscript
       .where(eq(subscriptionsTable.stripeSubscriptionId, stripeSubId));
 
     // Downgrade user to free
-    await db.update(usersTable)
+    await db
+      .update(usersTable)
       .set({
         plan: 'free',
         planStatus: 'active',
@@ -446,7 +499,9 @@ async function handleSubscriptionDeleted(db: any, subscription: Stripe.Subscript
       })
       .where(eq(usersTable.id, existingSub.userId));
 
-    console.log(`Subscription deleted: ${stripeSubId} - user ${existingSub.userId} downgraded to free`);
+    console.log(
+      `Subscription deleted: ${stripeSubId} - user ${existingSub.userId} downgraded to free`,
+    );
   }
 }
 
@@ -454,18 +509,27 @@ async function handleInvoicePaid(db: any, invoice: Stripe.Invoice): Promise<void
   const stripeInvoiceId = invoice.id;
   if (!stripeInvoiceId) return;
 
-  const stripeCustomerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+  const stripeCustomerId =
+    typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
   if (!stripeCustomerId) return;
 
   // Find user by stripe customer id
-  const [user] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.stripeCustomerId, stripeCustomerId)).limit(1);
+  const [user] = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.stripeCustomerId, stripeCustomerId))
+    .limit(1);
   if (!user) {
     console.error(`Invoice paid but no user found for customer: ${stripeCustomerId}`);
     return;
   }
 
   // Avoid duplicates
-  const [existing] = await db.select({ id: invoicesTable.id }).from(invoicesTable).where(eq(invoicesTable.stripeInvoiceId, stripeInvoiceId)).limit(1);
+  const [existing] = await db
+    .select({ id: invoicesTable.id })
+    .from(invoicesTable)
+    .where(eq(invoicesTable.stripeInvoiceId, stripeInvoiceId))
+    .limit(1);
   if (existing) return;
 
   await db.insert(invoicesTable).values({
@@ -484,14 +548,20 @@ async function handleInvoicePaid(db: any, invoice: Stripe.Invoice): Promise<void
 }
 
 async function handleInvoicePaymentFailed(db: any, invoice: Stripe.Invoice): Promise<void> {
-  const stripeCustomerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+  const stripeCustomerId =
+    typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
   if (!stripeCustomerId) return;
 
   // Find user and mark as past_due
-  const [user] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.stripeCustomerId, stripeCustomerId)).limit(1);
+  const [user] = await db
+    .select({ id: usersTable.id })
+    .from(usersTable)
+    .where(eq(usersTable.stripeCustomerId, stripeCustomerId))
+    .limit(1);
   if (!user) return;
 
-  await db.update(usersTable)
+  await db
+    .update(usersTable)
     .set({ planStatus: 'past_due', updatedAt: new Date().toISOString() })
     .where(eq(usersTable.id, user.id));
 

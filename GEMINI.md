@@ -23,10 +23,12 @@ PostCommander is an AI-powered social media management platform designed to help
 ## Building and Running
 
 ### Prerequisites
+
 - Node.js (v18+)
 - npm
 
 ### Development
+
 1. Install dependencies:
    ```bash
    npm install
@@ -41,6 +43,7 @@ PostCommander is an AI-powered social media management platform designed to help
    This runs both the client (default: `http://localhost:5173`) and the server (default: `http://localhost:3001`) concurrently.
 
 ### Production
+
 1. Build all packages:
    ```bash
    npm run build

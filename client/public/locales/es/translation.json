@@ -10,7 +10,8 @@
     "calendar": "Calendario",
     "settings": "Configuración",
     "admin": "Admin",
-    "deletedAccounts": "Cuentas eliminadas"
+    "deletedAccounts": "Cuentas eliminadas",
+    "autoblog": "Autopilot (Blog)"
   },
   "dashboard": {
     "welcome": "Bienvenido a PostCommander",

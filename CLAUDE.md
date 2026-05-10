@@ -49,6 +49,7 @@ There is no client unit-test runner; UI is covered by Playwright e2e under `test
 `routes/index.ts` mounts feature routers under `/api/*`. Key routes include `/auth`, `/generate`, `/posts`, `/platforms`, `/analytics`, `/workspaces`, `/admin`, and more. Each feature follows `routes → controllers → services` separation. Authentication is a JWT in either an httpOnly cookie or `Authorization: Bearer` header (`middleware/auth.ts`); admin status is granted by either DB role or by email match against `ADMIN_EMAILS` (comma-separated env). All routes that read user data must apply user scoping — see migration `006_user_scoping.sql` for context. The Bull Board UI (job queue monitoring) is mounted by `setupBullBoard(router)` and is admin-protected.
 
 Health and status endpoints:
+
 - `GET /api/health` — full health check (database, Redis, queue status)
 - `GET /api/live` — lightweight liveness check (uptime, version)
 
@@ -91,6 +92,7 @@ For dev auto-login: set `DEV_AUTO_LOGIN_EMAIL` (gated server-side by `NODE_ENV !
 Images attached to a post (`generated_images.postId`) are passed to platform adapters as **both** `mediaUrls` (public URLs, used by Facebook/Instagram/Pinterest) and `mediaFiles` (raw bytes, used by LinkedIn/Twitter for multipart upload). The plumbing lives in `services/posts/index.ts`; per-platform attach logic in each `services/platforms/*.ts`.
 
 Two operational prereqs to make image publishing actually work end-to-end:
+
 1. **`BASE_URL` must be HTTPS and externally resolvable.** Facebook/Pinterest/Instagram fetch the URL server-side; `localhost:3001` is unreachable. Use ngrok/cloudflared in dev.
 2. **Twitter requires the `media.write` scope.** Connections issued before this scope was added must be re-authorized — disconnect/reconnect from Settings.
 

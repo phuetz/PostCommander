@@ -26,6 +26,7 @@ import {
   Briefcase,
   Check,
   ChevronsUpDown,
+  Bot,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
@@ -52,6 +53,7 @@ const toolNavItems = [
   { to: '/app/hashtags', icon: Hash, labelKey: 'nav.hashtags' },
   { to: '/app/styles', icon: Palette, labelKey: 'nav.styles' },
   { to: '/app/images', icon: Image, labelKey: 'nav.images' },
+  { to: '/app/autoblog', icon: Bot, labelKey: 'nav.autoblog' },
 ] as const;
 
 const strategyNavItems = [
@@ -84,9 +86,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           prefetchRoute(item.to);
         });
       }}
-      className={({ isActive }) =>
-        clsx('sidebar-link', isActive && 'active')
-      }
+      className={({ isActive }) => clsx('sidebar-link', isActive && 'active')}
     >
       <item.icon size={20} />
       <span>{t(item.labelKey, item.labelKey.split('.')[1])}</span>
@@ -124,7 +124,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               <Briefcase size={14} />
             </div>
             <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-              {workspaces.find(w => w.id === activeWorkspaceId)?.name || 'Loading...'}
+              {workspaces.find((w) => w.id === activeWorkspaceId)?.name || 'Loading...'}
             </span>
           </div>
           <ChevronsUpDown size={14} className="text-gray-400 flex-shrink-0 ml-2" />
@@ -155,9 +155,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto">
         {/* Main section */}
-        <div className="space-y-1">
-          {mainNavItems.map(renderNavLink)}
-        </div>
+        <div className="space-y-1">{mainNavItems.map(renderNavLink)}</div>
 
         {/* Tools section */}
         <div className="mt-6">
@@ -166,9 +164,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               {t('nav.tools', 'Tools')}
             </span>
           </div>
-          <div className="space-y-1">
-            {toolNavItems.map(renderNavLink)}
-          </div>
+          <div className="space-y-1">{toolNavItems.map(renderNavLink)}</div>
         </div>
 
         {/* Strategy section */}
@@ -178,9 +174,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               {t('nav.strategy', 'Strategy')}
             </span>
           </div>
-          <div className="space-y-1">
-            {strategyNavItems.map(renderNavLink)}
-          </div>
+          <div className="space-y-1">{strategyNavItems.map(renderNavLink)}</div>
         </div>
 
         {/* Bottom section */}
@@ -208,9 +202,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       {/* Footer */}
       <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-800">
-        <p className="text-xs text-gray-400 dark:text-gray-500">
-          PostCommander v1.0
-        </p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">PostCommander v1.0</p>
       </div>
     </div>
   );

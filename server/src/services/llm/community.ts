@@ -147,7 +147,8 @@ Instructions:
         },
       }),
       escalateToHuman: tool({
-        description: 'Escalate the conversation to a human SDR if the prospect asks complex questions or requests a custom quote.',
+        description:
+          'Escalate the conversation to a human SDR if the prospect asks complex questions or requests a custom quote.',
         parameters: z.object({
           reason: z.string().describe('The reason for escalation.'),
         }),
@@ -156,7 +157,8 @@ Instructions:
         },
       }),
       askQualifyingQuestion: tool({
-        description: 'Ask a specific qualifying question to gauge the prospect\'s budget or timeline.',
+        description:
+          "Ask a specific qualifying question to gauge the prospect's budget or timeline.",
         parameters: z.object({
           question: z.string().describe('The question to ask.'),
         }),

@@ -1,8 +1,5 @@
 import crypto from 'node:crypto';
-import type {
-  DeletedAccountAuditSnapshot,
-  DeletedBillingRecord,
-} from '@postcommander/shared';
+import type { DeletedAccountAuditSnapshot, DeletedBillingRecord } from '@postcommander/shared';
 import { config } from '../config/env.js';
 
 export function hashDeletedAccountEmail(email: string): string {
@@ -10,10 +7,7 @@ export function hashDeletedAccountEmail(email: string): string {
     ? Buffer.from(config.ENCRYPTION_KEY, 'hex')
     : config.JWT_SECRET;
 
-  return crypto
-    .createHmac('sha256', keyMaterial)
-    .update(email.trim().toLowerCase())
-    .digest('hex');
+  return crypto.createHmac('sha256', keyMaterial).update(email.trim().toLowerCase()).digest('hex');
 }
 
 export function parseDeletedAccountSnapshot(snapshot: string): DeletedAccountAuditSnapshot {
@@ -24,16 +18,14 @@ export function parseDeletedBillingSnapshot(snapshot: string): Record<string, un
   return JSON.parse(snapshot) as Record<string, unknown>;
 }
 
-export function toDeletedBillingRecord(
-  row: {
-    id: string;
-    recordType: string;
-    stripeRecordId: string;
-    status: string;
-    archivedAt: string;
-    snapshot: string;
-  },
-): DeletedBillingRecord {
+export function toDeletedBillingRecord(row: {
+  id: string;
+  recordType: string;
+  stripeRecordId: string;
+  status: string;
+  archivedAt: string;
+  snapshot: string;
+}): DeletedBillingRecord {
   return {
     id: row.id,
     recordType: row.recordType as DeletedBillingRecord['recordType'],

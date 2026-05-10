@@ -34,10 +34,7 @@ export function getHttpLogLevel(
   return 'info';
 }
 
-export function getHttpSuccessMessage(
-  req: express.Request,
-  res: express.Response,
-): string {
+export function getHttpSuccessMessage(req: express.Request, res: express.Response): string {
   if (req.url.startsWith('/api/live')) {
     return 'liveness check passed';
   }
@@ -46,9 +43,7 @@ export function getHttpSuccessMessage(
     return 'readiness check passed';
   }
 
-  return !req.readableAborted && res.writableEnded
-    ? 'request completed'
-    : 'request aborted';
+  return !req.readableAborted && res.writableEnded ? 'request completed' : 'request aborted';
 }
 
 export function getHttpErrorMessage(
@@ -96,7 +91,7 @@ export function setupMiddlewares(app: express.Application) {
       genReqId: (req, res) => {
         const incoming = req.headers['x-request-id'];
         const reqId =
-          (typeof incoming === 'string' && incoming.length > 0 && incoming.length <= 200)
+          typeof incoming === 'string' && incoming.length > 0 && incoming.length <= 200
             ? incoming
             : randomUUID();
         res.setHeader('X-Request-Id', reqId);
@@ -123,12 +118,12 @@ export function setupMiddlewares(app: express.Application) {
           // libraries inject <style> tags at runtime.
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", "data:", "https:"],
-          connectSrc: ["'self'", "https://api.stripe.com"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+          connectSrc: ["'self'", 'https://api.stripe.com'],
         },
       },
       crossOriginEmbedderPolicy: false,
-    })
+    }),
   );
   app.use(
     cors({
@@ -145,7 +140,7 @@ export function setupMiddlewares(app: express.Application) {
     legacyHeaders: false,
     message: { success: false, error: 'Too many requests. Please try again later.' },
   });
-  
+
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 15, // 15 requests per 15 minutes for auth endpoints

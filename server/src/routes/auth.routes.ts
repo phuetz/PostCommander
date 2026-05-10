@@ -17,10 +17,25 @@ router.post('/register', authRateLimit, validate(registerSchema), AuthController
 router.post('/login', authRateLimit, validate(loginSchema), AuthController.login);
 router.post('/dev-login', authRateLimit, AuthController.devLogin);
 router.post('/logout', AuthController.logout);
-router.post('/forgot-password', authRateLimit, validate(forgotPasswordSchema), AuthController.forgotPassword);
-router.post('/reset-password', authRateLimit, validate(resetPasswordSchema), AuthController.resetPassword);
+router.post(
+  '/forgot-password',
+  authRateLimit,
+  validate(forgotPasswordSchema),
+  AuthController.forgotPassword,
+);
+router.post(
+  '/reset-password',
+  authRateLimit,
+  validate(resetPasswordSchema),
+  AuthController.resetPassword,
+);
 router.get('/me', authMiddleware, AuthController.me);
 router.get('/export', authMiddleware, AuthController.exportData);
-router.delete('/account', authMiddleware, validate(deleteAccountSchema), AuthController.deleteAccount);
+router.delete(
+  '/account',
+  authMiddleware,
+  validate(deleteAccountSchema),
+  AuthController.deleteAccount,
+);
 
 export default router;

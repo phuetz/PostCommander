@@ -1,11 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import {
-  BookOpen,
-  Clock,
-  Send,
-  Calendar,
-  Sparkles,
-} from 'lucide-react';
+import { BookOpen, Clock, Send, Calendar, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 
@@ -69,7 +63,10 @@ function useArticlesData() {
       author: { name: t('marketing.blog.article1Author', 'Aisha Khan'), initials: 'AK' },
     },
     {
-      title: t('marketing.blog.article2Title', 'Content Pillars: The Strategy Framework Top Creators Use'),
+      title: t(
+        'marketing.blog.article2Title',
+        'Content Pillars: The Strategy Framework Top Creators Use',
+      ),
       excerpt: t(
         'marketing.blog.article2Excerpt',
         'Discover how to structure your content around strategic pillars that build authority and keep your audience coming back for more.',
@@ -80,7 +77,10 @@ function useArticlesData() {
       author: { name: t('marketing.blog.article2Author', 'Marc Rousseau'), initials: 'MR' },
     },
     {
-      title: t('marketing.blog.article3Title', '5 AI Models Compared: Which One Writes the Best Posts?'),
+      title: t(
+        'marketing.blog.article3Title',
+        '5 AI Models Compared: Which One Writes the Best Posts?',
+      ),
       excerpt: t(
         'marketing.blog.article3Excerpt',
         'We tested OpenAI, Claude, Gemini, Mistral, and Ollama across 500 posts. Here are the surprising results and when to use each model.',
@@ -91,7 +91,10 @@ function useArticlesData() {
       author: { name: t('marketing.blog.article3Author', 'Sophie Laurent'), initials: 'SL' },
     },
     {
-      title: t('marketing.blog.article4Title', 'From 0 to 10K Followers: A PostCommander Case Study'),
+      title: t(
+        'marketing.blog.article4Title',
+        'From 0 to 10K Followers: A PostCommander Case Study',
+      ),
       excerpt: t(
         'marketing.blog.article4Excerpt',
         'How freelance designer Jordan Ellis grew from zero to 10,000 followers in 90 days using AI-powered content creation.',
@@ -102,7 +105,10 @@ function useArticlesData() {
       author: { name: t('marketing.blog.article4Author', 'Aisha Khan'), initials: 'AK' },
     },
     {
-      title: t('marketing.blog.article5Title', 'The Science of Viral Posts: What Makes Content Spread'),
+      title: t(
+        'marketing.blog.article5Title',
+        'The Science of Viral Posts: What Makes Content Spread',
+      ),
       excerpt: t(
         'marketing.blog.article5Excerpt',
         'Analyzing 10,000 viral posts to uncover the patterns, emotions, and structures that make social media content go viral.',
@@ -124,7 +130,10 @@ function useArticlesData() {
       author: { name: t('marketing.blog.article6Author', 'Sophie Laurent'), initials: 'SL' },
     },
     {
-      title: t('marketing.blog.article7Title', 'Repurposing Mastery: One Idea, Six Platforms, 10x Reach'),
+      title: t(
+        'marketing.blog.article7Title',
+        'Repurposing Mastery: One Idea, Six Platforms, 10x Reach',
+      ),
       excerpt: t(
         'marketing.blog.article7Excerpt',
         'Stop creating from scratch for every platform. Learn the framework for turning one content idea into six platform-optimized posts.',
@@ -146,7 +155,10 @@ function useArticlesData() {
       author: { name: t('marketing.blog.article8Author', 'Marc Rousseau'), initials: 'MR' },
     },
     {
-      title: t('marketing.blog.article9Title', 'The 2026 Social Media Algorithm Update: What Changed'),
+      title: t(
+        'marketing.blog.article9Title',
+        'The 2026 Social Media Algorithm Update: What Changed',
+      ),
       excerpt: t(
         'marketing.blog.article9Excerpt',
         'A deep dive into the latest algorithm changes across LinkedIn, X, Instagram, and TikTok — and what they mean for your content strategy.',
@@ -174,7 +186,10 @@ function HeroSection() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="orb w-72 h-72 top-[10%] right-[10%] bg-[var(--color-accent-blue)]/20" />
-      <div className="orb w-56 h-56 top-[60%] left-[5%] bg-[var(--color-accent-violet)]/15" style={{ animationDelay: '5s' }} />
+      <div
+        className="orb w-56 h-56 top-[60%] left-[5%] bg-[var(--color-accent-violet)]/15"
+        style={{ animationDelay: '5s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass animate-fade-in-up animate-glow-pulse mb-8">
@@ -185,9 +200,7 @@ function HeroSection() {
         </div>
 
         <h1 className="heading-lg mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <span className="text-white block">
-            {t('marketing.blog.heroTitle1', 'Resources &')}
-          </span>
+          <span className="text-white block">{t('marketing.blog.heroTitle1', 'Resources &')}</span>
           <span className="gradient-text-cool block">
             {t('marketing.blog.heroTitle2', 'Insights')}
           </span>
@@ -304,7 +317,10 @@ function ArticleGrid() {
   return (
     <section className="relative py-16 overflow-hidden">
       <div className="absolute inset-0 dot-pattern" />
-      <div className="orb w-64 h-64 top-[30%] right-[5%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '3s' }} />
+      <div
+        className="orb w-64 h-64 top-[30%] right-[5%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '3s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -420,7 +436,10 @@ function NewsletterCTA() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
       <div className="absolute inset-0 mesh-gradient opacity-30" />
-      <div className="orb w-56 h-56 top-[30%] left-[20%] bg-[var(--color-accent-blue)]/10" style={{ animationDelay: '2s' }} />
+      <div
+        className="orb w-56 h-56 top-[30%] left-[20%] bg-[var(--color-accent-blue)]/10"
+        style={{ animationDelay: '2s' }}
+      />
 
       <div className="relative max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="glass-card p-8 sm:p-12 rounded-2xl text-center animate-fade-in-up">
@@ -438,7 +457,10 @@ function NewsletterCTA() {
             )}
           </p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+          >
             <input
               type="email"
               value={email}
@@ -447,7 +469,10 @@ function NewsletterCTA() {
               className="flex-1 px-4 py-3 rounded-xl glass text-sm text-white placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent-violet)]/50 transition-all"
               required
             />
-            <button type="submit" className="btn-primary-glow !px-6 !py-3 !rounded-xl !text-sm whitespace-nowrap">
+            <button
+              type="submit"
+              className="btn-primary-glow !px-6 !py-3 !rounded-xl !text-sm whitespace-nowrap"
+            >
               {subscribed
                 ? t('marketing.blog.subscribed', 'Subscribed!')
                 : t('marketing.blog.subscribe', 'Subscribe')}

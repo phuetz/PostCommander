@@ -10,7 +10,8 @@
     "calendar": "日历",
     "settings": "设置",
     "admin": "管理",
-    "deletedAccounts": "已删除账户"
+    "deletedAccounts": "已删除账户",
+    "autoblog": "Autopilot (Blog)"
   },
   "dashboard": {
     "welcome": "欢迎使用 PostCommander",

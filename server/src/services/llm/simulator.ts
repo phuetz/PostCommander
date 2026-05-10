@@ -3,7 +3,8 @@ import { eq, desc, and } from 'drizzle-orm';
 import { getDrizzle } from '../../db/connection.js';
 import { posts } from '../../db/schema.js';
 import { createModel } from './provider-factory.js';
-import type { LLMProviderId } from '@postcommander/shared';export interface SimulateRequest {
+import type { LLMProviderId } from '@postcommander/shared';
+export interface SimulateRequest {
   content: string;
   platform: string;
   audience?: string;

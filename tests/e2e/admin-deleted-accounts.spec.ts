@@ -108,9 +108,7 @@ test.describe('Admin deleted account archives', () => {
   test('shows archived deleted account details for admins', async ({ page }) => {
     await page.goto('/app/admin/deleted-accounts');
 
-    await expect(
-      page.getByRole('heading', { name: 'Deleted Account Archives' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Deleted Account Archives' })).toBeVisible();
     await expect(page.getByText('Admin only')).toBeVisible();
     await expect(page.getByText('Original user ID:').first()).toBeVisible();
     await expect(page.getByText('cus_deleted_123').first()).toBeVisible();

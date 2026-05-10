@@ -37,9 +37,7 @@ describe('sendPasswordResetEmail', () => {
     expect(files).toHaveLength(1);
     expect(files[0]).toContain('password-reset-user_test_example.com');
 
-    const payload = JSON.parse(
-      fs.readFileSync(path.join(OUTBOX_DIR, files[0]), 'utf8'),
-    ) as {
+    const payload = JSON.parse(fs.readFileSync(path.join(OUTBOX_DIR, files[0]), 'utf8')) as {
       type: string;
       email: string;
       resetUrl: string;
@@ -73,9 +71,7 @@ describe('sendPasswordResetEmail', () => {
       }),
     );
 
-    const body = JSON.parse(
-      (fetchMock.mock.calls[0]?.[1] as { body: string }).body,
-    ) as {
+    const body = JSON.parse((fetchMock.mock.calls[0]?.[1] as { body: string }).body) as {
       type: string;
       email: string;
       resetUrl: string;
@@ -101,7 +97,10 @@ describe('sendPasswordResetEmail', () => {
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchMock.mock.calls[0] as [string, { headers: Record<string, string>; body: string }];
+    const [url, init] = fetchMock.mock.calls[0] as [
+      string,
+      { headers: Record<string, string>; body: string },
+    ];
     expect(url).toBe('https://api.resend.com/emails');
     expect(init.headers.Authorization).toBe('Bearer test_resend_key');
     const body = JSON.parse(init.body) as { to: string; subject: string; html: string };

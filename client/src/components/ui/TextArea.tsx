@@ -9,10 +9,7 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
-  (
-    { label, error, charLimit, charCount, className, id, ...props },
-    ref,
-  ) => {
+  ({ label, error, charLimit, charCount, className, id, ...props }, ref) => {
     const textareaId = id || label?.toLowerCase().replace(/\s+/g, '-');
     const currentCount = charCount ?? (typeof props.value === 'string' ? props.value.length : 0);
     const isOverLimit = charLimit ? currentCount > charLimit : false;

@@ -23,13 +23,8 @@ const api = axios.create({
 
 // --- Generation ---
 
-export async function generatePost(
-  request: GenerateRequest,
-): Promise<GenerateResponse> {
-  const { data } = await api.post<ApiResponse<GenerateResponse>>(
-    '/generate',
-    request,
-  );
+export async function generatePost(request: GenerateRequest): Promise<GenerateResponse> {
+  const { data } = await api.post<ApiResponse<GenerateResponse>>('/generate', request);
   if (!data.success || !data.data) throw new Error(data.error || 'Generation failed');
   return data.data;
 }
@@ -48,7 +43,7 @@ export function streamPost(
   fetch(url, {
     method: 'POST',
     credentials: 'include',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(request),
@@ -147,10 +142,7 @@ export async function createPost(
   return data.data;
 }
 
-export async function updatePost(
-  id: string,
-  updates: Partial<Post>,
-): Promise<Post> {
+export async function updatePost(id: string, updates: Partial<Post>): Promise<Post> {
   const { data } = await api.put<ApiResponse<Post>>(`/posts/${id}`, updates);
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to update post');
   return data.data;
@@ -162,18 +154,14 @@ export async function deletePost(id: string): Promise<void> {
 }
 
 export async function publishPost(id: string, platforms: string[]): Promise<PublishResult[]> {
-  const { data } = await api.post<ApiResponse<PublishResult[]>>(
-    `/posts/${id}/publish`,
-    { platforms }
-  );
+  const { data } = await api.post<ApiResponse<PublishResult[]>>(`/posts/${id}/publish`, {
+    platforms,
+  });
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to publish');
   return data.data;
 }
 
-export async function schedulePost(
-  id: string,
-  scheduledAt: string,
-): Promise<Post> {
+export async function schedulePost(id: string, scheduledAt: string): Promise<Post> {
   const { data } = await api.post<ApiResponse<Post>>(`/posts/${id}/schedule`, {
     scheduledAt,
   });
@@ -304,22 +292,15 @@ export async function getPlatforms(): Promise<PlatformConnection[]> {
   return data.data;
 }
 
-export async function connectPlatform(
-  platform: string,
-): Promise<void> {
-  const { data } = await api.get<ApiResponse<{ authUrl: string }>>(
-    `/platforms/${platform}/auth`,
-  );
-  if (!data.success || !data.data)
-    throw new Error(data.error || 'Failed to connect platform');
+export async function connectPlatform(platform: string): Promise<void> {
+  const { data } = await api.get<ApiResponse<{ authUrl: string }>>(`/platforms/${platform}/auth`);
+  if (!data.success || !data.data) throw new Error(data.error || 'Failed to connect platform');
 
   window.location.assign(data.data.authUrl);
 }
 
 export async function disconnectPlatform(platform: string): Promise<void> {
-  const { data } = await api.delete<ApiResponse>(
-    `/platforms/${platform}/disconnect`,
-  );
+  const { data } = await api.delete<ApiResponse>(`/platforms/${platform}/disconnect`);
   if (!data.success) throw new Error(data.error || 'Failed to disconnect platform');
 }
 
@@ -348,18 +329,14 @@ export interface ViralFilters {
   pageSize?: number;
 }
 
-export async function getViralPosts(
-  filters?: ViralFilters,
-): Promise<PaginatedResponse<ViralPost>> {
+export async function getViralPosts(filters?: ViralFilters): Promise<PaginatedResponse<ViralPost>> {
   const { data } = await api.get<PaginatedResponse<ViralPost>>('/viral', {
     params: filters,
   });
   return data;
 }
 
-export async function searchViralPosts(
-  query: string,
-): Promise<ViralPost[]> {
+export async function searchViralPosts(query: string): Promise<ViralPost[]> {
   const { data } = await api.get<ApiResponse<ViralPost[]>>('/viral/search', {
     params: { q: query },
   });
@@ -390,13 +367,8 @@ export interface GeneratedHook {
   traits: string[];
 }
 
-export async function generateHooks(
-  params: GenerateHooksParams,
-): Promise<GeneratedHook[]> {
-  const { data } = await api.post<ApiResponse<GeneratedHook[]>>(
-    '/generate/hooks',
-    params,
-  );
+export async function generateHooks(params: GenerateHooksParams): Promise<GeneratedHook[]> {
+  const { data } = await api.post<ApiResponse<GeneratedHook[]>>('/generate/hooks', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Hook generation failed');
   return data.data;
 }
@@ -424,13 +396,8 @@ export interface CarouselResult {
   hashtags: string[];
 }
 
-export async function generateCarousel(
-  params: GenerateCarouselParams,
-): Promise<CarouselResult> {
-  const { data } = await api.post<ApiResponse<CarouselResult>>(
-    '/generate/carousel',
-    params,
-  );
+export async function generateCarousel(params: GenerateCarouselParams): Promise<CarouselResult> {
+  const { data } = await api.post<ApiResponse<CarouselResult>>('/generate/carousel', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Carousel generation failed');
   return data.data;
 }
@@ -465,11 +432,35 @@ export interface VideoScriptResult {
 export async function generateVideoScript(
   params: GenerateVideoScriptParams,
 ): Promise<VideoScriptResult> {
-  const { data } = await api.post<ApiResponse<VideoScriptResult>>(
-    '/generate/video-script',
+  const { data } = await api.post<ApiResponse<VideoScriptResult>>('/generate/video-script', params);
+  if (!data.success || !data.data) throw new Error(data.error || 'Video script generation failed');
+  return data.data;
+}
+
+// --- Blog Article Generator ---
+
+export interface GenerateBlogArticleParams {
+  topic: string;
+  articleType: string;
+  provider: string;
+  model: string;
+  language?: string;
+  authorName?: string;
+  authorRole?: string;
+  authorContext?: string;
+  authorReferences?: string[];
+  catalogMatched?: string[];
+  similarSources?: Array<{ source: string; url: string }>;
+}
+
+export async function generateBlogArticle(
+  params: GenerateBlogArticleParams,
+): Promise<{ content: string }> {
+  const { data } = await api.post<ApiResponse<{ content: string }>>(
+    '/generate/blog-article',
     params,
   );
-  if (!data.success || !data.data) throw new Error(data.error || 'Video script generation failed');
+  if (!data.success || !data.data) throw new Error(data.error || 'Blog article generation failed');
   return data.data;
 }
 
@@ -540,13 +531,8 @@ export interface RepurposedContent {
   hashtags: string[];
 }
 
-export async function repurposePost(
-  params: RepurposeParams,
-): Promise<RepurposedContent[]> {
-  const { data } = await api.post<ApiResponse<RepurposedContent[]>>(
-    '/generate/repurpose',
-    params,
-  );
+export async function repurposePost(params: RepurposeParams): Promise<RepurposedContent[]> {
+  const { data } = await api.post<ApiResponse<RepurposedContent[]>>('/generate/repurpose', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Repurpose failed');
   return data.data;
 }
@@ -565,13 +551,8 @@ export interface HashtagResult {
   relevanceScore: number;
 }
 
-export async function researchHashtags(
-  params: HashtagResearchParams,
-): Promise<HashtagResult[]> {
-  const { data } = await api.post<ApiResponse<HashtagResult[]>>(
-    '/generate/hashtags',
-    params,
-  );
+export async function researchHashtags(params: HashtagResearchParams): Promise<HashtagResult[]> {
+  const { data } = await api.post<ApiResponse<HashtagResult[]>>('/generate/hashtags', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Hashtag research failed');
   return data.data;
 }
@@ -611,13 +592,8 @@ export async function getStyle(id: string): Promise<WritingStyle> {
   return data.data;
 }
 
-export async function createStyle(
-  styleData: CreateStyleData,
-): Promise<WritingStyle> {
-  const { data } = await api.post<ApiResponse<WritingStyle>>(
-    '/styles',
-    styleData,
-  );
+export async function createStyle(styleData: CreateStyleData): Promise<WritingStyle> {
+  const { data } = await api.post<ApiResponse<WritingStyle>>('/styles', styleData);
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to create style');
   return data.data;
 }
@@ -639,10 +615,7 @@ export async function generateWithStyle(
   id: string,
   params: GenerateWithStyleParams,
 ): Promise<string> {
-  const { data } = await api.post<ApiResponse<string>>(
-    `/styles/${id}/generate`,
-    params,
-  );
+  const { data } = await api.post<ApiResponse<string>>(`/styles/${id}/generate`, params);
   if (!data.success || !data.data) throw new Error(data.error || 'Style generation failed');
   return data.data;
 }
@@ -666,13 +639,8 @@ export interface GeneratedImage {
   createdAt: string;
 }
 
-export async function generateImage(
-  params: GenerateImageParams,
-): Promise<GeneratedImage> {
-  const { data } = await api.post<ApiResponse<GeneratedImage>>(
-    '/images/generate',
-    params,
-  );
+export async function generateImage(params: GenerateImageParams): Promise<GeneratedImage> {
+  const { data } = await api.post<ApiResponse<GeneratedImage>>('/images/generate', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Image generation failed');
   return data.data;
 }
@@ -717,17 +685,13 @@ export interface BestTimesResult {
 }
 
 export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
-  const { data } = await api.get<ApiResponse<AnalyticsOverview>>(
-    '/analytics/overview',
-  );
+  const { data } = await api.get<ApiResponse<AnalyticsOverview>>('/analytics/overview');
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to load analytics');
   return data.data;
 }
 
 export async function getBestTimes(): Promise<BestTimesResult> {
-  const { data } = await api.get<ApiResponse<BestTimesResult>>(
-    '/analytics/best-times',
-  );
+  const { data } = await api.get<ApiResponse<BestTimesResult>>('/analytics/best-times');
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to load best times');
   return data.data;
 }
@@ -754,13 +718,8 @@ export interface ABTestParams {
   variantCount: number;
 }
 
-export async function generateABTest(
-  params: ABTestParams,
-): Promise<ABTestResult> {
-  const { data } = await api.post<ApiResponse<ABTestResult>>(
-    '/generate/ab-test',
-    params,
-  );
+export async function generateABTest(params: ABTestParams): Promise<ABTestResult> {
+  const { data } = await api.post<ApiResponse<ABTestResult>>('/generate/ab-test', params);
   if (!data.success || !data.data) throw new Error(data.error || 'A/B test generation failed');
   return data.data;
 }
@@ -789,13 +748,8 @@ export interface EngagementParams {
   model: string;
 }
 
-export async function analyzeEngagement(
-  params: EngagementParams,
-): Promise<EngagementResult> {
-  const { data } = await api.post<ApiResponse<EngagementResult>>(
-    '/analyze/engagement',
-    params,
-  );
+export async function analyzeEngagement(params: EngagementParams): Promise<EngagementResult> {
+  const { data } = await api.post<ApiResponse<EngagementResult>>('/analyze/engagement', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Engagement analysis failed');
   return data.data;
 }
@@ -825,13 +779,8 @@ export interface SimulateParams {
   model: string;
 }
 
-export async function simulatePerformance(
-  params: SimulateParams,
-): Promise<SimulateResult> {
-  const { data } = await api.post<ApiResponse<SimulateResult>>(
-    '/analyze/simulate',
-    params,
-  );
+export async function simulatePerformance(params: SimulateParams): Promise<SimulateResult> {
+  const { data } = await api.post<ApiResponse<SimulateResult>>('/analyze/simulate', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Performance simulation failed');
   return data.data;
 }
@@ -857,13 +806,8 @@ export interface TrendingParams {
   model: string;
 }
 
-export async function getTrendingTopics(
-  params: TrendingParams,
-): Promise<TrendingResult> {
-  const { data } = await api.post<ApiResponse<TrendingResult>>(
-    '/trending',
-    params,
-  );
+export async function getTrendingTopics(params: TrendingParams): Promise<TrendingResult> {
+  const { data } = await api.post<ApiResponse<TrendingResult>>('/trending', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Trending topics failed');
   return data.data;
 }
@@ -949,9 +893,7 @@ export async function getPillars(): Promise<PillarWithCount[]> {
   return data.data;
 }
 
-export async function createPillarApi(
-  params: CreatePillarParams,
-): Promise<ContentPillar> {
+export async function createPillarApi(params: CreatePillarParams): Promise<ContentPillar> {
   const { data } = await api.post<ApiResponse<ContentPillar>>('/pillars', params);
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to create pillar');
   return data.data;
@@ -981,10 +923,7 @@ export async function createIdeaApi(
   pillarId: string,
   params: CreateIdeaParams,
 ): Promise<ContentIdea> {
-  const { data } = await api.post<ApiResponse<ContentIdea>>(
-    `/pillars/${pillarId}/ideas`,
-    params,
-  );
+  const { data } = await api.post<ApiResponse<ContentIdea>>(`/pillars/${pillarId}/ideas`, params);
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to create idea');
   return data.data;
 }
@@ -1005,10 +944,7 @@ export async function updateIdeaApi(
   ideaId: string,
   params: UpdateIdeaParams,
 ): Promise<ContentIdea> {
-  const { data } = await api.put<ApiResponse<ContentIdea>>(
-    `/pillars/ideas/${ideaId}`,
-    params,
-  );
+  const { data } = await api.put<ApiResponse<ContentIdea>>(`/pillars/ideas/${ideaId}`, params);
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to update idea');
   return data.data;
 }
@@ -1020,7 +956,8 @@ export async function deleteIdeaApi(ideaId: string): Promise<void> {
 
 export async function getStrategyOverview(): Promise<StrategyOverview> {
   const { data } = await api.get<ApiResponse<StrategyOverview>>('/pillars/strategy');
-  if (!data.success || !data.data) throw new Error(data.error || 'Failed to load strategy overview');
+  if (!data.success || !data.data)
+    throw new Error(data.error || 'Failed to load strategy overview');
   return data.data;
 }
 
@@ -1072,23 +1009,17 @@ export interface PlanInfo {
   };
 }
 
-export async function createCheckout(
-  plan: string,
-  interval: string,
-): Promise<{ url: string }> {
-  const { data } = await api.post<ApiResponse<{ url: string }>>(
-    '/stripe/create-checkout',
-    { plan, interval },
-  );
+export async function createCheckout(plan: string, interval: string): Promise<{ url: string }> {
+  const { data } = await api.post<ApiResponse<{ url: string }>>('/stripe/create-checkout', {
+    plan,
+    interval,
+  });
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to create checkout');
   return data.data;
 }
 
 export async function createPortal(): Promise<{ url: string }> {
-  const { data } = await api.post<ApiResponse<{ url: string }>>(
-    '/stripe/create-portal',
-    {},
-  );
+  const { data } = await api.post<ApiResponse<{ url: string }>>('/stripe/create-portal', {});
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to create portal session');
   return data.data;
 }
@@ -1100,19 +1031,13 @@ export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
 }
 
 export async function cancelSubscription(): Promise<{ message: string }> {
-  const { data } = await api.post<ApiResponse<{ message: string }>>(
-    '/stripe/cancel',
-    {},
-  );
+  const { data } = await api.post<ApiResponse<{ message: string }>>('/stripe/cancel', {});
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to cancel subscription');
   return data.data;
 }
 
 export async function resumeSubscription(): Promise<{ message: string }> {
-  const { data } = await api.post<ApiResponse<{ message: string }>>(
-    '/stripe/resume',
-    {},
-  );
+  const { data } = await api.post<ApiResponse<{ message: string }>>('/stripe/resume', {});
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to resume subscription');
   return data.data;
 }
@@ -1134,20 +1059,37 @@ export async function getSocialComments(): Promise<SocialComment[]> {
   return data.data;
 }
 
-export async function generateCommentReply(id: string, config: { providerId: string; modelId: string }): Promise<string> {
-  const { data } = await api.post<ApiResponse<{ reply: string }>>(`/analytics/comments/${id}/reply`, config);
+export async function generateCommentReply(
+  id: string,
+  config: { providerId: string; modelId: string },
+): Promise<string> {
+  const { data } = await api.post<ApiResponse<{ reply: string }>>(
+    `/analytics/comments/${id}/reply`,
+    config,
+  );
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to generate reply');
   return data.data.reply;
 }
 
-export async function scoreComment(id: string, config: { providerId: string; modelId: string }): Promise<{ leadScore: number, leadStatus: string, leadReason: string }> {
-  const { data } = await api.post<ApiResponse<{ leadScore: number, leadStatus: string, leadReason: string }>>(`/analytics/comments/${id}/score`, config);
+export async function scoreComment(
+  id: string,
+  config: { providerId: string; modelId: string },
+): Promise<{ leadScore: number; leadStatus: string; leadReason: string }> {
+  const { data } = await api.post<
+    ApiResponse<{ leadScore: number; leadStatus: string; leadReason: string }>
+  >(`/analytics/comments/${id}/score`, config);
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to score comment');
   return data.data;
 }
 
-export async function runAgentStep(id: string, config: { providerId: string; modelId: string; userMessage?: string }): Promise<{ history: any[], requiresHuman: number }> {
-  const { data } = await api.post<ApiResponse<{ history: any[], requiresHuman: number }>>(`/analytics/comments/${id}/agent-step`, config);
+export async function runAgentStep(
+  id: string,
+  config: { providerId: string; modelId: string; userMessage?: string },
+): Promise<{ history: any[]; requiresHuman: number }> {
+  const { data } = await api.post<ApiResponse<{ history: any[]; requiresHuman: number }>>(
+    `/analytics/comments/${id}/agent-step`,
+    config,
+  );
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to run agent step');
   return data.data;
 }

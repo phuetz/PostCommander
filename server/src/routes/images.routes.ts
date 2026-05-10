@@ -39,7 +39,12 @@ router.get('/file/:filename', (req, res) => {
 // ── Authenticated routes ────────────────────────────────────────────
 router.use(authMiddleware);
 
-router.post('/generate', requireFeature('images'), validate(generateImageSchema), handleGenerateImage);
+router.post(
+  '/generate',
+  requireFeature('images'),
+  validate(generateImageSchema),
+  handleGenerateImage,
+);
 router.get('/', requireFeature('images'), validateQuery(listImagesQuerySchema), handleListImages);
 router.patch('/:id', validate(updateImageSchema), handleUpdateImage);
 

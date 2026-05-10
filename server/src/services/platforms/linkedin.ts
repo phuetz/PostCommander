@@ -36,20 +36,17 @@ export class LinkedInAdapter extends BasePlatformAdapter {
   }
 
   async exchangeCode(code: string): Promise<OAuthTokens> {
-    const response = await fetch(
-      'https://www.linkedin.com/oauth/v2/accessToken',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri: this.redirectUri,
-          client_id: this.clientId,
-          client_secret: this.clientSecret,
-        }),
-      },
-    );
+    const response = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: this.redirectUri,
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();
@@ -57,9 +54,7 @@ export class LinkedInAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,
@@ -70,19 +65,16 @@ export class LinkedInAdapter extends BasePlatformAdapter {
   }
 
   async refreshToken(refreshToken: string): Promise<OAuthTokens> {
-    const response = await fetch(
-      'https://www.linkedin.com/oauth/v2/accessToken',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken,
-          client_id: this.clientId,
-          client_secret: this.clientSecret,
-        }),
-      },
-    );
+    const response = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();
@@ -90,9 +82,7 @@ export class LinkedInAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,

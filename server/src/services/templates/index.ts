@@ -43,7 +43,9 @@ function rowToTemplate(row: any): Template {
   };
 }
 
-export async function getTemplates(filters: TemplateFilters): Promise<{ templates: Template[]; total: number }> {
+export async function getTemplates(
+  filters: TemplateFilters,
+): Promise<{ templates: Template[]; total: number }> {
   const db = getDrizzle();
   const filters_list = [];
 
@@ -152,7 +154,8 @@ Rules:
 
   // Increment uses_count
   const db = getDrizzle();
-  await db.update(templatesTable)
+  await db
+    .update(templatesTable)
     .set({ usesCount: sql`${templatesTable.usesCount} + 1` })
     .where(eq(templatesTable.id, id));
 

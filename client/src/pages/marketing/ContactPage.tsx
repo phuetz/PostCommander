@@ -86,7 +86,10 @@ export function ContactPage() {
         <div className="absolute inset-0 grid-pattern" />
 
         <div className="orb w-72 h-72 top-[10%] left-[5%] bg-[var(--color-accent-blue)]/20" />
-        <div className="orb w-96 h-96 top-[50%] right-[10%] bg-[var(--color-accent-violet)]/15" style={{ animationDelay: '5s' }} />
+        <div
+          className="orb w-96 h-96 top-[50%] right-[10%] bg-[var(--color-accent-violet)]/15"
+          style={{ animationDelay: '5s' }}
+        />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass animate-fade-in-up animate-glow-pulse mb-8">
@@ -97,9 +100,7 @@ export function ContactPage() {
           </div>
 
           <h1 className="heading-lg mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <span className="text-white block">
-              {t('marketing.contact.heroTitle1', 'Get in')}
-            </span>
+            <span className="text-white block">{t('marketing.contact.heroTitle1', 'Get in')}</span>
             <span className="gradient-text-brand block">
               {t('marketing.contact.heroTitle2', 'Touch')}
             </span>
@@ -111,7 +112,7 @@ export function ContactPage() {
           >
             {t(
               'marketing.contact.heroSubtitle',
-              'Have a question, partnership opportunity, or just want to say hi? We\'d love to hear from you.',
+              "Have a question, partnership opportunity, or just want to say hi? We'd love to hear from you.",
             )}
           </p>
         </div>
@@ -120,7 +121,10 @@ export function ContactPage() {
       {/* Main Content */}
       <section className="relative py-16 overflow-hidden">
         <div className="absolute inset-0 dot-pattern" />
-        <div className="orb w-56 h-56 bottom-[20%] left-[10%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '7s' }} />
+        <div
+          className="orb w-56 h-56 bottom-[20%] left-[10%] bg-[var(--color-accent-magenta)]/10"
+          style={{ animationDelay: '7s' }}
+        />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-5 gap-12">
@@ -133,7 +137,7 @@ export function ContactPage() {
                 <p className="text-sm text-[var(--color-text-secondary)] mb-8">
                   {t(
                     'marketing.contact.formSubtitle',
-                    'Fill out the form below and we\'ll get back to you as soon as possible.',
+                    "Fill out the form below and we'll get back to you as soon as possible.",
                   )}
                 </p>
 
@@ -212,7 +216,10 @@ export function ContactPage() {
                       rows={6}
                       value={formState.message}
                       onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                      placeholder={t('marketing.contact.messagePlaceholder', 'Tell us what\'s on your mind...')}
+                      placeholder={t(
+                        'marketing.contact.messagePlaceholder',
+                        "Tell us what's on your mind...",
+                      )}
                       className="w-full px-4 py-3 rounded-xl glass text-sm text-white placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent-violet)]/50 transition-all resize-none"
                       required
                     />
@@ -225,7 +232,7 @@ export function ContactPage() {
                       <p className="text-sm text-emerald-400">
                         {t(
                           'marketing.contact.successMessage',
-                          'Message sent successfully! We\'ll get back to you within 24 hours.',
+                          "Message sent successfully! We'll get back to you within 24 hours.",
                         )}
                       </p>
                     </div>
@@ -234,10 +241,7 @@ export function ContactPage() {
                     <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20">
                       <AlertCircle size={16} className="text-red-400 shrink-0" />
                       <p className="text-sm text-red-400">
-                        {t(
-                          'marketing.contact.errorMessage',
-                          'Please fill in all required fields.',
-                        )}
+                        {t('marketing.contact.errorMessage', 'Please fill in all required fields.')}
                       </p>
                     </div>
                   )}
@@ -253,7 +257,10 @@ export function ContactPage() {
             {/* Right: Info Cards (40%) */}
             <div className="lg:col-span-2 space-y-6">
               {/* Contact info */}
-              <div className="glass-card p-6 rounded-2xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <div
+                className="glass-card p-6 rounded-2xl animate-fade-in-up"
+                style={{ animationDelay: '0.1s' }}
+              >
                 <h3 className="heading-sm text-white mb-5">
                   {t('marketing.contact.infoTitle', 'Contact Information')}
                 </h3>
@@ -312,21 +319,30 @@ export function ContactPage() {
                       className="p-2.5 rounded-lg glass hover:bg-white/[0.06] transition-all"
                       aria-label="Twitter"
                     >
-                      <Twitter size={16} className="text-[var(--color-text-secondary)] hover:text-white" />
+                      <Twitter
+                        size={16}
+                        className="text-[var(--color-text-secondary)] hover:text-white"
+                      />
                     </a>
                     <a
                       href="#"
                       className="p-2.5 rounded-lg glass hover:bg-white/[0.06] transition-all"
                       aria-label="LinkedIn"
                     >
-                      <Linkedin size={16} className="text-[var(--color-text-secondary)] hover:text-white" />
+                      <Linkedin
+                        size={16}
+                        className="text-[var(--color-text-secondary)] hover:text-white"
+                      />
                     </a>
                   </div>
                 </div>
               </div>
 
               {/* Quick Links */}
-              <div className="glass-card p-6 rounded-2xl animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div
+                className="glass-card p-6 rounded-2xl animate-fade-in-up"
+                style={{ animationDelay: '0.2s' }}
+              >
                 <h3 className="heading-sm text-white mb-5">
                   {t('marketing.contact.quickLinksTitle', 'Quick Links')}
                 </h3>
@@ -337,7 +353,10 @@ export function ContactPage() {
                       to={link.to}
                       className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-white/[0.08] transition-all group"
                     >
-                      <link.icon size={16} className="text-[var(--color-text-muted)] group-hover:text-white transition-colors" />
+                      <link.icon
+                        size={16}
+                        className="text-[var(--color-text-muted)] group-hover:text-white transition-colors"
+                      />
                       <span className="text-sm text-[var(--color-text-secondary)] group-hover:text-white transition-colors flex-1">
                         {link.label}
                       </span>
@@ -346,7 +365,10 @@ export function ContactPage() {
                           {t('marketing.contact.comingSoon', 'Soon')}
                         </span>
                       )}
-                      <ArrowRight size={14} className="text-[var(--color-text-muted)] group-hover:text-white transition-colors" />
+                      <ArrowRight
+                        size={14}
+                        className="text-[var(--color-text-muted)] group-hover:text-white transition-colors"
+                      />
                     </Link>
                   ))}
                 </div>

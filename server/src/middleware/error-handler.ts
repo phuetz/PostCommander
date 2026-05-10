@@ -12,14 +12,9 @@ export class AppError extends Error {
   }
 }
 
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction,
-): void {
+export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction): void {
   const statusCode = err instanceof AppError ? err.statusCode : 500;
-  
+
   if (statusCode >= 500) {
     logger.error({ err }, err.message);
   } else {
@@ -27,9 +22,7 @@ export function errorHandler(
   }
 
   const message =
-    err instanceof AppError
-      ? err.message
-      : 'An unexpected error occurred. Please try again later.';
+    err instanceof AppError ? err.message : 'An unexpected error occurred. Please try again later.';
 
   const response: ApiResponse = {
     success: false,

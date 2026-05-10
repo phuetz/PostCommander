@@ -127,9 +127,7 @@ test.describe('Settings account management', () => {
   }) => {
     await page.goto('/app/settings');
 
-    await expect(
-      page.getByRole('heading', { name: 'Account & Data' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Account & Data' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Download export' }).click();
     await expect(page.getByText('Your account export is ready.')).toBeVisible();

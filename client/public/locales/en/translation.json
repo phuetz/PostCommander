@@ -20,7 +20,8 @@
     "repurpose": "Repurpose",
     "hashtags": "Hashtags",
     "styles": "Writing Styles",
-    "images": "AI Images"
+    "images": "AI Images",
+    "autoblog": "Autopilot (Blog)"
   },
   "dashboard": {
     "welcome": "Welcome to PostCommander",

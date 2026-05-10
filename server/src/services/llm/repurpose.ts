@@ -33,42 +33,51 @@ function parseJsonResponse(text: string): any {
   return JSON.parse(cleaned.trim());
 }
 
-const PLATFORM_SPECS: Record<string, { name: string; charLimit: number; hashtagStyle: string; formatting: string }> = {
+const PLATFORM_SPECS: Record<
+  string,
+  { name: string; charLimit: number; hashtagStyle: string; formatting: string }
+> = {
   linkedin: {
     name: 'LinkedIn',
     charLimit: 3000,
     hashtagStyle: '3-5 professional hashtags at the end',
-    formatting: 'Use line breaks for readability. Professional but engaging. Can use bullet points and numbered lists. Opening line is critical for "see more" click. Emojis are acceptable but used sparingly.',
+    formatting:
+      'Use line breaks for readability. Professional but engaging. Can use bullet points and numbered lists. Opening line is critical for "see more" click. Emojis are acceptable but used sparingly.',
   },
   twitter: {
     name: 'Twitter/X',
     charLimit: 280,
     hashtagStyle: '1-3 hashtags max, integrated naturally or at the end',
-    formatting: 'Concise and punchy. One core idea. Use line breaks sparingly. No bullet points. Strong opinion or insight. Can break into a thread if needed but single tweet is preferred.',
+    formatting:
+      'Concise and punchy. One core idea. Use line breaks sparingly. No bullet points. Strong opinion or insight. Can break into a thread if needed but single tweet is preferred.',
   },
   instagram: {
     name: 'Instagram',
     charLimit: 2200,
     hashtagStyle: '20-30 hashtags in a separate block below the caption',
-    formatting: 'Conversational and visual. Start with a hook. Use emojis as bullet points or emphasis. Include a call to action (save, share, comment). Storytelling works well.',
+    formatting:
+      'Conversational and visual. Start with a hook. Use emojis as bullet points or emphasis. Include a call to action (save, share, comment). Storytelling works well.',
   },
   facebook: {
     name: 'Facebook',
     charLimit: 63206,
     hashtagStyle: '2-5 hashtags, optional',
-    formatting: 'Conversational and shareable. Questions drive engagement. Medium length. Personal stories resonate. Encourage comments and shares.',
+    formatting:
+      'Conversational and shareable. Questions drive engagement. Medium length. Personal stories resonate. Encourage comments and shares.',
   },
   tiktok: {
     name: 'TikTok',
     charLimit: 4000,
     hashtagStyle: '3-5 trending + niche hashtags',
-    formatting: 'Casual, trendy, and hook-driven. Use trending language and formats. Short sentences. Direct address to viewer. Energy and personality matter.',
+    formatting:
+      'Casual, trendy, and hook-driven. Use trending language and formats. Short sentences. Direct address to viewer. Energy and personality matter.',
   },
   pinterest: {
     name: 'Pinterest',
     charLimit: 500,
     hashtagStyle: '2-5 keyword-rich hashtags',
-    formatting: 'SEO-focused and descriptive. Use keywords naturally. Describe what the content offers. Aspirational and actionable.',
+    formatting:
+      'SEO-focused and descriptive. Use keywords naturally. Describe what the content offers. Aspirational and actionable.',
   },
 };
 

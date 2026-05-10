@@ -66,7 +66,7 @@ export function HistoryPage() {
     pageSize: PAGE_SIZE,
     search: search || undefined,
     status: (statusFilter as PostStatus) || undefined,
-    // platform filter is currently not supported by the backend listPosts, 
+    // platform filter is currently not supported by the backend listPosts,
     // but we'll keep the UI for it
   });
 
@@ -150,10 +150,7 @@ export function HistoryPage() {
           </div>
         ) : posts.length === 0 ? (
           <div className="text-center py-16">
-            <FileText
-              size={48}
-              className="mx-auto text-gray-300 dark:text-gray-600 mb-3"
-            />
+            <FileText size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" />
             <p className="text-gray-500 dark:text-gray-400">
               {t('history.noPosts', 'No posts found')}
             </p>
@@ -178,11 +175,7 @@ export function HistoryPage() {
                           {post.platforms.map((pid) => {
                             const Icon = platformIcons[pid as PlatformId];
                             return Icon ? (
-                              <Icon
-                                key={pid}
-                                size={13}
-                                className="text-gray-400"
-                              />
+                              <Icon key={pid} size={13} className="text-gray-400" />
                             ) : null;
                           })}
                         </div>
@@ -197,7 +190,10 @@ export function HistoryPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                    <div
+                      className="flex items-center gap-2 flex-shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Badge variant={badge.variant}>{badge.label}</Badge>
 
                       <CopyButton text={post.content} />
@@ -208,17 +204,15 @@ export function HistoryPage() {
                           size="sm"
                           icon={<Send size={14} />}
                           onClick={() => handlePublish(post)}
-                          loading={publishMutation.isPending && publishMutation.variables?.id === post.id}
+                          loading={
+                            publishMutation.isPending && publishMutation.variables?.id === post.id
+                          }
                         >
                           {t('history.publish', 'Publish')}
                         </Button>
                       )}
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setReviewTarget(post)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setReviewTarget(post)}>
                         {t('history.review', 'Review')}
                       </Button>
 
@@ -240,8 +234,7 @@ export function HistoryPage() {
               <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 dark:border-gray-800">
                 <p className="text-sm text-gray-500">
                   {t('history.showing', 'Showing')} {(page - 1) * PAGE_SIZE + 1}-
-                  {Math.min(page * PAGE_SIZE, total)} {t('history.of', 'of')}{' '}
-                  {total}
+                  {Math.min(page * PAGE_SIZE, total)} {t('history.of', 'of')} {total}
                 </p>
                 <div className="flex items-center gap-1">
                   <Button
@@ -304,20 +297,13 @@ export function HistoryPage() {
           <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
             {t('common.cancel', 'Cancel')}
           </Button>
-          <Button
-            variant="danger"
-            loading={deleteMutation.isPending}
-            onClick={handleDelete}
-          >
+          <Button variant="danger" loading={deleteMutation.isPending} onClick={handleDelete}>
             {t('common.delete', 'Delete')}
           </Button>
         </div>
       </Modal>
 
-      <PostDetailsModal
-        post={reviewTarget}
-        onClose={() => setReviewTarget(null)}
-      />
+      <PostDetailsModal post={reviewTarget} onClose={() => setReviewTarget(null)} />
     </div>
   );
 }

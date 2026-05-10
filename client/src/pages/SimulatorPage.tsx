@@ -64,21 +64,17 @@ function MetricCard({
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
       </div>
       <div className="flex items-baseline gap-2">
-        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          {lowFormatted}
-        </span>
+        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">{lowFormatted}</span>
         <span className="text-sm text-gray-400">-</span>
-        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          {highFormatted}
-        </span>
+        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">{highFormatted}</span>
       </div>
       {/* Range visualization */}
       <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
           className={clsx('absolute h-full rounded-full', iconColor.replace('text-', 'bg-'))}
           style={{
-            left: `${Math.min(range.low / (range.high * 1.5) * 100, 100)}%`,
-            width: `${Math.min((range.high - range.low) / (range.high * 1.5) * 100, 100)}%`,
+            left: `${Math.min((range.low / (range.high * 1.5)) * 100, 100)}%`,
+            width: `${Math.min(((range.high - range.low) / (range.high * 1.5)) * 100, 100)}%`,
           }}
         />
       </div>
@@ -108,11 +104,7 @@ export function SimulatorPage() {
       setResult(data);
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -135,10 +127,7 @@ export function SimulatorPage() {
           {t('simulator.title', 'Performance Simulator')}
         </h2>
         <p className="text-gray-500 dark:text-gray-400 mt-2">
-          {t(
-            'simulator.subtitle',
-            'Predict how your post will perform before publishing',
-          )}
+          {t('simulator.subtitle', 'Predict how your post will perform before publishing')}
         </p>
       </div>
 
@@ -221,9 +210,7 @@ export function SimulatorPage() {
                 <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
                   {t('simulator.predictionSummary', 'Prediction Summary')}
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {result.summary}
-                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{result.summary}</p>
               </div>
             </div>
           </Card>

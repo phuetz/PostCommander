@@ -42,11 +42,11 @@ export const postWorker = new Worker<PostJobData>(
       }
 
       const platforms = JSON.parse(row.platforms) as PlatformId[];
-      
+
       logger.info(`Publishing post ${postId} to platforms: ${platforms.join(', ')}`);
       const results = await publishPost(row.user_id, postId, platforms);
-      
-      const successCount = results.filter(r => r.success).length;
+
+      const successCount = results.filter((r) => r.success).length;
       logger.info(`Finished processing post ${postId}. Success: ${successCount}/${results.length}`);
     } catch (error: unknown) {
       logger.error({ error, postId }, 'Failed to publish scheduled post');
@@ -55,7 +55,7 @@ export const postWorker = new Worker<PostJobData>(
   },
   {
     connection: connection as WorkerOptions['connection'],
-  }
+  },
 );
 
 postWorker.on('completed', (job) => {

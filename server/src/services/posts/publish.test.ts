@@ -10,14 +10,12 @@ interface MockPublishOptions {
 
 const mockedAdapter = vi.hoisted(() => ({
   publishPost: vi.fn(
-    async (
-      _options: {
-        content: string;
-        accessToken: string;
-        mediaUrls?: string[];
-        mediaFiles?: { bytes: Buffer; contentType: string }[];
-      },
-    ) => ({
+    async (_options: {
+      content: string;
+      accessToken: string;
+      mediaUrls?: string[];
+      mediaFiles?: { bytes: Buffer; contentType: string }[];
+    }) => ({
       platformPostId: 'remote-post-1',
       platformUrl: 'https://example.test/p/remote-post-1',
     }),
@@ -61,7 +59,11 @@ describe('publishPost', () => {
     resetTestDatabase();
   });
 
-  async function seedPostWithConnection(opts: { userId: string; postId: string; platform: string }) {
+  async function seedPostWithConnection(opts: {
+    userId: string;
+    postId: string;
+    platform: string;
+  }) {
     const db = getDrizzle();
     await db.insert(postsTable).values({
       id: opts.postId,

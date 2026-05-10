@@ -43,9 +43,18 @@ function HeroSection() {
 
       {/* Floating orbs */}
       <div className="orb w-72 h-72 top-[10%] left-[5%] bg-[var(--color-accent-blue)]/20" />
-      <div className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-violet)]/15" style={{ animationDelay: '5s' }} />
-      <div className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '10s' }} />
-      <div className="orb w-40 h-40 bottom-[20%] left-[20%] bg-[var(--color-accent-cyan)]/10" style={{ animationDelay: '15s' }} />
+      <div
+        className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-violet)]/15"
+        style={{ animationDelay: '5s' }}
+      />
+      <div
+        className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '10s' }}
+      />
+      <div
+        className="orb w-40 h-40 bottom-[20%] left-[20%] bg-[var(--color-accent-cyan)]/10"
+        style={{ animationDelay: '15s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-0 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -64,13 +73,19 @@ function HeroSection() {
               <span className="text-white block">
                 {t('marketing.hero.titleLine1', 'Command Your')}
               </span>
-              <span className="gradient-text-brand animate-shimmer block" style={{ backgroundSize: '200% auto' }}>
+              <span
+                className="gradient-text-brand animate-shimmer block"
+                style={{ backgroundSize: '200% auto' }}
+              >
                 {t('marketing.hero.titleLine2', 'Social Empire')}
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <p
+              className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed animate-fade-in-up"
+              style={{ animationDelay: '0.2s' }}
+            >
               {t(
                 'marketing.hero.subtitle',
                 'AI-powered content creation for LinkedIn, X, Instagram, TikTok, Facebook & Pinterest. 5 AI models. One command center.',
@@ -78,7 +93,10 @@ function HeroSection() {
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <div
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12 animate-fade-in-up"
+              style={{ animationDelay: '0.3s' }}
+            >
               <Link to="/app" className="btn-primary-glow">
                 {t('marketing.hero.cta', 'Start Free \u2014 No Card Required')}
                 <ArrowRight size={18} />
@@ -90,7 +108,10 @@ function HeroSection() {
             </div>
 
             {/* Stats bar */}
-            <div className="glass-card inline-flex flex-wrap items-center gap-0 rounded-2xl animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <div
+              className="glass-card inline-flex flex-wrap items-center gap-0 rounded-2xl animate-fade-in-up"
+              style={{ animationDelay: '0.4s' }}
+            >
               {[
                 { value: '10,000+', label: t('marketing.hero.stat1', 'Posts Generated') },
                 { value: '2,500+', label: t('marketing.hero.stat2', 'Creators') },
@@ -100,7 +121,9 @@ function HeroSection() {
                   {i > 0 && <div className="w-px h-8 bg-white/[0.06]" />}
                   <div className="px-5 py-3 text-center">
                     <div className="font-display text-lg font-bold text-white">{stat.value}</div>
-                    <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">{stat.label}</div>
+                    <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
+                      {stat.label}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -108,7 +131,10 @@ function HeroSection() {
           </div>
 
           {/* Right - App Mockup */}
-          <div className="relative animate-fade-in-up hidden lg:block" style={{ animationDelay: '0.5s' }}>
+          <div
+            className="relative animate-fade-in-up hidden lg:block"
+            style={{ animationDelay: '0.5s' }}
+          >
             <div className="relative" style={{ perspective: '1200px' }}>
               {/* Glow behind */}
               <div className="absolute -inset-8 bg-gradient-to-r from-[var(--color-accent-blue)]/20 via-[var(--color-accent-violet)]/15 to-[var(--color-accent-magenta)]/10 rounded-3xl blur-3xl" />
@@ -140,14 +166,22 @@ function HeroSection() {
                       {t('marketing.hero.mockLabel', 'Topic')}
                     </div>
                     <div className="px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs text-[var(--color-text-secondary)]">
-                      <TypingEffect text={t('marketing.hero.mockInput', '5 productivity tips for remote workers')} />
+                      <TypingEffect
+                        text={t(
+                          'marketing.hero.mockInput',
+                          '5 productivity tips for remote workers',
+                        )}
+                      />
                     </div>
                   </div>
 
                   {/* Mock platform pills */}
                   <div className="flex flex-wrap gap-1.5">
                     {['LinkedIn', 'X', 'Instagram'].map((p) => (
-                      <span key={p} className="px-2.5 py-1 rounded-full text-[10px] font-medium glass text-[var(--color-accent-blue)]">
+                      <span
+                        key={p}
+                        className="px-2.5 py-1 rounded-full text-[10px] font-medium glass text-[var(--color-accent-blue)]"
+                      >
                         {p}
                       </span>
                     ))}
@@ -169,7 +203,13 @@ function HeroSection() {
 
                   {/* Mock button */}
                   <div className="flex gap-2">
-                    <div className="flex-1 py-2 rounded-xl text-xs font-semibold text-center text-white" style={{ background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))' }}>
+                    <div
+                      className="flex-1 py-2 rounded-xl text-xs font-semibold text-center text-white"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))',
+                      }}
+                    >
                       {t('marketing.hero.mockButton', 'Publish to All')}
                     </div>
                     <div className="px-4 py-2 rounded-xl border border-white/[0.06] text-xs font-medium text-[var(--color-text-secondary)] text-center">
@@ -224,7 +264,16 @@ function TypingEffect({ text }: { text: string }) {
 /* ------------------------------------------------------------------ */
 function SocialProofMarquee() {
   const { t } = useTranslation();
-  const brands = ['Startup Inc', 'CreatorCo', 'MediaHub', 'SocialFirst', 'ContentPro', 'GrowthLab', 'LaunchPad', 'ViralHQ'];
+  const brands = [
+    'Startup Inc',
+    'CreatorCo',
+    'MediaHub',
+    'SocialFirst',
+    'ContentPro',
+    'GrowthLab',
+    'LaunchPad',
+    'ViralHQ',
+  ];
 
   return (
     <section className="relative py-16 overflow-hidden border-y border-white/[0.04]">
@@ -253,7 +302,10 @@ function SocialProofMarquee() {
               </span>
             ))}
           </div>
-          <div className="flex shrink-0 items-center gap-16 animate-[marquee_30s_linear_infinite]" aria-hidden="true">
+          <div
+            className="flex shrink-0 items-center gap-16 animate-[marquee_30s_linear_infinite]"
+            aria-hidden="true"
+          >
             {[...brands, ...brands].map((name, i) => (
               <span
                 key={`dup-${name}-${i}`}
@@ -279,70 +331,100 @@ function FeaturesBentoGrid() {
     {
       icon: Bot,
       title: t('marketing.features.multiAI.title', 'Multi-AI Generation'),
-      description: t('marketing.features.multiAI.desc', 'GPT-4, Claude, Gemini, Mistral & Ollama. Each AI brings unique strengths.'),
+      description: t(
+        'marketing.features.multiAI.desc',
+        'GPT-4, Claude, Gemini, Mistral & Ollama. Each AI brings unique strengths.',
+      ),
       span: 'lg:col-span-2',
       gradient: 'from-[var(--color-accent-blue)] to-[var(--color-accent-cyan)]',
     },
     {
       icon: Globe,
       title: t('marketing.features.platforms.title', '6 Platform Publishing'),
-      description: t('marketing.features.platforms.desc', 'Optimized for LinkedIn, X, Instagram, Facebook, TikTok & Pinterest.'),
+      description: t(
+        'marketing.features.platforms.desc',
+        'Optimized for LinkedIn, X, Instagram, Facebook, TikTok & Pinterest.',
+      ),
       span: 'lg:row-span-2',
       gradient: 'from-[var(--color-accent-violet)] to-[var(--color-accent-blue)]',
     },
     {
       icon: BookOpen,
       title: t('marketing.features.viral.title', 'Viral Post Library'),
-      description: t('marketing.features.viral.desc', 'Curated collection of viral posts. See what works and adapt winning patterns.'),
+      description: t(
+        'marketing.features.viral.desc',
+        'Curated collection of viral posts. See what works and adapt winning patterns.',
+      ),
       span: '',
       gradient: 'from-orange-500 to-amber-500',
     },
     {
       icon: Anchor,
       title: t('marketing.features.hooks.title', 'Hook Generator'),
-      description: t('marketing.features.hooks.desc', 'Attention-grabbing openers that stop the scroll and boost engagement.'),
+      description: t(
+        'marketing.features.hooks.desc',
+        'Attention-grabbing openers that stop the scroll and boost engagement.',
+      ),
       span: '',
       gradient: 'from-[var(--color-accent-magenta)] to-rose-500',
     },
     {
       icon: LayoutGrid,
       title: t('marketing.features.carousel.title', 'Carousel & Thread Creator'),
-      description: t('marketing.features.carousel.desc', 'Multi-slide carousels and Twitter threads that keep audiences engaged.'),
+      description: t(
+        'marketing.features.carousel.desc',
+        'Multi-slide carousels and Twitter threads that keep audiences engaged.',
+      ),
       span: '',
       gradient: 'from-[var(--color-accent-emerald)] to-green-500',
     },
     {
       icon: RefreshCw,
       title: t('marketing.features.repurpose.title', 'Smart Repurposing'),
-      description: t('marketing.features.repurpose.desc', 'One post transforms into platform-optimized content for all channels.'),
+      description: t(
+        'marketing.features.repurpose.desc',
+        'One post transforms into platform-optimized content for all channels.',
+      ),
       span: 'lg:col-span-2',
       gradient: 'from-[var(--color-accent-violet)] to-purple-500',
     },
     {
       icon: Palette,
       title: t('marketing.features.style.title', 'Style Cloning'),
-      description: t('marketing.features.style.desc', 'Clone your writing voice or emulate top creators for consistent branding.'),
+      description: t(
+        'marketing.features.style.desc',
+        'Clone your writing voice or emulate top creators for consistent branding.',
+      ),
       span: 'lg:row-span-2',
       gradient: 'from-amber-500 to-orange-500',
     },
     {
       icon: ImagePlus,
       title: t('marketing.features.images.title', 'AI Image Generation'),
-      description: t('marketing.features.images.desc', 'Create stunning visuals that complement your posts and drive engagement.'),
+      description: t(
+        'marketing.features.images.desc',
+        'Create stunning visuals that complement your posts and drive engagement.',
+      ),
       span: '',
       gradient: 'from-fuchsia-500 to-[var(--color-accent-magenta)]',
     },
     {
       icon: FileText,
       title: t('marketing.features.templates.title', 'Templates Library'),
-      description: t('marketing.features.templates.desc', 'Battle-tested templates for listicles, stories, hot takes, and more.'),
+      description: t(
+        'marketing.features.templates.desc',
+        'Battle-tested templates for listicles, stories, hot takes, and more.',
+      ),
       span: '',
       gradient: 'from-teal-500 to-[var(--color-accent-cyan)]',
     },
     {
       icon: Hash,
       title: t('marketing.features.hashtags.title', 'Hashtag Research'),
-      description: t('marketing.features.hashtags.desc', 'Trending, niche, and engagement-optimized hashtag suggestions.'),
+      description: t(
+        'marketing.features.hashtags.desc',
+        'Trending, niche, and engagement-optimized hashtag suggestions.',
+      ),
       span: '',
       gradient: 'from-sky-500 to-[var(--color-accent-blue)]',
     },
@@ -360,8 +442,14 @@ function FeaturesBentoGrid() {
               {t('marketing.features.title', 'Everything You Need')}
             </span>
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-lg leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('marketing.features.subtitle', 'A complete arsenal of AI-powered tools to dominate every social platform.')}
+          <p
+            className="text-[var(--color-text-secondary)] text-lg leading-relaxed animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'marketing.features.subtitle',
+              'A complete arsenal of AI-powered tools to dominate every social platform.',
+            )}
           </p>
         </div>
 
@@ -378,15 +466,22 @@ function FeaturesBentoGrid() {
             >
               {/* Hover glow */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                <div className={clsx('absolute -inset-1 blur-2xl opacity-20 bg-gradient-to-br', feature.gradient)} />
+                <div
+                  className={clsx(
+                    'absolute -inset-1 blur-2xl opacity-20 bg-gradient-to-br',
+                    feature.gradient,
+                  )}
+                />
               </div>
 
               <div className="relative">
                 {/* Icon */}
-                <div className={clsx(
-                  'inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br mb-4',
-                  feature.gradient,
-                )}>
+                <div
+                  className={clsx(
+                    'inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br mb-4',
+                    feature.gradient,
+                  )}
+                >
                   <feature.icon size={20} className="text-white" />
                 </div>
 
@@ -426,19 +521,28 @@ function HowItWorks() {
       step: '01',
       icon: MessageSquare,
       title: t('marketing.howItWorks.step1.title', 'Describe Your Idea'),
-      description: t('marketing.howItWorks.step1.desc', 'Enter a topic, paste content to transform, or describe your post idea in natural language.'),
+      description: t(
+        'marketing.howItWorks.step1.desc',
+        'Enter a topic, paste content to transform, or describe your post idea in natural language.',
+      ),
     },
     {
       step: '02',
       icon: Target,
       title: t('marketing.howItWorks.step2.title', 'Choose Platform & Style'),
-      description: t('marketing.howItWorks.step2.desc', 'Pick target platforms, tone of voice, language, and preferred AI model for optimal results.'),
+      description: t(
+        'marketing.howItWorks.step2.desc',
+        'Pick target platforms, tone of voice, language, and preferred AI model for optimal results.',
+      ),
     },
     {
       step: '03',
       icon: Send,
       title: t('marketing.howItWorks.step3.title', 'Generate & Publish'),
-      description: t('marketing.howItWorks.step3.desc', 'Get platform-optimized posts in seconds. Review, edit, and publish to all channels at once.'),
+      description: t(
+        'marketing.howItWorks.step3.desc',
+        'Get platform-optimized posts in seconds. Review, edit, and publish to all channels at once.',
+      ),
     },
   ];
 
@@ -453,8 +557,14 @@ function HowItWorks() {
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.howItWorks.title', 'Three Steps to Viral Content')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('marketing.howItWorks.subtitle', 'No learning curve. Idea to published post in under a minute.')}
+          <p
+            className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'marketing.howItWorks.subtitle',
+              'No learning curve. Idea to published post in under a minute.',
+            )}
           </p>
         </div>
 
@@ -488,9 +598,7 @@ function HowItWorks() {
                 <step.icon size={28} className="text-white" />
               </div>
 
-              <h3 className="font-display text-lg font-bold text-white mb-3">
-                {step.title}
-              </h3>
+              <h3 className="font-display text-lg font-bold text-white mb-3">{step.title}</h3>
               <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-xs mx-auto">
                 {step.description}
               </p>
@@ -560,8 +668,14 @@ function AIModelsShowcase() {
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.ai.title', 'Choose Your AI')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('marketing.ai.subtitle', 'Five world-class AI models, each with unique strengths. Switch in one click.')}
+          <p
+            className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'marketing.ai.subtitle',
+              'Five world-class AI models, each with unique strengths. Switch in one click.',
+            )}
           </p>
         </div>
 
@@ -584,8 +698,12 @@ function AIModelsShowcase() {
                 }}
               />
               <h3 className="font-display text-sm font-bold text-white mb-1">{model.name}</h3>
-              <p className="text-[10px] font-medium text-[var(--color-text-muted)] mb-3">{model.models}</p>
-              <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{model.bestFor}</p>
+              <p className="text-[10px] font-medium text-[var(--color-text-muted)] mb-3">
+                {model.models}
+              </p>
+              <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                {model.bestFor}
+              </p>
             </div>
           ))}
         </div>
@@ -604,7 +722,10 @@ function PlatformShowcase() {
     {
       name: 'LinkedIn',
       icon: Linkedin,
-      description: t('marketing.platforms.linkedin.desc', 'Thought leadership posts that get 10x engagement'),
+      description: t(
+        'marketing.platforms.linkedin.desc',
+        'Thought leadership posts that get 10x engagement',
+      ),
       color: '#0A66C2',
     },
     {
@@ -616,13 +737,19 @@ function PlatformShowcase() {
     {
       name: 'Instagram',
       icon: Instagram,
-      description: t('marketing.platforms.instagram.desc', 'Captions and carousels that convert followers'),
+      description: t(
+        'marketing.platforms.instagram.desc',
+        'Captions and carousels that convert followers',
+      ),
       color: '#E4405F',
     },
     {
       name: 'Facebook',
       icon: Facebook,
-      description: t('marketing.platforms.facebook.desc', 'Community posts that spark conversations'),
+      description: t(
+        'marketing.platforms.facebook.desc',
+        'Community posts that spark conversations',
+      ),
       color: '#1877F2',
     },
     {
@@ -649,8 +776,14 @@ function PlatformShowcase() {
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.platformShowcase.title', 'Optimized for Every Platform')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('marketing.platformShowcase.subtitle', 'Each platform has unique requirements. PostCommander generates perfectly formatted content for all of them.')}
+          <p
+            className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'marketing.platformShowcase.subtitle',
+              'Each platform has unique requirements. PostCommander generates perfectly formatted content for all of them.',
+            )}
           </p>
         </div>
 
@@ -667,9 +800,7 @@ function PlatformShowcase() {
               >
                 <platform.icon size={20} style={{ color: platform.color }} />
               </div>
-              <h3 className="font-display text-base font-bold text-white mb-2">
-                {platform.name}
-              </h3>
+              <h3 className="font-display text-base font-bold text-white mb-2">{platform.name}</h3>
               <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
                 {platform.description}
               </p>
@@ -729,8 +860,14 @@ function Testimonials() {
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.testimonials.title', 'Loved by Creators')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('marketing.testimonials.subtitle', 'See what content creators say about PostCommander.')}
+          <p
+            className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'marketing.testimonials.subtitle',
+              'See what content creators say about PostCommander.',
+            )}
           </p>
         </div>
 
@@ -757,10 +894,12 @@ function Testimonials() {
               </p>
 
               <div className="flex items-center gap-3">
-                <div className={clsx(
-                  'w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold',
-                  item.gradient,
-                )}>
+                <div
+                  className={clsx(
+                    'w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-xs font-bold',
+                    item.gradient,
+                  )}
+                >
                   {item.initials}
                 </div>
                 <div>
@@ -830,7 +969,10 @@ function PricingPreview() {
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.pricing.title', 'Simple, Transparent Pricing')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <p
+            className="text-[var(--color-text-secondary)] text-lg animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
             {t('marketing.pricing.subtitle', 'Start free and scale as you grow. No hidden fees.')}
           </p>
         </div>
@@ -848,7 +990,13 @@ function PricingPreview() {
               {plan.popular && (
                 <div className="gradient-border rounded-2xl">
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                    <span className="px-4 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))' }}>
+                    <span
+                      className="px-4 py-1.5 rounded-full text-xs font-bold text-white"
+                      style={{
+                        background:
+                          'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))',
+                      }}
+                    >
                       {t('marketing.pricing.popular', 'Most Popular')}
                     </span>
                   </div>
@@ -865,13 +1013,20 @@ function PricingPreview() {
               >
                 <h3 className="font-display text-lg font-bold text-white mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1 mb-6">
-                  <span className="font-display text-4xl font-extrabold text-white">{plan.price}&euro;</span>
-                  <span className="text-sm text-[var(--color-text-muted)]">/{t('marketing.pricing.month', 'mo')}</span>
+                  <span className="font-display text-4xl font-extrabold text-white">
+                    {plan.price}&euro;
+                  </span>
+                  <span className="text-sm text-[var(--color-text-muted)]">
+                    /{t('marketing.pricing.month', 'mo')}
+                  </span>
                 </div>
 
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-3 text-sm text-[var(--color-text-secondary)]">
+                    <li
+                      key={f}
+                      className="flex items-center gap-3 text-sm text-[var(--color-text-secondary)]"
+                    >
                       <Check size={14} className="text-[var(--color-accent-emerald)] shrink-0" />
                       {f}
                     </li>
@@ -923,20 +1078,28 @@ function FinalCTA() {
 
       {/* Floating orbs */}
       <div className="orb w-80 h-80 top-[10%] left-[10%] bg-[var(--color-accent-blue)]/20" />
-      <div className="orb w-60 h-60 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/15" style={{ animationDelay: '7s' }} />
+      <div
+        className="orb w-60 h-60 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/15"
+        style={{ animationDelay: '7s' }}
+      />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="heading-lg text-white mb-6 animate-fade-in-up">
-          {t('marketing.finalCta.titleLine1', 'Ready to')}
-          {' '}
+          {t('marketing.finalCta.titleLine1', 'Ready to')}{' '}
           <span className="gradient-text-brand">
             {t('marketing.finalCta.titleHighlight', 'Command')}
           </span>
           {t('marketing.finalCta.titleLine2', '?')}
         </h2>
 
-        <p className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          {t('marketing.finalCta.subtitle', 'Free plan available. No credit card required. Start generating viral content in seconds.')}
+        <p
+          className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
+          {t(
+            'marketing.finalCta.subtitle',
+            'Free plan available. No credit card required. Start generating viral content in seconds.',
+          )}
         </p>
 
         <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -946,7 +1109,10 @@ function FinalCTA() {
           </Link>
         </div>
 
-        <p className="mt-6 text-xs text-[var(--color-text-muted)] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <p
+          className="mt-6 text-xs text-[var(--color-text-muted)] animate-fade-in-up"
+          style={{ animationDelay: '0.3s' }}
+        >
           {t('marketing.finalCta.note', 'No credit card required. Free plan forever.')}
         </p>
       </div>

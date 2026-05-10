@@ -77,15 +77,7 @@ function StepNumber({ num }: { num: string }) {
 /* ------------------------------------------------------------------ */
 /*  Platform Pill                                                       */
 /* ------------------------------------------------------------------ */
-function PlatformPill({
-  name,
-  active,
-  color,
-}: {
-  name: string;
-  active: boolean;
-  color: string;
-}) {
+function PlatformPill({ name, active, color }: { name: string; active: boolean; color: string }) {
   return (
     <span
       className={clsx(
@@ -153,7 +145,10 @@ function HeroSection() {
           <span className="text-white block">
             {t('marketing.demo.titleLine1', 'See PostCommander')}
           </span>
-          <span className="gradient-text-brand animate-shimmer block" style={{ backgroundSize: '200% auto' }}>
+          <span
+            className="gradient-text-brand animate-shimmer block"
+            style={{ backgroundSize: '200% auto' }}
+          >
             {t('marketing.demo.titleLine2', 'in Action')}
           </span>
         </h1>
@@ -191,8 +186,7 @@ function HeroSection() {
         >
           <Users size={16} className="text-[var(--color-accent-emerald)]" />
           <span>
-            {t('marketing.demo.counterPrefix', 'Join')}{' '}
-            {count.toLocaleString()}+{' '}
+            {t('marketing.demo.counterPrefix', 'Join')} {count.toLocaleString()}+{' '}
             {t('marketing.demo.counterSuffix', 'creators already using PostCommander')}
           </span>
         </div>
@@ -387,7 +381,10 @@ function Step2() {
   ];
 
   const comparisons = [
-    { model: 'GPT-4o', strength: t('marketing.demo.step2.strengthCreative', 'Creative & versatile') },
+    {
+      model: 'GPT-4o',
+      strength: t('marketing.demo.step2.strengthCreative', 'Creative & versatile'),
+    },
     { model: 'Claude', strength: t('marketing.demo.step2.strengthNuanced', 'Nuanced & detailed') },
     { model: 'Gemini', strength: t('marketing.demo.step2.strengthFast', 'Fast & efficient') },
     { model: 'Mistral', strength: t('marketing.demo.step2.strengthPrecise', 'Precise & focused') },
@@ -455,9 +452,7 @@ function Step2() {
                       <Cpu size={14} style={{ color: p.color }} />
                       <span className="text-sm font-semibold text-white">{p.name}</span>
                     </div>
-                    <div className="text-[10px] text-[var(--color-text-muted)] mb-2">
-                      {p.model}
-                    </div>
+                    <div className="text-[10px] text-[var(--color-text-muted)] mb-2">{p.model}</div>
                     <span
                       className="inline-flex px-2 py-0.5 rounded-md text-[9px] font-semibold"
                       style={{
@@ -520,7 +515,7 @@ function Step3() {
 
   const samplePost = t(
     'marketing.demo.step3.samplePost',
-    'Remote work is here to stay. But are you truly productive, or just busy?\n\nAfter managing distributed teams for 5 years, here are the 5 habits that separate high performers from the rest:\n\n1. Time-blocking deep work sessions\n2. Async-first communication\n3. Weekly energy audits\n4. Environment design for focus\n5. Intentional disconnect rituals\n\nThe best remote workers don\'t work more. They work with intention.\n\nWhat\'s your top remote productivity tip? Share below.',
+    "Remote work is here to stay. But are you truly productive, or just busy?\n\nAfter managing distributed teams for 5 years, here are the 5 habits that separate high performers from the rest:\n\n1. Time-blocking deep work sessions\n2. Async-first communication\n3. Weekly energy audits\n4. Environment design for focus\n5. Intentional disconnect rituals\n\nThe best remote workers don't work more. They work with intention.\n\nWhat's your top remote productivity tip? Share below.",
   );
 
   const hashtags = ['#RemoteWork', '#Productivity', '#WFH', '#Leadership', '#FutureOfWork'];
@@ -573,7 +568,10 @@ function Step3() {
             <div className="p-6">
               <div className="relative">
                 {/* Shimmer overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent animate-shimmer rounded-xl pointer-events-none" style={{ backgroundSize: '200% 100%' }} />
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent animate-shimmer rounded-xl pointer-events-none"
+                  style={{ backgroundSize: '200% 100%' }}
+                />
 
                 <div className="p-5 rounded-xl bg-white/[0.02] border border-white/[0.04] text-sm text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-line">
                   {samplePost}
@@ -642,18 +640,48 @@ function Step4() {
   const { t } = useTranslation();
 
   const metrics = [
-    { label: t('marketing.demo.step4.metricHook', 'Hook Strength'), value: 92, color: 'var(--color-accent-emerald)' },
-    { label: t('marketing.demo.step4.metricReadability', 'Readability'), value: 88, color: 'var(--color-accent-blue)' },
-    { label: t('marketing.demo.step4.metricEngagement', 'Engagement Potential'), value: 85, color: 'var(--color-accent-violet)' },
-    { label: t('marketing.demo.step4.metricClarity', 'Clarity'), value: 90, color: 'var(--color-accent-cyan)' },
-    { label: t('marketing.demo.step4.metricEmotion', 'Emotional Appeal'), value: 78, color: 'var(--color-accent-magenta)' },
-    { label: t('marketing.demo.step4.metricCTA', 'Call-to-Action'), value: 82, color: 'var(--color-accent-blue)' },
+    {
+      label: t('marketing.demo.step4.metricHook', 'Hook Strength'),
+      value: 92,
+      color: 'var(--color-accent-emerald)',
+    },
+    {
+      label: t('marketing.demo.step4.metricReadability', 'Readability'),
+      value: 88,
+      color: 'var(--color-accent-blue)',
+    },
+    {
+      label: t('marketing.demo.step4.metricEngagement', 'Engagement Potential'),
+      value: 85,
+      color: 'var(--color-accent-violet)',
+    },
+    {
+      label: t('marketing.demo.step4.metricClarity', 'Clarity'),
+      value: 90,
+      color: 'var(--color-accent-cyan)',
+    },
+    {
+      label: t('marketing.demo.step4.metricEmotion', 'Emotional Appeal'),
+      value: 78,
+      color: 'var(--color-accent-magenta)',
+    },
+    {
+      label: t('marketing.demo.step4.metricCTA', 'Call-to-Action'),
+      value: 82,
+      color: 'var(--color-accent-blue)',
+    },
   ];
 
   const suggestions = [
-    t('marketing.demo.step4.suggestion1', 'Add a personal anecdote in the opening to boost relatability'),
+    t(
+      'marketing.demo.step4.suggestion1',
+      'Add a personal anecdote in the opening to boost relatability',
+    ),
     t('marketing.demo.step4.suggestion2', 'Consider breaking point 3 into a more actionable tip'),
-    t('marketing.demo.step4.suggestion3', 'Ending question is strong \u2014 consider adding two options to increase replies'),
+    t(
+      'marketing.demo.step4.suggestion3',
+      'Ending question is strong \u2014 consider adding two options to increase replies',
+    ),
   ];
 
   return (
@@ -706,7 +734,10 @@ function Step4() {
                     {t('marketing.demo.step4.scoreLabel', 'Engagement Score')}
                   </div>
                   <div className="text-xs text-[var(--color-text-muted)]">
-                    {t('marketing.demo.step4.scoreDesc', 'Above average for LinkedIn posts in this category')}
+                    {t(
+                      'marketing.demo.step4.scoreDesc',
+                      'Above average for LinkedIn posts in this category',
+                    )}
                   </div>
                 </div>
               </div>
@@ -716,7 +747,9 @@ function Step4() {
                 {metrics.map((m) => (
                   <div key={m.label}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] text-[var(--color-text-secondary)]">{m.label}</span>
+                      <span className="text-[11px] text-[var(--color-text-secondary)]">
+                        {m.label}
+                      </span>
                       <span className="text-[11px] font-semibold text-white">{m.value}%</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
@@ -739,8 +772,13 @@ function Step4() {
                     key={i}
                     className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]"
                   >
-                    <Sparkles size={12} className="text-[var(--color-accent-violet)] flex-shrink-0 mt-0.5" />
-                    <span className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed">{s}</span>
+                    <Sparkles
+                      size={12}
+                      className="text-[var(--color-accent-violet)] flex-shrink-0 mt-0.5"
+                    />
+                    <span className="text-[11px] text-[var(--color-text-secondary)] leading-relaxed">
+                      {s}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -768,10 +806,23 @@ function Step4() {
                 <div className="text-center">
                   <div className="relative w-16 h-16 mx-auto mb-2">
                     <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
                       <circle
-                        cx="50" cy="50" r="42" fill="none" stroke="var(--color-accent-magenta)" strokeWidth="8"
-                        strokeLinecap="round" strokeDasharray={`${64 * 2.64} ${100 * 2.64}`}
+                        cx="50"
+                        cy="50"
+                        r="42"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.06)"
+                        strokeWidth="8"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="42"
+                        fill="none"
+                        stroke="var(--color-accent-magenta)"
+                        strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeDasharray={`${64 * 2.64} ${100 * 2.64}`}
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -785,10 +836,23 @@ function Step4() {
                 <div className="text-center">
                   <div className="relative w-16 h-16 mx-auto mb-2">
                     <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
                       <circle
-                        cx="50" cy="50" r="42" fill="none" stroke="var(--color-accent-emerald)" strokeWidth="8"
-                        strokeLinecap="round" strokeDasharray={`${87 * 2.64} ${100 * 2.64}`}
+                        cx="50"
+                        cy="50"
+                        r="42"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.06)"
+                        strokeWidth="8"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="42"
+                        fill="none"
+                        stroke="var(--color-accent-emerald)"
+                        strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeDasharray={`${87 * 2.64} ${100 * 2.64}`}
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -802,7 +866,9 @@ function Step4() {
               </div>
               <div className="flex items-center justify-center gap-2 mt-3 text-[var(--color-accent-emerald)]">
                 <TrendingUp size={14} />
-                <span className="text-xs font-semibold">+36% {t('marketing.demo.step4.improvement', 'improvement')}</span>
+                <span className="text-xs font-semibold">
+                  +36% {t('marketing.demo.step4.improvement', 'improvement')}
+                </span>
               </div>
             </div>
           </div>
@@ -903,13 +969,18 @@ function ToolsShowcase() {
       mockup: (
         <div className="space-y-2 mt-3">
           {[85, 72, 91].map((score, i) => (
-            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/[0.04]">
+            <div
+              key={i}
+              className="flex items-center gap-2 p-2 rounded-lg bg-white/[0.03] border border-white/[0.04]"
+            >
               <div className="w-8 h-8 rounded bg-white/[0.06] flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="h-1.5 bg-white/[0.08] rounded-full w-full mb-1" />
                 <div className="h-1.5 bg-white/[0.06] rounded-full w-2/3" />
               </div>
-              <span className="text-[9px] font-bold text-[var(--color-accent-emerald)]">{score}%</span>
+              <span className="text-[9px] font-bold text-[var(--color-accent-emerald)]">
+                {score}%
+              </span>
             </div>
           ))}
         </div>
@@ -924,10 +995,13 @@ function ToolsShowcase() {
         <div className="space-y-2 mt-3">
           {[
             'Stop scrolling. This will change how you...',
-            'I spent 10 years learning what I\'m about...',
+            "I spent 10 years learning what I'm about...",
             'The biggest mistake I see in remote...',
           ].map((hook, i) => (
-            <div key={i} className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.04] text-[9px] text-[var(--color-text-muted)] truncate">
+            <div
+              key={i}
+              className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.04] text-[9px] text-[var(--color-text-muted)] truncate"
+            >
               {hook}
             </div>
           ))}
@@ -960,7 +1034,10 @@ function ToolsShowcase() {
       mockup: (
         <div className="grid grid-cols-2 gap-1.5 mt-3">
           {['Story', 'List', 'How-to', 'Opinion'].map((tpl) => (
-            <div key={tpl} className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.04] text-center">
+            <div
+              key={tpl}
+              className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.04] text-center"
+            >
               <span className="text-[9px] font-medium text-[var(--color-text-muted)]">{tpl}</span>
             </div>
           ))}
@@ -970,7 +1047,7 @@ function ToolsShowcase() {
     {
       icon: Palette,
       title: t('marketing.demo.tools.styleTitle', 'Style Cloning'),
-      desc: t('marketing.demo.tools.styleDesc', 'Clone any creator\'s writing style'),
+      desc: t('marketing.demo.tools.styleDesc', "Clone any creator's writing style"),
       color: 'var(--color-accent-emerald)',
       mockup: (
         <div className="mt-3 flex items-center justify-center">
@@ -1076,7 +1153,9 @@ function ToolsShowcase() {
                 </div>
                 <div className="text-sm font-semibold text-white">{tool.title}</div>
               </div>
-              <div className="text-[11px] text-[var(--color-text-muted)] mb-1 ml-12">{tool.desc}</div>
+              <div className="text-[11px] text-[var(--color-text-muted)] mb-1 ml-12">
+                {tool.desc}
+              </div>
               <div className="ml-0">{tool.mockup}</div>
             </div>
           ))}
@@ -1163,7 +1242,8 @@ function ProgressLine() {
     <div
       className="hidden lg:block fixed left-[calc(50vw-37rem)] top-0 bottom-0 w-px z-10 pointer-events-none"
       style={{
-        background: 'linear-gradient(180deg, transparent 15%, var(--color-accent-blue) 30%, var(--color-accent-violet) 60%, var(--color-accent-magenta) 80%, transparent 95%)',
+        background:
+          'linear-gradient(180deg, transparent 15%, var(--color-accent-blue) 30%, var(--color-accent-violet) 60%, var(--color-accent-magenta) 80%, transparent 95%)',
         opacity: 0.15,
       }}
     />

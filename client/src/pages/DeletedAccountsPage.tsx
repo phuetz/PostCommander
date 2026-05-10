@@ -203,9 +203,7 @@ export function DeletedAccountsPage() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="info">
-                {t('admin.deletedAccounts.adminOnly', 'Admin only')}
-              </Badge>
+              <Badge variant="info">{t('admin.deletedAccounts.adminOnly', 'Admin only')}</Badge>
               <Badge variant="warning">
                 {t('admin.deletedAccounts.retention', 'Read-only support archive')}
               </Badge>
@@ -275,12 +273,12 @@ export function DeletedAccountsPage() {
             disabled={searchMode === 'latest'}
             placeholder={
               searchMode === 'email'
-                  ? 'deleted@example.com'
-                  : searchMode === 'originalUserId'
-                    ? t('admin.deletedAccounts.originalUserIdPlaceholder', 'user UUID')
+                ? 'deleted@example.com'
+                : searchMode === 'originalUserId'
+                  ? t('admin.deletedAccounts.originalUserIdPlaceholder', 'user UUID')
                   : searchMode === 'stripeCustomerId'
-                      ? 'cus_...'
-                      : t('admin.deletedAccounts.latestPlaceholder', 'Latest 25 deletions')
+                    ? 'cus_...'
+                    : t('admin.deletedAccounts.latestPlaceholder', 'Latest 25 deletions')
             }
             icon={<Search size={16} />}
           />
@@ -426,7 +424,10 @@ export function DeletedAccountsPage() {
                   </h3>
                   {audit.billingRecords.length === 0 ? (
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('admin.deletedAccounts.noBillingRecords', 'No archived billing records for this account.')}
+                      {t(
+                        'admin.deletedAccounts.noBillingRecords',
+                        'No archived billing records for this account.',
+                      )}
                     </p>
                   ) : (
                     <div className="space-y-3">
@@ -455,10 +456,7 @@ export function DeletedAccountsPage() {
       ) : (
         <Card>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t(
-              'admin.deletedAccounts.empty',
-              'No deleted account archives matched your search.',
-            )}
+            {t('admin.deletedAccounts.empty', 'No deleted account archives matched your search.')}
           </p>
         </Card>
       )}

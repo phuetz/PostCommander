@@ -7,10 +7,7 @@ import { requireRequestUser } from '../utils/request-user.js';
 /**
  * POST /api/analyze/engagement
  */
-export const handleEngagement = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const handleEngagement = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const result = await predictEngagement(req.body, requestUser.id);
   res.json({ success: true, data: result });
@@ -19,10 +16,7 @@ export const handleEngagement = catchAsync(async (
 /**
  * POST /api/analyze/simulate
  */
-export const handleSimulate = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const handleSimulate = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const result = await simulatePerformance(req.body, requestUser.id);
   res.json({ success: true, data: result });

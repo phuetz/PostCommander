@@ -7,10 +7,7 @@ import { requireRequestUser } from '../utils/request-user.js';
 /**
  * POST /api/generate/ab-test
  */
-export const handleABTest = catchAsync(async (
-  req: Request,
-  res: Response,
-) => {
+export const handleABTest = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
   const result = await generateABVariants(req.body, requestUser.id);
 

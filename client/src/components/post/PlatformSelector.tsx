@@ -1,12 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import {
-  Linkedin,
-  Twitter,
-  Facebook,
-  Instagram,
-  Music,
-  Pin,
-} from 'lucide-react';
+import { Linkedin, Twitter, Facebook, Instagram, Music, Pin } from 'lucide-react';
 import clsx from 'clsx';
 import { PLATFORMS, type PlatformId } from '@postcommander/shared';
 
@@ -26,10 +19,7 @@ const platformIcons: Record<PlatformId, React.ElementType> = {
 
 const platformIds = Object.keys(PLATFORMS) as PlatformId[];
 
-export function PlatformSelector({
-  selected,
-  onChange,
-}: PlatformSelectorProps) {
+export function PlatformSelector({ selected, onChange }: PlatformSelectorProps) {
   const { t } = useTranslation();
 
   const togglePlatform = (id: PlatformId) => {
@@ -62,20 +52,14 @@ export function PlatformSelector({
                   ? 'border-transparent text-white shadow-sm'
                   : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800',
               )}
-              style={
-                isSelected
-                  ? { backgroundColor: platform.color }
-                  : undefined
-              }
+              style={isSelected ? { backgroundColor: platform.color } : undefined}
             >
               <Icon size={16} />
               <span>{platform.name}</span>
               <span
                 className={clsx(
                   'text-xs',
-                  isSelected
-                    ? 'text-white/80'
-                    : 'text-gray-400 dark:text-gray-500',
+                  isSelected ? 'text-white/80' : 'text-gray-400 dark:text-gray-500',
                 )}
               >
                 {platform.charLimit.toLocaleString()}

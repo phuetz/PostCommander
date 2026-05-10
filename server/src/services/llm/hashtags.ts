@@ -85,7 +85,9 @@ export async function researchHashtags(
   const model = createModel(request.provider, request.model, userId);
   const count = request.count ?? 15;
 
-  const platformGuide = PLATFORM_HASHTAG_GUIDES[request.platform] ?? 'Use relevant hashtags appropriate for the platform.';
+  const platformGuide =
+    PLATFORM_HASHTAG_GUIDES[request.platform] ??
+    'Use relevant hashtags appropriate for the platform.';
 
   const system = `You are a social media hashtag strategist with deep knowledge of hashtag performance across platforms.
 

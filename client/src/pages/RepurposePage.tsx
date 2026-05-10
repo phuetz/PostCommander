@@ -62,9 +62,10 @@ function RepurposedCard({ item }: { item: RepurposedContent }) {
   const isOverLimit = item.charCount > charLimit;
 
   const handleCopy = async () => {
-    const fullText = item.hashtags.length > 0
-      ? `${item.content}\n\n${item.hashtags.map((h) => `#${h}`).join(' ')}`
-      : item.content;
+    const fullText =
+      item.hashtags.length > 0
+        ? `${item.content}\n\n${item.hashtags.map((h) => `#${h}`).join(' ')}`
+        : item.content;
     await navigator.clipboard.writeText(fullText);
     setCopied(true);
     toast.success(t('post.copied', 'Copied!'));
@@ -79,9 +80,7 @@ function RepurposedCard({ item }: { item: RepurposedContent }) {
         style={{ backgroundColor: color }}
       >
         <Icon size={18} />
-        <span className="font-semibold text-sm">
-          {platformData?.name || item.platform}
-        </span>
+        <span className="font-semibold text-sm">{platformData?.name || item.platform}</span>
         <span className="ml-auto text-xs text-white/70">
           {item.charCount.toLocaleString()} / {charLimit.toLocaleString()}
         </span>
@@ -160,11 +159,7 @@ export function RepurposePage() {
       setResults(data);
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -200,10 +195,7 @@ export function RepurposePage() {
           {t('repurpose.title', 'Content Repurposer')}
         </h2>
         <p className="text-gray-500 dark:text-gray-400 mt-2">
-          {t(
-            'repurpose.subtitle',
-            'Adapt your content for multiple platforms in one click',
-          )}
+          {t('repurpose.subtitle', 'Adapt your content for multiple platforms in one click')}
         </p>
       </div>
 
@@ -260,9 +252,7 @@ export function RepurposePage() {
                           : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800',
                     )}
                     style={
-                      isSelected && !isSource
-                        ? { backgroundColor: platform.color }
-                        : undefined
+                      isSelected && !isSource ? { backgroundColor: platform.color } : undefined
                     }
                   >
                     <Icon size={16} />
@@ -297,8 +287,7 @@ export function RepurposePage() {
             {targetPlatforms.length > 0 && (
               <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <ArrowRight size={14} />
-                {targetPlatforms.length}{' '}
-                {t('repurpose.platformsSelected', 'platforms selected')}
+                {targetPlatforms.length} {t('repurpose.platformsSelected', 'platforms selected')}
               </span>
             )}
           </div>

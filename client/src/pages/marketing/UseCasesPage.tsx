@@ -47,14 +47,20 @@ function useUseCasesData() {
         'Generate platform-optimized content from a single idea. PostCommander understands the nuances of each platform and adapts your voice accordingly — from LinkedIn thought leadership to TikTok hooks.',
       ),
       features: [
-        { icon: RefreshCw, label: t('marketing.useCases.creatorsF1', 'Content Repurposing Engine') },
-        { icon: LayoutGrid, label: t('marketing.useCases.creatorsF2', 'Carousel & Thread Creator') },
+        {
+          icon: RefreshCw,
+          label: t('marketing.useCases.creatorsF1', 'Content Repurposing Engine'),
+        },
+        {
+          icon: LayoutGrid,
+          label: t('marketing.useCases.creatorsF2', 'Carousel & Thread Creator'),
+        },
         { icon: Palette, label: t('marketing.useCases.creatorsF3', 'Writing Style Cloning') },
       ],
       testimonial: {
         quote: t(
           'marketing.useCases.creatorsQuote',
-          'I went from spending 4 hours a day on social media to 30 minutes. PostCommander writes in my exact voice — my followers can\'t tell the difference.',
+          "I went from spending 4 hours a day on social media to 30 minutes. PostCommander writes in my exact voice — my followers can't tell the difference.",
         ),
         author: t('marketing.useCases.creatorsAuthor', 'Alex Rivera'),
         role: t('marketing.useCases.creatorsRole', 'Creator, 85K followers'),
@@ -74,7 +80,7 @@ function useUseCasesData() {
       title: t('marketing.useCases.startupsTitle', 'Startup Founders & SaaS Builders'),
       problem: t(
         'marketing.useCases.startupsProblem',
-        'Building in public requires consistent updates, but you\'re already wearing 10 hats. Marketing feels like a luxury when there\'s product to ship.',
+        "Building in public requires consistent updates, but you're already wearing 10 hats. Marketing feels like a luxury when there's product to ship.",
       ),
       solution: t(
         'marketing.useCases.startupsSolution',
@@ -108,11 +114,11 @@ function useUseCasesData() {
       title: t('marketing.useCases.agenciesTitle', 'Marketing Agencies'),
       problem: t(
         'marketing.useCases.agenciesProblem',
-        'Managing 10+ client accounts across multiple platforms means hundreds of posts per week. Each client has a unique voice, and quality can\'t slip even at scale.',
+        "Managing 10+ client accounts across multiple platforms means hundreds of posts per week. Each client has a unique voice, and quality can't slip even at scale.",
       ),
       solution: t(
         'marketing.useCases.agenciesSolution',
-        'Clone each client\'s writing style, generate platform-specific content at scale, and use A/B testing with engagement prediction to deliver measurable results.',
+        "Clone each client's writing style, generate platform-specific content at scale, and use A/B testing with engagement prediction to deliver measurable results.",
       ),
       features: [
         { icon: Palette, label: t('marketing.useCases.agenciesF1', 'Per-Client Style Cloning') },
@@ -122,7 +128,7 @@ function useUseCasesData() {
       testimonial: {
         quote: t(
           'marketing.useCases.agenciesQuote',
-          'We manage 15 client accounts with a team of 3. PostCommander\'s style cloning ensures every post sounds authentically like our clients.',
+          "We manage 15 client accounts with a team of 3. PostCommander's style cloning ensures every post sounds authentically like our clients.",
         ),
         author: t('marketing.useCases.agenciesAuthor', 'Thomas Berger'),
         role: t('marketing.useCases.agenciesRole', 'Director, Nexus Social Agency'),
@@ -142,7 +148,7 @@ function useUseCasesData() {
       title: t('marketing.useCases.coachesTitle', 'Coaches & Consultants'),
       problem: t(
         'marketing.useCases.coachesProblem',
-        'Establishing thought leadership demands consistent, high-value posting. But between client sessions and course creation, there\'s barely time to think about social media.',
+        "Establishing thought leadership demands consistent, high-value posting. But between client sessions and course creation, there's barely time to think about social media.",
       ),
       solution: t(
         'marketing.useCases.coachesSolution',
@@ -176,7 +182,7 @@ function useUseCasesData() {
       title: t('marketing.useCases.freelancersTitle', 'Freelancers & Solopreneurs'),
       problem: t(
         'marketing.useCases.freelancersProblem',
-        'When you\'re wearing every hat — developer, designer, accountant, marketer — social media marketing always falls to the bottom of the priority list.',
+        "When you're wearing every hat — developer, designer, accountant, marketer — social media marketing always falls to the bottom of the priority list.",
       ),
       solution: t(
         'marketing.useCases.freelancersSolution',
@@ -218,7 +224,10 @@ function useUseCasesData() {
       ),
       features: [
         { icon: FileText, label: t('marketing.useCases.recruitersF1', 'Recruiting Templates') },
-        { icon: Target, label: t('marketing.useCases.recruitersF2', 'LinkedIn-First Optimization') },
+        {
+          icon: Target,
+          label: t('marketing.useCases.recruitersF2', 'LinkedIn-First Optimization'),
+        },
         { icon: Hash, label: t('marketing.useCases.recruitersF3', 'Professional Tone Control') },
       ],
       testimonial: {
@@ -252,8 +261,14 @@ function HeroSection() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="orb w-72 h-72 top-[15%] left-[10%] bg-[var(--color-accent-violet)]/20" />
-      <div className="orb w-96 h-96 top-[50%] right-[5%] bg-[var(--color-accent-blue)]/15" style={{ animationDelay: '5s' }} />
-      <div className="orb w-56 h-56 bottom-[10%] left-[30%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '10s' }} />
+      <div
+        className="orb w-96 h-96 top-[50%] right-[5%] bg-[var(--color-accent-blue)]/15"
+        style={{ animationDelay: '5s' }}
+      />
+      <div
+        className="orb w-56 h-56 bottom-[10%] left-[30%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '10s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass animate-fade-in-up animate-glow-pulse mb-8">
@@ -278,7 +293,7 @@ function HeroSection() {
         >
           {t(
             'marketing.useCases.heroSubtitle',
-            'Whether you\'re an influencer, startup founder, or marketing agency — PostCommander adapts to your workflow and amplifies your voice.',
+            "Whether you're an influencer, startup founder, or marketing agency — PostCommander adapts to your workflow and amplifies your voice.",
           )}
         </p>
       </div>
@@ -359,7 +374,9 @@ function UseCaseSection({
               {useCase.features.map((feature, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <feature.icon size={16} style={{ color: useCase.color }} />
-                  <span className="text-sm text-[var(--color-text-secondary)]">{feature.label}</span>
+                  <span className="text-sm text-[var(--color-text-secondary)]">
+                    {feature.label}
+                  </span>
                 </div>
               ))}
             </div>
@@ -378,7 +395,9 @@ function UseCaseSection({
               <div className="flex items-center gap-3">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                  style={{ background: `linear-gradient(135deg, ${useCase.color}, ${useCase.color}99)` }}
+                  style={{
+                    background: `linear-gradient(135deg, ${useCase.color}, ${useCase.color}99)`,
+                  }}
                 >
                   {useCase.testimonial.author
                     .split(' ')
@@ -387,7 +406,9 @@ function UseCaseSection({
                 </div>
                 <div>
                   <p className="text-sm text-white font-medium">{useCase.testimonial.author}</p>
-                  <p className="text-xs text-[var(--color-text-muted)]">{useCase.testimonial.role}</p>
+                  <p className="text-xs text-[var(--color-text-muted)]">
+                    {useCase.testimonial.role}
+                  </p>
                 </div>
               </div>
             </div>
@@ -463,20 +484,32 @@ function CTASection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
       <div className="absolute inset-0 mesh-gradient opacity-40" />
-      <div className="orb w-72 h-72 top-[30%] left-[20%] bg-[var(--color-accent-violet)]/15" style={{ animationDelay: '3s' }} />
-      <div className="orb w-56 h-56 top-[40%] right-[15%] bg-[var(--color-accent-blue)]/10" style={{ animationDelay: '8s' }} />
+      <div
+        className="orb w-72 h-72 top-[30%] left-[20%] bg-[var(--color-accent-violet)]/15"
+        style={{ animationDelay: '3s' }}
+      />
+      <div
+        className="orb w-56 h-56 top-[40%] right-[15%] bg-[var(--color-accent-blue)]/10"
+        style={{ animationDelay: '8s' }}
+      />
 
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="heading-lg text-white mb-6 animate-fade-in-up">
           {t('marketing.useCases.ctaTitle', 'Find Your Perfect Workflow')}
         </h2>
-        <p className="text-[var(--color-text-secondary)] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <p
+          className="text-[var(--color-text-secondary)] mb-10 animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
           {t(
             'marketing.useCases.ctaSubtitle',
             'No matter your role or industry, PostCommander adapts to your unique content needs. Start free and see the difference AI-powered content makes.',
           )}
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <div
+          className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
+          style={{ animationDelay: '0.2s' }}
+        >
           <Link to="/app" className="btn-primary-glow">
             {t('marketing.useCases.ctaPrimary', 'Start Free')}
             <ArrowRight size={18} />

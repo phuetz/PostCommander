@@ -122,8 +122,8 @@ export const AuthController = {
     const response: ApiResponse = {
       success: true,
       data: {
-        user: userWithoutPassword
-      }
+        user: userWithoutPassword,
+      },
     };
 
     res.json(response);
@@ -184,7 +184,7 @@ export const AuthController = {
 
     const response: ApiResponse<{ message: string }> = {
       success: true,
-      data: { message: 'Logged out successfully' }
+      data: { message: 'Logged out successfully' },
     };
 
     res.json(response);
@@ -231,10 +231,10 @@ export const AuthController = {
         resetUrl: `${config.CLIENT_URL}/reset-password?token=${resetToken}`,
       });
     }
-    
+
     res.json({
       success: true,
-      data: { message: 'If an account exists with this email, a reset link has been sent.' }
+      data: { message: 'If an account exists with this email, a reset link has been sent.' },
     });
   }),
 
@@ -247,7 +247,7 @@ export const AuthController = {
     const tokenRecord = await db.query.passwordResetTokens.findFirst({
       where: and(
         eq(tokensTable.token, tokenHash),
-        gt(tokensTable.expiresAt, new Date().toISOString())
+        gt(tokensTable.expiresAt, new Date().toISOString()),
       ),
     });
 
@@ -257,7 +257,8 @@ export const AuthController = {
 
     // 2. Update user password
     const passwordHash = await bcrypt.hash(password, 10);
-    await db.update(usersTable)
+    await db
+      .update(usersTable)
       .set({ passwordHash, updatedAt: new Date().toISOString() })
       .where(eq(usersTable.id, tokenRecord.userId));
 
@@ -266,7 +267,7 @@ export const AuthController = {
 
     res.json({
       success: true,
-      data: { message: 'Password has been reset successfully. You can now login.' }
+      data: { message: 'Password has been reset successfully. You can now login.' },
     });
   }),
 
@@ -289,8 +290,8 @@ export const AuthController = {
     const response: ApiResponse = {
       success: true,
       data: {
-        user: userWithoutPassword
-      }
+        user: userWithoutPassword,
+      },
     };
 
     res.json(response);

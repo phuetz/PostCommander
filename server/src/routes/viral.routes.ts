@@ -15,6 +15,11 @@ router.use(authMiddleware);
 
 router.get('/', requireFeature('viral_library'), validateQuery(viralQuerySchema), listViralPosts);
 router.get('/categories', requireFeature('viral_library'), listViralCategories);
-router.get('/search', requireFeature('viral_library'), validateQuery(viralSearchSchema), searchViral);
+router.get(
+  '/search',
+  requireFeature('viral_library'),
+  validateQuery(viralSearchSchema),
+  searchViral,
+);
 
 export default router;

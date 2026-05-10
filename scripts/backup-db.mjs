@@ -78,7 +78,11 @@ async function main() {
   const existing = fs
     .readdirSync(out)
     .filter((name) => /^postcommander-.*\.db$/.test(name))
-    .map((name) => ({ name, full: path.join(out, name), mtime: fs.statSync(path.join(out, name)).mtimeMs }))
+    .map((name) => ({
+      name,
+      full: path.join(out, name),
+      mtime: fs.statSync(path.join(out, name)).mtimeMs,
+    }))
     .sort((a, b) => b.mtime - a.mtime);
 
   const toDelete = existing.slice(keep);
@@ -92,7 +96,9 @@ async function main() {
 
   const sizeMb = (fs.statSync(target).size / (1024 * 1024)).toFixed(2);
   console.log(`Backup written: ${target} (${sizeMb} MB)`);
-  console.log(`Retained ${Math.min(existing.length, keep)} of ${existing.length} backups (keep=${keep}).`);
+  console.log(
+    `Retained ${Math.min(existing.length, keep)} of ${existing.length} backups (keep=${keep}).`,
+  );
 }
 
 main().catch((err) => {

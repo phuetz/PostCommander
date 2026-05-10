@@ -173,12 +173,13 @@ export function TermsPage() {
           </div>
 
           <h1 className="heading-lg mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <span className="text-white">
-              {t('marketing.terms.heroTitle', 'Terms of Service')}
-            </span>
+            <span className="text-white">{t('marketing.terms.heroTitle', 'Terms of Service')}</span>
           </h1>
 
-          <p className="text-sm text-[var(--color-text-muted)] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <p
+            className="text-sm text-[var(--color-text-muted)] animate-fade-in-up"
+            style={{ animationDelay: '0.2s' }}
+          >
             {t('marketing.terms.lastUpdated', 'Last updated: April 16, 2026')}
           </p>
         </div>

@@ -10,7 +10,8 @@
     "calendar": "التقويم",
     "settings": "الإعدادات",
     "admin": "الإدارة",
-    "deletedAccounts": "الحسابات المحذوفة"
+    "deletedAccounts": "الحسابات المحذوفة",
+    "autoblog": "Autopilot (Blog)"
   },
   "dashboard": {
     "welcome": "مرحبًا بك في PostCommander",

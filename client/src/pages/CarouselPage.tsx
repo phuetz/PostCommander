@@ -64,9 +64,7 @@ function SlideCard({
   const gradient = platformGradients[platform] || 'from-brand-600 to-brand-800';
 
   const handleCopy = async () => {
-    const text = isThread
-      ? slide.body
-      : `${slide.title}\n\n${slide.body}`;
+    const text = isThread ? slide.body : `${slide.title}\n\n${slide.body}`;
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -92,12 +90,8 @@ function SlideCard({
                 )}
               </button>
             </div>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
-              {slide.body}
-            </p>
-            <div className="text-xs text-gray-400 text-right">
-              {slide.body.length}/280
-            </div>
+            <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{slide.body}</p>
+            <div className="text-xs text-gray-400 text-right">{slide.body.length}/280</div>
           </div>
         </Card>
       </div>
@@ -106,7 +100,7 @@ function SlideCard({
 
   return (
     <div className="min-w-[280px] max-w-[280px] snap-center">
-      <div 
+      <div
         id={`slide-${slide.slideNumber}`}
         className={`bg-gradient-to-br ${gradient} rounded-2xl overflow-hidden shadow-lg aspect-square flex flex-col relative`}
       >
@@ -127,12 +121,8 @@ function SlideCard({
           <div className="text-xs font-medium uppercase tracking-wider text-white/60 mb-3">
             {slide.slideNumber}/{totalSlides}
           </div>
-          <h3 className="text-lg font-bold mb-3 leading-snug">
-            {slide.title}
-          </h3>
-          <p className="text-sm text-white/85 leading-relaxed line-clamp-6">
-            {slide.body}
-          </p>
+          <h3 className="text-lg font-bold mb-3 leading-snug">{slide.title}</h3>
+          <p className="text-sm text-white/85 leading-relaxed line-clamp-6">{slide.body}</p>
         </div>
 
         <div className="px-6 pb-4">
@@ -141,9 +131,7 @@ function SlideCard({
               <div
                 key={i}
                 className={`h-1 rounded-full transition-all ${
-                  i === slide.slideNumber - 1
-                    ? 'w-4 bg-white'
-                    : 'w-1.5 bg-white/30'
+                  i === slide.slideNumber - 1 ? 'w-4 bg-white' : 'w-1.5 bg-white/30'
                 }`}
               />
             ))}
@@ -181,11 +169,7 @@ export function CarouselPage() {
       setResult(data);
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -211,12 +195,12 @@ export function CarouselPage() {
     const isThread = platform === 'twitter-thread';
     const text = result.slides
       .map((s) =>
-        isThread ? `${s.slideNumber}/ ${s.body}` : `[Slide ${s.slideNumber}]\n${s.title}\n\n${s.body}`,
+        isThread
+          ? `${s.slideNumber}/ ${s.body}`
+          : `[Slide ${s.slideNumber}]\n${s.title}\n\n${s.body}`,
       )
       .join('\n\n---\n\n');
-    const fullText = result.caption
-      ? `${result.caption}\n\n---\n\n${text}`
-      : text;
+    const fullText = result.caption ? `${result.caption}\n\n---\n\n${text}` : text;
     await navigator.clipboard.writeText(fullText);
     setAllCopied(true);
     toast.success(t('post.copied', 'Copied!'));
@@ -226,34 +210,34 @@ export function CarouselPage() {
   const handleDownloadImages = async () => {
     if (!result || platform === 'twitter-thread') return;
     setIsExporting(true);
-    
+
     try {
       const zip = new JSZip();
-      
+
       for (const slide of result.slides) {
         const node = document.getElementById(`slide-${slide.slideNumber}`);
         if (node) {
           // Add a small delay for fonts/styles to render correctly
           await new Promise((resolve) => setTimeout(resolve, 100));
-          
+
           const dataUrl = await toPng(node, {
             quality: 1,
             pixelRatio: 2, // High resolution for social media
             filter: (node) => {
-              // We added data-html2canvas-ignore to the copy button, 
+              // We added data-html2canvas-ignore to the copy button,
               // but html-to-image uses a different filter mechanism sometimes.
               // Just to be safe:
               const el = node as HTMLElement;
               return el.dataset?.html2canvasIgnore !== 'true';
-            }
+            },
           });
-          
+
           // dataUrl is a base64 string: data:image/png;base64,....
           const base64Data = dataUrl.split(',')[1];
           zip.file(`slide-${slide.slideNumber}.png`, base64Data, { base64: true });
         }
       }
-      
+
       const content = await zip.generateAsync({ type: 'blob' });
       const url = window.URL.createObjectURL(content);
       const link = document.createElement('a');
@@ -261,7 +245,7 @@ export function CarouselPage() {
       link.download = `carousel-${platform}.zip`;
       link.click();
       window.URL.revokeObjectURL(url);
-      
+
       toast.success(t('carousel.downloadSuccess', 'Images downloaded successfully!'));
     } catch (err) {
       console.error('Error generating images:', err);
@@ -385,14 +369,10 @@ export function CarouselPage() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  icon={
-                    allCopied ? <Check size={14} /> : <Copy size={14} />
-                  }
+                  icon={allCopied ? <Check size={14} /> : <Copy size={14} />}
                   onClick={handleCopyAll}
                 >
-                  {allCopied
-                    ? t('post.copied', 'Copied!')
-                    : t('carousel.copyAll', 'Copy All')}
+                  {allCopied ? t('post.copied', 'Copied!') : t('carousel.copyAll', 'Copy All')}
                 </Button>
                 {platform !== 'twitter-thread' && (
                   <Button
@@ -403,7 +383,9 @@ export function CarouselPage() {
                     loading={isExporting}
                     disabled={isExporting}
                   >
-                    {isExporting ? t('carousel.exporting', 'Exporting...') : t('carousel.download', 'Download Images')}
+                    {isExporting
+                      ? t('carousel.exporting', 'Exporting...')
+                      : t('carousel.download', 'Download Images')}
                   </Button>
                 )}
                 <button

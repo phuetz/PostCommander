@@ -13,10 +13,30 @@ export const PLANS = {
     postsPerMonth: -1, // unlimited
     aiProviders: 5,
     platforms: 6,
-    features: ['all_tones', 'viral_library', 'hooks', 'carousel', 'templates', 'repurpose', 'hashtags', 'styles', 'ab_testing', 'engagement', 'trending'],
+    features: [
+      'all_tones',
+      'viral_library',
+      'hooks',
+      'carousel',
+      'templates',
+      'repurpose',
+      'hashtags',
+      'styles',
+      'ab_testing',
+      'engagement',
+      'trending',
+    ],
     prices: {
-      month: { amount: 1900, currency: 'eur', stripePriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || '' },
-      year: { amount: 19000, currency: 'eur', stripePriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID || '' },
+      month: {
+        amount: 1900,
+        currency: 'eur',
+        stripePriceId: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || '',
+      },
+      year: {
+        amount: 19000,
+        currency: 'eur',
+        stripePriceId: process.env.STRIPE_PRO_YEARLY_PRICE_ID || '',
+      },
     },
   },
   business: {
@@ -36,8 +56,16 @@ export const PLANS = {
       'account_export',
     ],
     prices: {
-      month: { amount: 4900, currency: 'eur', stripePriceId: process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || '' },
-      year: { amount: 49000, currency: 'eur', stripePriceId: process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID || '' },
+      month: {
+        amount: 4900,
+        currency: 'eur',
+        stripePriceId: process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || '',
+      },
+      year: {
+        amount: 49000,
+        currency: 'eur',
+        stripePriceId: process.env.STRIPE_BUSINESS_YEARLY_PRICE_ID || '',
+      },
     },
   },
 } as const;
@@ -56,7 +84,9 @@ export function getStripePriceId(plan: PaidPlanId, interval: BillingInterval): s
   }
   const priceId = planConfig.prices[interval].stripePriceId;
   if (!priceId) {
-    throw new Error(`Stripe price ID not configured for ${plan}/${interval}. Set the STRIPE_*_PRICE_ID env vars.`);
+    throw new Error(
+      `Stripe price ID not configured for ${plan}/${interval}. Set the STRIPE_*_PRICE_ID env vars.`,
+    );
   }
   return priceId;
 }
@@ -64,7 +94,9 @@ export function getStripePriceId(plan: PaidPlanId, interval: BillingInterval): s
 /**
  * Determine which plan a Stripe price ID belongs to.
  */
-export function planFromPriceId(priceId: string): { plan: PaidPlanId; interval: BillingInterval } | null {
+export function planFromPriceId(
+  priceId: string,
+): { plan: PaidPlanId; interval: BillingInterval } | null {
   for (const planId of ['pro', 'business'] as const) {
     const planConfig = PLANS[planId];
     if (planConfig.prices.month.stripePriceId === priceId) {

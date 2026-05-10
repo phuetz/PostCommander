@@ -7,11 +7,19 @@ vi.mock('./linkedin.js', () => ({
   LinkedInAdapter: class {
     readonly platformId = 'linkedin';
     readonly name = 'LinkedIn';
-    getAuthUrl() { return ''; }
-    async exchangeCode() { return { accessToken: '' }; }
+    getAuthUrl() {
+      return '';
+    }
+    async exchangeCode() {
+      return { accessToken: '' };
+    }
     refreshToken = refreshSpy;
-    async publishPost() { return { platformPostId: '', platformUrl: '' }; }
-    async getAccountInfo() { return { accountId: '', accountName: '' }; }
+    async publishPost() {
+      return { platformPostId: '', platformUrl: '' };
+    }
+    async getAccountInfo() {
+      return { accountId: '', accountName: '' };
+    }
   },
 }));
 

@@ -37,9 +37,7 @@ export function buildPrompts(params: {
 
   const toneHint = getToneHint(tone);
   const platformConstraints = getPlatformConstraints(platforms);
-  const platformNames = platforms
-    .map((pid) => PLATFORMS[pid].name)
-    .join(', ');
+  const platformNames = platforms.map((pid) => PLATFORMS[pid].name).join(', ');
 
   const system = `You are an expert social media content creator. Your job is to generate engaging, platform-optimized posts based on user prompts.
 
@@ -97,9 +95,7 @@ export function buildStreamingPrompts(params: {
 }): BuiltPrompts {
   const { prompt, platforms, tone, language } = params;
   const toneHint = getToneHint(tone);
-  const platformNames = platforms
-    .map((pid) => PLATFORMS[pid].name)
-    .join(', ');
+  const platformNames = platforms.map((pid) => PLATFORMS[pid].name).join(', ');
 
   const system = `You are an expert social media content creator. ${toneHint}
 Write in: ${language || 'English'}

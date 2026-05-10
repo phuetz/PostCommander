@@ -24,10 +24,7 @@ interface BestTimesSuggestion {
 /**
  * GET /api/analytics/overview
  */
-export const getOverview = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getOverview = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const db = getDrizzle();
 
@@ -44,7 +41,7 @@ export const getOverview = catchAsync(async (
     .from(postsTable)
     .where(eq(postsTable.userId, requestUser.id))
     .groupBy(postsTable.status);
-  
+
   const byStatus: Record<string, number> = {};
   for (const row of statusRows) {
     byStatus[row.status] = Number(row.count);
@@ -71,9 +68,15 @@ export const getOverview = catchAsync(async (
   const toneRows = await db
     .select({ tone: postsTable.tone, count: sql<number>`count(*)` })
     .from(postsTable)
-    .where(and(eq(postsTable.userId, requestUser.id), isNotNull(postsTable.tone), ne(postsTable.tone, '')))
+    .where(
+      and(
+        eq(postsTable.userId, requestUser.id),
+        isNotNull(postsTable.tone),
+        ne(postsTable.tone, ''),
+      ),
+    )
     .groupBy(postsTable.tone);
-  
+
   const byTone: Record<string, number> = {};
   for (const row of toneRows) {
     if (row.tone) {
@@ -83,12 +86,17 @@ export const getOverview = catchAsync(async (
 
   // Posts per week (last 12 weeks)
   const weekRows = await db
-    .select({ 
-      week: sql<string>`strftime('%Y-W%W', ${postsTable.createdAt})`, 
-      count: sql<number>`count(*)` 
+    .select({
+      week: sql<string>`strftime('%Y-W%W', ${postsTable.createdAt})`,
+      count: sql<number>`count(*)`,
     })
     .from(postsTable)
-    .where(and(eq(postsTable.userId, requestUser.id), sql`${postsTable.createdAt} >= datetime('now', '-12 weeks')`))
+    .where(
+      and(
+        eq(postsTable.userId, requestUser.id),
+        sql`${postsTable.createdAt} >= datetime('now', '-12 weeks')`,
+      ),
+    )
     .groupBy(sql`week`)
     .orderBy(sql`week ASC`);
 
@@ -99,12 +107,17 @@ export const getOverview = catchAsync(async (
 
   // Recent activity (last 30 days)
   const activityRows = await db
-    .select({ 
-      date: sql<string>`date(${postsTable.createdAt})`, 
-      count: sql<number>`count(*)` 
+    .select({
+      date: sql<string>`date(${postsTable.createdAt})`,
+      count: sql<number>`count(*)`,
     })
     .from(postsTable)
-    .where(and(eq(postsTable.userId, requestUser.id), sql`${postsTable.createdAt} >= datetime('now', '-30 days')`))
+    .where(
+      and(
+        eq(postsTable.userId, requestUser.id),
+        sql`${postsTable.createdAt} >= datetime('now', '-30 days')`,
+      ),
+    )
     .groupBy(sql`date`)
     .orderBy(sql`date ASC`);
 
@@ -129,10 +142,7 @@ export const getOverview = catchAsync(async (
  * GET /api/analytics/best-times
  * Suggest best posting times based on historical published posts.
  */
-export const getBestTimes = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getBestTimes = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const db = getDrizzle();
 
@@ -150,7 +160,7 @@ export const getBestTimes = catchAsync(async (
           WHEN 6 THEN 'Saturday'
         END`,
       hour: sql<number>`CAST(strftime('%H', ${postsTable.publishedAt}) AS INTEGER)`,
-      count: sql<number>`count(*)`
+      count: sql<number>`count(*)`,
     })
     .from(postsTable)
     .where(and(eq(postsTable.userId, requestUser.id), isNotNull(postsTable.publishedAt)))
@@ -160,9 +170,24 @@ export const getBestTimes = catchAsync(async (
   if (rows.length === 0) {
     // If no published posts, return general best practices
     const defaults: BestTimesSuggestion[] = [
-      { dayOfWeek: 'Tuesday', hour: 10, postCount: 0, label: 'Tuesday 10:00 AM (industry best practice)' },
-      { dayOfWeek: 'Wednesday', hour: 12, postCount: 0, label: 'Wednesday 12:00 PM (lunch break engagement)' },
-      { dayOfWeek: 'Thursday', hour: 9, postCount: 0, label: 'Thursday 9:00 AM (high morning engagement)' },
+      {
+        dayOfWeek: 'Tuesday',
+        hour: 10,
+        postCount: 0,
+        label: 'Tuesday 10:00 AM (industry best practice)',
+      },
+      {
+        dayOfWeek: 'Wednesday',
+        hour: 12,
+        postCount: 0,
+        label: 'Wednesday 12:00 PM (lunch break engagement)',
+      },
+      {
+        dayOfWeek: 'Thursday',
+        hour: 9,
+        postCount: 0,
+        label: 'Thursday 9:00 AM (high morning engagement)',
+      },
       { dayOfWeek: 'Tuesday', hour: 14, postCount: 0, label: 'Tuesday 2:00 PM (afternoon peak)' },
       { dayOfWeek: 'Monday', hour: 8, postCount: 0, label: 'Monday 8:00 AM (start of week)' },
     ];
@@ -172,17 +197,22 @@ export const getBestTimes = catchAsync(async (
       data: {
         suggestions: defaults,
         basedOnHistory: false,
-        message: 'No published posts yet. These are industry best practices. Suggestions will improve as you publish more content.',
+        message:
+          'No published posts yet. These are industry best practices. Suggestions will improve as you publish more content.',
       },
     });
     return;
   }
 
   const suggestions: BestTimesSuggestion[] = rows.slice(0, 10).map((row) => {
-    const hourFormatted = row.hour === 0 ? '12:00 AM' :
-      row.hour < 12 ? `${row.hour}:00 AM` :
-      row.hour === 12 ? '12:00 PM' :
-      `${row.hour - 12}:00 PM`;
+    const hourFormatted =
+      row.hour === 0
+        ? '12:00 AM'
+        : row.hour < 12
+          ? `${row.hour}:00 AM`
+          : row.hour === 12
+            ? '12:00 PM'
+            : `${row.hour - 12}:00 PM`;
 
     return {
       dayOfWeek: row.day_of_week,
@@ -198,7 +228,8 @@ export const getBestTimes = catchAsync(async (
       suggestions,
       basedOnHistory: true,
       totalPublished: rows.reduce((sum: number, r) => sum + Number(r.count), 0),
-      message: 'Based on your publishing history. Times with higher post counts indicate your most active publishing windows.',
+      message:
+        'Based on your publishing history. Times with higher post counts indicate your most active publishing windows.',
     },
   });
 });
@@ -259,7 +290,8 @@ export const generateCommentReply = catchAsync(async (req: Request, res: Respons
     brandTone: comment.postTone || 'friendly',
   });
 
-  await db.update(socialComments)
+  await db
+    .update(socialComments)
     .set({ isReplied: 1, replyContent: reply })
     .where(eq(socialComments.id, commentId));
 
@@ -308,7 +340,8 @@ export const scoreComment = catchAsync(async (req: Request, res: Response) => {
     authorName: comment.authorName,
   });
 
-  await db.update(socialComments)
+  await db
+    .update(socialComments)
     .set({
       leadScore: scoreData.leadScore,
       leadStatus: scoreData.leadStatus,
@@ -384,20 +417,21 @@ export const runAgentStep = catchAsync(async (req: Request, res: Response) => {
   // the ai sdk `generateText` returns text, but also has `toolCalls` and `toolResults` if we used tools
   // Let's build the new history
   const assistantResponse = result.text;
-  
+
   // Since we called maxSteps: 3, the agent might have made tool calls. We want to save the final history.
   // Actually, Vercel AI SDK result.response.messages contains the new messages.
   const newMessages = result.response?.messages || [
-    { role: 'assistant', content: assistantResponse }
+    { role: 'assistant', content: assistantResponse },
   ];
-  
+
   history.push(...newMessages);
 
   // Check if escalateToHuman was called
   const toolCalls = result.toolCalls || [];
-  const requiresHuman = toolCalls.some(tc => tc.toolName === 'escalateToHuman') ? 1 : 0;
+  const requiresHuman = toolCalls.some((tc) => tc.toolName === 'escalateToHuman') ? 1 : 0;
 
-  await db.update(socialComments)
+  await db
+    .update(socialComments)
     .set({
       agentState: JSON.stringify(history),
       requiresHuman,

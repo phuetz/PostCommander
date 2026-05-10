@@ -5,10 +5,7 @@ import manifest from './manifest.json' with { type: 'json' };
 import { resolve } from 'path';
 
 export default defineConfig({
-  plugins: [
-    react(),
-    crx({ manifest }),
-  ],
+  plugins: [react(), crx({ manifest })],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

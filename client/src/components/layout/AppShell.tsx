@@ -39,14 +39,9 @@ export function AppShell({ children }: AppShellProps) {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="lg:pl-64 flex flex-col min-h-screen">
-        <Header
-          title={title}
-          onMenuToggle={() => setSidebarOpen(true)}
-        />
+        <Header title={title} onMenuToggle={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 p-4 sm:p-6">
-          {children}
-        </main>
+        <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

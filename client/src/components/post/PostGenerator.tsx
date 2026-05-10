@@ -2,12 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, X, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
-import type {
-  PlatformId,
-  ToneId,
-  LLMProviderId,
-  GenerateRequest,
-} from '@postcommander/shared';
+import type { PlatformId, ToneId, LLMProviderId, GenerateRequest } from '@postcommander/shared';
 import { useGenerate } from '@/hooks/useGenerate';
 import { createPost } from '@/services/api';
 import { Button } from '@/components/ui/Button';
@@ -21,15 +16,7 @@ import { PostPreview } from './PostPreview';
 
 export function PostGenerator() {
   const { t } = useTranslation();
-  const {
-    isGenerating,
-    streamedContent,
-    result,
-    error,
-    generate,
-    cancel,
-    reset,
-  } = useGenerate();
+  const { isGenerating, streamedContent, result, error, generate, cancel, reset } = useGenerate();
 
   const [prompt, setPrompt] = useState('');
   const [platforms, setPlatforms] = useState<PlatformId[]>(['linkedin']);
@@ -43,15 +30,53 @@ export function PostGenerator() {
   const [autoPlugContent, setAutoPlugContent] = useState('');
   const [autoPlugThreshold, setAutoPlugThreshold] = useState('50');
 
-  const handleGenerate = () => {
+  // Blog Article State
+  const [isBlogArticle, setIsBlogArticle] = useState(false);
+  const [articleType, setArticleType] = useState('fond-technique');
+  const [authorName, setAuthorName] = useState('Patrice Huetz');
+  const [authorRole, setAuthorRole] = useState('architecte logiciel');
+  const [authorReferences, setAuthorReferences] = useState('La Boucle Ralph, GitNexus, Agile Up');
+
+  const handleGenerate = async () => {
     if (!prompt.trim()) {
       toast.error(t('generate.promptRequired', 'Please enter a topic or idea'));
       return;
     }
+
+    if (isBlogArticle) {
+      if (!authorName.trim()) {
+        toast.error("Veuillez entrer un nom d'auteur");
+        return;
+      }
+      try {
+        setIsSaving(true);
+        const { generateBlogArticle } = await import('@/services/api');
+        const blogResult = await generateBlogArticle({
+          topic: prompt.trim(),
+          articleType,
+          provider,
+          model,
+          authorName: authorName.trim(),
+          authorRole: authorRole.trim(),
+          authorReferences: authorReferences
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
+        });
+
+        setVariants({ linkedin: blogResult.content });
+        // Create a mock result for the preview
+        reset(); // clear previous
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Erreur de génération du blog');
+      } finally {
+        setIsSaving(false);
+      }
+      return;
+    }
+
     if (platforms.length === 0) {
-      toast.error(
-        t('generate.platformRequired', 'Please select at least one platform'),
-      );
+      toast.error(t('generate.platformRequired', 'Please select at least one platform'));
       return;
     }
 
@@ -78,20 +103,18 @@ export function PostGenerator() {
         llmProvider: provider,
         llmModel: model,
         platforms,
-        platformVariants:
-          Object.keys(variants).length > 0 ? variants : result.platformVariants,
+        platformVariants: Object.keys(variants).length > 0 ? variants : result.platformVariants,
         hashtags: result.hashtags,
         autoPlugContent: enableAutoPlug && autoPlugContent ? autoPlugContent : undefined,
-        autoPlugThreshold: enableAutoPlug && autoPlugThreshold ? parseInt(autoPlugThreshold, 10) : undefined,
+        autoPlugThreshold:
+          enableAutoPlug && autoPlugThreshold ? parseInt(autoPlugThreshold, 10) : undefined,
         status: 'draft',
         scheduledAt: null,
         publishedAt: null,
       });
       toast.success(t('generate.saved', 'Post saved as draft'));
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t('common.error', 'An error occurred'),
-      );
+      toast.error(err instanceof Error ? err.message : t('common.error', 'An error occurred'));
     } finally {
       setIsSaving(false);
     }
@@ -141,6 +164,63 @@ export function PostGenerator() {
             onModelChange={setModel}
           />
 
+          {/* Blog Article Configuration */}
+          <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isBlogArticle}
+                onChange={(e) => setIsBlogArticle(e.target.checked)}
+                className="rounded border-gray-300 text-brand-600 focus:ring-brand-600"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Générer un Article de Blog (Long format)
+              </span>
+            </label>
+
+            {isBlogArticle && (
+              <div className="pl-6 space-y-3">
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Type d'Article
+                  </label>
+                  <select
+                    value={articleType}
+                    onChange={(e) => setArticleType(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="fond-technique">
+                      Fond Technique (Pédagogique, Problème/Solution)
+                    </option>
+                    <option value="news-comment">News Commentée (React to news)</option>
+                    <option value="opinion-perso">Opinion Perso (Essai, Prise de position)</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    label="Nom de l'auteur"
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                  />
+                  <Input
+                    label="Rôle / Expertise"
+                    value={authorRole}
+                    onChange={(e) => setAuthorRole(e.target.value)}
+                  />
+                </div>
+
+                <TextArea
+                  label="Références Catalogue (séparées par des virgules)"
+                  value={authorReferences}
+                  onChange={(e) => setAuthorReferences(e.target.value)}
+                  placeholder="Ex: La Boucle Ralph, GitNexus..."
+                  rows={2}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Auto-Plug Configuration */}
           <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
             <label className="flex items-center gap-2 cursor-pointer">
@@ -161,7 +241,10 @@ export function PostGenerator() {
                   label={t('generate.autoPlugContent', 'Auto-Plug Comment Content')}
                   value={autoPlugContent}
                   onChange={(e) => setAutoPlugContent(e.target.value)}
-                  placeholder={t('generate.autoPlugContentPlaceholder', 'e.g. Thanks for reading! Subscribe to my newsletter here: https://...')}
+                  placeholder={t(
+                    'generate.autoPlugContentPlaceholder',
+                    'e.g. Thanks for reading! Subscribe to my newsletter here: https://...',
+                  )}
                   rows={2}
                 />
                 <Input
@@ -190,11 +273,7 @@ export function PostGenerator() {
             </Button>
 
             {isGenerating && (
-              <Button
-                variant="ghost"
-                onClick={cancel}
-                icon={<X size={18} />}
-              >
+              <Button variant="ghost" onClick={cancel} icon={<X size={18} />}>
                 {t('common.cancel', 'Cancel')}
               </Button>
             )}
@@ -226,11 +305,13 @@ export function PostGenerator() {
       )}
 
       {/* Streaming / Result Preview */}
-      {(isGenerating || hasResult) && (
+      {(isGenerating || hasResult || Object.keys(variants).length > 0) && (
         <PostPreview
-          platforms={platforms}
+          platforms={isBlogArticle ? ['linkedin'] : platforms}
           platformVariants={currentVariants}
-          onVariantChange={hasResult ? handleVariantChange : undefined}
+          onVariantChange={
+            hasResult || Object.keys(variants).length > 0 ? handleVariantChange : undefined
+          }
           streaming={isGenerating}
           streamedContent={streamedContent}
         />

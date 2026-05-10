@@ -1,10 +1,6 @@
 import type { Request, Response } from 'express';
 import { and, desc, eq, inArray } from 'drizzle-orm';
-import type {
-  ApiResponse,
-  DeletedAccountAudit,
-  DeletedAccountsQuery,
-} from '@postcommander/shared';
+import type { ApiResponse, DeletedAccountAudit, DeletedAccountsQuery } from '@postcommander/shared';
 import { getDrizzle } from '../db/connection.js';
 import {
   deletedAccountAudits as deletedAccountAuditsTable,

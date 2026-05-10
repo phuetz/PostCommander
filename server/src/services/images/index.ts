@@ -171,7 +171,9 @@ export async function generateImage(
   postId?: string,
 ): Promise<GeneratedImage> {
   if (provider !== 'openai') {
-    throw new Error(`Image provider "${provider}" is not supported. Currently only "openai" (DALL-E 3) is available.`);
+    throw new Error(
+      `Image provider "${provider}" is not supported. Currently only "openai" (DALL-E 3) is available.`,
+    );
   }
 
   const apiKey = await getOpenAIKey(userId);
@@ -184,7 +186,7 @@ export async function generateImage(
   const response = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -209,7 +211,7 @@ export async function generateImage(
     throw new Error(errorMessage);
   }
 
-  const data = await response.json() as {
+  const data = (await response.json()) as {
     data: Array<{ url: string; revised_prompt?: string }>;
   };
 
@@ -281,10 +283,7 @@ export async function updateImagePostLink(
     throw new Error('Image not found');
   }
 
-  await db
-    .update(imagesTable)
-    .set({ postId })
-    .where(eq(imagesTable.id, imageId));
+  await db.update(imagesTable).set({ postId }).where(eq(imagesTable.id, imageId));
 
   const [row] = await db.select().from(imagesTable).where(eq(imagesTable.id, imageId)).limit(1);
   return rowToImage(row);

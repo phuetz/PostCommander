@@ -35,3 +35,4 @@ export * from './schemas/viral.js';
 export * from './schemas/generate.js';
 export * from './schemas/forgot-password.js';
 export * from './schemas/admin.js';
+export * from './schemas/autoblog.js';

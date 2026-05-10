@@ -78,8 +78,14 @@ function HeroSection() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="orb w-72 h-72 top-[10%] left-[5%] bg-[var(--color-accent-blue)]/20" />
-      <div className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-violet)]/15" style={{ animationDelay: '5s' }} />
-      <div className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '10s' }} />
+      <div
+        className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-violet)]/15"
+        style={{ animationDelay: '5s' }}
+      />
+      <div
+        className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '10s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass animate-fade-in-up animate-glow-pulse mb-8">
@@ -157,7 +163,10 @@ function MissionSection() {
               '"We believe every creator deserves a voice that reaches millions."',
             )}
           </blockquote>
-          <p className="text-sm text-[var(--color-text-muted)] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <p
+            className="text-sm text-[var(--color-text-muted)] animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
             {t('marketing.about.missionAttribution', '— The PostCommander Team')}
           </p>
         </div>
@@ -191,33 +200,72 @@ function BeforeAfterSection() {
   const { t } = useTranslation();
 
   const beforeItems = [
-    { icon: Clock, text: t('marketing.about.before1', '5+ hours per week writing social media posts') },
-    { icon: Users, text: t('marketing.about.before2', 'Inconsistent voice across different platforms') },
-    { icon: Layers, text: t('marketing.about.before3', 'Managing each platform separately and manually') },
-    { icon: BarChart3, text: t('marketing.about.before4', 'Low engagement despite huge time investment') },
+    {
+      icon: Clock,
+      text: t('marketing.about.before1', '5+ hours per week writing social media posts'),
+    },
+    {
+      icon: Users,
+      text: t('marketing.about.before2', 'Inconsistent voice across different platforms'),
+    },
+    {
+      icon: Layers,
+      text: t('marketing.about.before3', 'Managing each platform separately and manually'),
+    },
+    {
+      icon: BarChart3,
+      text: t('marketing.about.before4', 'Low engagement despite huge time investment'),
+    },
     { icon: Target, text: t('marketing.about.before5', 'Guessing what content will resonate') },
   ];
 
   const afterItems = [
-    { icon: Zap, text: t('marketing.about.after1', '15 minutes per week for all your social content') },
-    { icon: Shield, text: t('marketing.about.after2', 'Consistent brand voice powered by Style Cloning') },
-    { icon: Globe, text: t('marketing.about.after3', '6 platforms optimized simultaneously from one prompt') },
-    { icon: BarChart3, text: t('marketing.about.after4', 'AI-predicted engagement scores for every post') },
-    { icon: Sparkles, text: t('marketing.about.after5', 'Data-driven content from trending topics and viral patterns') },
+    {
+      icon: Zap,
+      text: t('marketing.about.after1', '15 minutes per week for all your social content'),
+    },
+    {
+      icon: Shield,
+      text: t('marketing.about.after2', 'Consistent brand voice powered by Style Cloning'),
+    },
+    {
+      icon: Globe,
+      text: t('marketing.about.after3', '6 platforms optimized simultaneously from one prompt'),
+    },
+    {
+      icon: BarChart3,
+      text: t('marketing.about.after4', 'AI-predicted engagement scores for every post'),
+    },
+    {
+      icon: Sparkles,
+      text: t(
+        'marketing.about.after5',
+        'Data-driven content from trending topics and viral patterns',
+      ),
+    },
   ];
 
   return (
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
-      <div className="orb w-80 h-80 top-[20%] left-[10%] bg-red-500/10" style={{ animationDelay: '3s' }} />
-      <div className="orb w-80 h-80 top-[20%] right-[10%] bg-emerald-500/10" style={{ animationDelay: '8s' }} />
+      <div
+        className="orb w-80 h-80 top-[20%] left-[10%] bg-red-500/10"
+        style={{ animationDelay: '3s' }}
+      />
+      <div
+        className="orb w-80 h-80 top-[20%] right-[10%] bg-emerald-500/10"
+        style={{ animationDelay: '8s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.about.problemTitle', 'The Problem We Solve')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <p
+            className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
             {t(
               'marketing.about.problemSubtitle',
               'See how PostCommander transforms the way creators approach social media.',
@@ -259,7 +307,8 @@ function BeforeAfterSection() {
             className="glass-card p-8 rounded-2xl animate-fade-in-up"
             style={{
               animationDelay: '0.3s',
-              boxShadow: '0 0 40px rgba(16, 185, 129, 0.08), inset 0 0 40px rgba(16, 185, 129, 0.02)',
+              boxShadow:
+                '0 0 40px rgba(16, 185, 129, 0.08), inset 0 0 40px rgba(16, 185, 129, 0.02)',
             }}
           >
             <div className="flex items-center gap-3 mb-6">
@@ -342,7 +391,10 @@ function TeamSection() {
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.about.teamTitle', 'Built by Creators, for Creators')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <p
+            className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
             {t(
               'marketing.about.teamSubtitle',
               'A team of engineers, creators, and AI researchers united by one mission: making content creation effortless.',
@@ -363,10 +415,14 @@ function TeamSection() {
                   member.gradient,
                 )}
               >
-                <span className="font-display text-2xl font-bold text-white">{member.initials}</span>
+                <span className="font-display text-2xl font-bold text-white">
+                  {member.initials}
+                </span>
               </div>
               <h3 className="heading-sm text-white mb-1">{member.name}</h3>
-              <p className="text-sm text-[var(--color-accent-violet)] font-medium mb-4">{member.role}</p>
+              <p className="text-sm text-[var(--color-accent-violet)] font-medium mb-4">
+                {member.role}
+              </p>
               <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-5">
                 {member.bio}
               </p>
@@ -412,19 +468,25 @@ function StatsSection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
       <div className="absolute inset-0 mesh-gradient opacity-50" />
-      <div className="orb w-96 h-96 top-[30%] left-[10%] bg-[var(--color-accent-blue)]/15" style={{ animationDelay: '2s' }} />
-      <div className="orb w-72 h-72 top-[40%] right-[15%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '7s' }} />
+      <div
+        className="orb w-96 h-96 top-[30%] left-[10%] bg-[var(--color-accent-blue)]/15"
+        style={{ animationDelay: '2s' }}
+      />
+      <div
+        className="orb w-72 h-72 top-[40%] right-[15%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '7s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.about.statsTitle', 'PostCommander in Numbers')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t(
-              'marketing.about.statsSubtitle',
-              'Growing every day, powering creators worldwide.',
-            )}
+          <p
+            className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t('marketing.about.statsSubtitle', 'Growing every day, powering creators worldwide.')}
           </p>
         </div>
 
@@ -506,14 +568,20 @@ function TechSection() {
   return (
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 dot-pattern" />
-      <div className="orb w-64 h-64 bottom-[20%] right-[10%] bg-[var(--color-accent-cyan)]/10" style={{ animationDelay: '4s' }} />
+      <div
+        className="orb w-64 h-64 bottom-[20%] right-[10%] bg-[var(--color-accent-cyan)]/10"
+        style={{ animationDelay: '4s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-lg text-white mb-4 animate-fade-in-up">
             {t('marketing.about.techTitle', 'Powered by 5 AI Models')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <p
+            className="text-[var(--color-text-secondary)] max-w-2xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
             {t(
               'marketing.about.techSubtitle',
               'We use a multi-AI approach so you always get the best output. Different models excel at different tasks — PostCommander picks the right one for you.',
@@ -561,19 +629,28 @@ function CTASection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
       <div className="absolute inset-0 mesh-gradient opacity-40" />
-      <div className="orb w-72 h-72 top-[30%] left-[20%] bg-[var(--color-accent-violet)]/15" style={{ animationDelay: '3s' }} />
+      <div
+        className="orb w-72 h-72 top-[30%] left-[20%] bg-[var(--color-accent-violet)]/15"
+        style={{ animationDelay: '3s' }}
+      />
 
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="heading-lg text-white mb-6 animate-fade-in-up">
           {t('marketing.about.ctaTitle', 'Join the Community')}
         </h2>
-        <p className="text-[var(--color-text-secondary)] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <p
+          className="text-[var(--color-text-secondary)] mb-10 animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
           {t(
             'marketing.about.ctaSubtitle',
             'Thousands of creators are already using PostCommander to grow their social media presence. Ready to join them?',
           )}
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <div
+          className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
+          style={{ animationDelay: '0.2s' }}
+        >
           <Link to="/app" className="btn-primary-glow">
             {t('marketing.about.ctaPrimary', 'Start Free')}
             <ArrowRight size={18} />

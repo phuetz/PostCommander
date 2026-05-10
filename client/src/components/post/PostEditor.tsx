@@ -10,12 +10,7 @@ interface PostEditorProps {
   onCancel: () => void;
 }
 
-export function PostEditor({
-  content,
-  charLimit,
-  onSave,
-  onCancel,
-}: PostEditorProps) {
+export function PostEditor({ content, charLimit, onSave, onCancel }: PostEditorProps) {
   const { t } = useTranslation();
   const [value, setValue] = useState(content);
 

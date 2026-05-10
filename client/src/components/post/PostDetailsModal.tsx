@@ -36,11 +36,7 @@ export function PostDetailsModal({ post, onClose }: PostDetailsModalProps) {
   };
 
   return (
-    <Modal
-      open={!!post}
-      onClose={onClose}
-      title={t('postDetails.title', 'Post Details & Review')}
-    >
+    <Modal open={!!post} onClose={onClose} title={t('postDetails.title', 'Post Details & Review')}>
       <div className="space-y-6">
         {/* Post Content */}
         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl">
@@ -100,10 +96,15 @@ export function PostDetailsModal({ post, onClose }: PostDetailsModalProps) {
               </p>
             ) : (
               commentsQuery.data?.map((comment) => (
-                <div key={comment.id} className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-lg">
+                <div
+                  key={comment.id}
+                  className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-lg"
+                >
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-brand-600 text-xs font-bold">
-                      {comment.user?.name?.[0]?.toUpperCase() || comment.user?.email?.[0]?.toUpperCase() || '?'}
+                      {comment.user?.name?.[0]?.toUpperCase() ||
+                        comment.user?.email?.[0]?.toUpperCase() ||
+                        '?'}
                     </div>
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {comment.user?.name || comment.user?.email}
@@ -112,9 +113,7 @@ export function PostDetailsModal({ post, onClose }: PostDetailsModalProps) {
                       {format(new Date(comment.createdAt), 'MMM d, HH:mm')}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 ml-8">
-                    {comment.content}
-                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 ml-8">{comment.content}</p>
                 </div>
               ))
             )}

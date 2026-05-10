@@ -28,7 +28,7 @@ export const agentWorker = new Worker<AgentJobData>(
   },
   {
     connection: connection as WorkerOptions['connection'],
-  }
+  },
 );
 
 agentWorker.on('completed', (job) => {

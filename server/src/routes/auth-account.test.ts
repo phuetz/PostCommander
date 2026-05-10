@@ -206,14 +206,8 @@ describe('Account data routes', () => {
     expect(response.body.data.message).toBe('Account deleted successfully');
     expect(response.headers['set-cookie'][0]).toContain('token=;');
 
-    const deletedUser = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, userA.id));
-    const remainingUsers = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, userB.id));
+    const deletedUser = await db.select().from(usersTable).where(eq(usersTable.id, userA.id));
+    const remainingUsers = await db.select().from(usersTable).where(eq(usersTable.id, userB.id));
     const remainingPosts = await db.select().from(postsTable);
     const archivedAccounts = await db.select().from(deletedAccountAuditsTable);
     const archivedBillingRecords = await db.select().from(deletedBillingRecordsTable);

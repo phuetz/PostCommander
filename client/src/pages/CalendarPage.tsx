@@ -1,12 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar as CalendarIcon,
-  Repeat,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Repeat } from 'lucide-react';
 import {
   startOfMonth,
   endOfMonth,
@@ -23,22 +18,19 @@ import {
 } from 'date-fns';
 import { enUS, fr } from 'date-fns/locale';
 import clsx from 'clsx';
-import { 
-  DndContext, 
-  DragOverlay, 
-  closestCenter, 
-  KeyboardSensor, 
-  PointerSensor, 
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
   useDroppable,
-  useSensor, 
+  useSensor,
   useSensors,
   DragStartEvent,
   DragEndEvent,
 } from '@dnd-kit/core';
-import { 
-  sortableKeyboardCoordinates, 
-  useSortable
-} from '@dnd-kit/sortable';
+import { sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { toast } from 'react-hot-toast';
 
@@ -68,14 +60,10 @@ const statusBadge: Record<string, 'default' | 'success' | 'info' | 'danger'> = {
 // ── Draggable Post Item ──────────────────────────────────────────────
 
 function DraggablePost({ post }: { post: Post }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: post.id, data: { post } });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: post.id,
+    data: { post },
+  });
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -114,17 +102,17 @@ function DraggablePost({ post }: { post: Post }) {
 
 // ── Droppable Day Cell ───────────────────────────────────────────────
 
-function CalendarDay({ 
+function CalendarDay({
   dateKey,
-  day, 
-  posts, 
-  currentDate, 
-  isSelected, 
-  onClick 
-}: { 
+  day,
+  posts,
+  currentDate,
+  isSelected,
+  onClick,
+}: {
   dateKey: string;
-  day: Date; 
-  posts: Post[]; 
+  day: Date;
+  posts: Post[];
   currentDate: Date;
   isSelected: boolean;
   onClick: () => void;
@@ -220,7 +208,7 @@ export function CalendarPage() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -234,7 +222,7 @@ export function CalendarPage() {
     if (over && active.id !== over.id) {
       const draggedPost = active.data.current?.post as Post;
       const targetDateStr = over.id as string; // We'll make days droppable with their date strings
-      
+
       // Simple date format check
       if (/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr)) {
         const newDate = new Date(targetDateStr);
@@ -254,7 +242,9 @@ export function CalendarPage() {
               status: 'scheduled',
             },
           });
-          toast.success(t('calendar.moved', { date: format(newDate, 'MMM d', { locale: currentLocale }) }));
+          toast.success(
+            t('calendar.moved', { date: format(newDate, 'MMM d', { locale: currentLocale }) }),
+          );
         } catch {
           // Toast handled by hook
         }
@@ -292,11 +282,7 @@ export function CalendarPage() {
               icon={<ChevronLeft size={18} />}
               onClick={() => setCurrentDate(subMonths(currentDate, 1))}
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setCurrentDate(new Date())}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setCurrentDate(new Date())}>
               {t('calendar.today')}
             </Button>
             <Button
@@ -336,7 +322,7 @@ export function CalendarPage() {
               {days.map((day) => {
                 const dateKey = format(day, 'yyyy-MM-dd');
                 const dayPosts = postsByDate.get(dateKey) || [];
-                
+
                 return (
                   <CalendarDay
                     key={dateKey}
@@ -371,7 +357,9 @@ export function CalendarPage() {
       <Modal
         open={selectedDay !== null && selectedDayPosts.length > 0}
         onClose={() => setSelectedDay(null)}
-        title={selectedDay ? format(selectedDay, 'EEEE, MMMM d, yyyy', { locale: currentLocale }) : ''}
+        title={
+          selectedDay ? format(selectedDay, 'EEEE, MMMM d, yyyy', { locale: currentLocale }) : ''
+        }
         maxWidth="lg"
       >
         <div className="space-y-3 max-h-[60vh] overflow-y-auto">
@@ -396,7 +384,11 @@ export function CalendarPage() {
                     )}
                   </div>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => (window.location.href = `/app/generate?id=${post.id}`)}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => (window.location.href = `/app/generate?id=${post.id}`)}
+                >
                   {t('common.edit')}
                 </Button>
               </div>

@@ -42,19 +42,17 @@ function FeatureDetail({
     <div className={clsx('grid lg:grid-cols-2 gap-12 lg:gap-16 items-center')}>
       <div className={clsx(reverse && 'lg:order-2')}>
         {/* Icon */}
-        <div className={clsx(
-          'inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br mb-6',
-          gradient,
-        )}>
+        <div
+          className={clsx(
+            'inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br mb-6',
+            gradient,
+          )}
+        >
           <Icon size={24} className="text-white" />
         </div>
 
-        <h3 className="heading-md text-white mb-4">
-          {title}
-        </h3>
-        <p className="text-[var(--color-text-secondary)] leading-relaxed mb-6">
-          {description}
-        </p>
+        <h3 className="heading-md text-white mb-4">{title}</h3>
+        <p className="text-[var(--color-text-secondary)] leading-relaxed mb-6">{description}</p>
         <ul className="space-y-3">
           {benefits.map((b) => (
             <li key={b} className="flex items-start gap-3">
@@ -66,9 +64,7 @@ function FeatureDetail({
       </div>
 
       {/* Mockup */}
-      <div className={clsx(reverse && 'lg:order-1')}>
-        {mockup}
-      </div>
+      <div className={clsx(reverse && 'lg:order-1')}>{mockup}</div>
     </div>
   );
 }
@@ -96,7 +92,10 @@ function AIProviderMockup() {
               className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center"
               style={{ backgroundColor: `${p.color}20` }}
             >
-              <div className="w-3 h-3 rounded-full" style={{ background: p.color, boxShadow: `0 0 8px ${p.color}40` }} />
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ background: p.color, boxShadow: `0 0 8px ${p.color}40` }}
+              />
             </div>
             <span className="text-xs font-semibold text-white">{p.name}</span>
           </div>
@@ -123,7 +122,10 @@ function PlatformGridMockup() {
             <span className="text-xs font-bold text-white block mb-1">{p.name}</span>
             <span className="text-[10px] text-[var(--color-text-muted)]">{p.chars} chars</span>
             <div className="mt-2 w-full h-1 rounded-full bg-white/[0.06]">
-              <div className="h-full rounded-full" style={{ width: '65%', background: p.color, opacity: 0.6 }} />
+              <div
+                className="h-full rounded-full"
+                style={{ width: '65%', background: p.color, opacity: 0.6 }}
+              />
             </div>
           </div>
         ))}
@@ -146,7 +148,9 @@ function LibraryMockup() {
             <div className="px-2 py-1 rounded-md bg-[var(--color-accent-blue)]/10 text-[var(--color-accent-blue)] text-[10px] font-bold shrink-0">
               {post.engagement}
             </div>
-            <span className="text-xs text-[var(--color-text-secondary)] truncate">{post.topic}</span>
+            <span className="text-xs text-[var(--color-text-secondary)] truncate">
+              {post.topic}
+            </span>
           </div>
         ))}
       </div>
@@ -158,7 +162,10 @@ function HooksMockup() {
   const { t } = useTranslation();
   const hooks = [
     t('features.hookExample1', 'Stop scrolling. This will change how you think about...'),
-    t('features.hookExample2', 'I spent 10 years learning this the hard way. Here it is in 30 seconds:'),
+    t(
+      'features.hookExample2',
+      'I spent 10 years learning this the hard way. Here it is in 30 seconds:',
+    ),
     t('features.hookExample3', 'The biggest lie in social media marketing is...'),
     t('features.hookExample4', 'What if everything you know about productivity is wrong?'),
   ];
@@ -167,7 +174,9 @@ function HooksMockup() {
       <div className="space-y-3">
         {hooks.map((hook, i) => (
           <div key={i} className="glass p-3 rounded-xl">
-            <p className="text-xs text-[var(--color-text-secondary)] italic leading-relaxed">&ldquo;{hook}&rdquo;</p>
+            <p className="text-xs text-[var(--color-text-secondary)] italic leading-relaxed">
+              &ldquo;{hook}&rdquo;
+            </p>
           </div>
         ))}
       </div>
@@ -180,7 +189,10 @@ function CarouselMockup() {
     <div className="glass-card p-6 rounded-2xl">
       <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
         {['Hook Slide', 'Value #1', 'Value #2', 'Value #3', 'CTA Slide'].map((slide, i) => (
-          <div key={slide} className="glass p-4 rounded-xl shrink-0 w-28 h-36 flex flex-col justify-between">
+          <div
+            key={slide}
+            className="glass p-4 rounded-xl shrink-0 w-28 h-36 flex flex-col justify-between"
+          >
             <div className="text-[8px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">
               Slide {i + 1}
             </div>
@@ -189,7 +201,9 @@ function CarouselMockup() {
               <div className="h-1.5 bg-white/[0.08] rounded-full w-3/4" />
               <div className="h-1.5 bg-white/[0.08] rounded-full w-5/6" />
             </div>
-            <span className="text-[9px] font-medium text-[var(--color-accent-violet)]">{slide}</span>
+            <span className="text-[9px] font-medium text-[var(--color-accent-violet)]">
+              {slide}
+            </span>
           </div>
         ))}
       </div>
@@ -202,7 +216,9 @@ function RepurposeMockup() {
     <div className="glass-card p-6 rounded-2xl">
       <div className="grid grid-cols-2 gap-3">
         <div className="glass p-3 rounded-xl col-span-2">
-          <div className="text-[9px] font-bold text-[var(--color-accent-blue)] mb-2 uppercase">Original (LinkedIn)</div>
+          <div className="text-[9px] font-bold text-[var(--color-accent-blue)] mb-2 uppercase">
+            Original (LinkedIn)
+          </div>
           <div className="space-y-1">
             <div className="h-1.5 bg-white/[0.08] rounded-full w-full" />
             <div className="h-1.5 bg-white/[0.08] rounded-full w-5/6" />
@@ -211,7 +227,9 @@ function RepurposeMockup() {
         </div>
         {['X Thread', 'Instagram', 'TikTok'].map((p) => (
           <div key={p} className="glass p-3 rounded-xl">
-            <div className="text-[9px] font-bold text-[var(--color-accent-violet)] mb-2 uppercase">{p}</div>
+            <div className="text-[9px] font-bold text-[var(--color-accent-violet)] mb-2 uppercase">
+              {p}
+            </div>
             <div className="space-y-1">
               <div className="h-1 bg-white/[0.06] rounded-full w-full" />
               <div className="h-1 bg-white/[0.06] rounded-full w-3/4" />
@@ -228,10 +246,15 @@ function StyleCloneMockup() {
     <div className="glass-card p-6 rounded-2xl">
       <div className="space-y-3">
         <div className="glass p-3 rounded-xl">
-          <div className="text-[9px] font-bold text-[var(--color-accent-magenta)] mb-2 uppercase">Your Style Profile</div>
+          <div className="text-[9px] font-bold text-[var(--color-accent-magenta)] mb-2 uppercase">
+            Your Style Profile
+          </div>
           <div className="flex gap-2 flex-wrap">
             {['Conversational', 'Data-driven', 'Story-first', 'Short sentences'].map((tag) => (
-              <span key={tag} className="px-2 py-0.5 rounded-full text-[8px] font-medium glass text-[var(--color-text-secondary)]">
+              <span
+                key={tag}
+                className="px-2 py-0.5 rounded-full text-[8px] font-medium glass text-[var(--color-text-secondary)]"
+              >
                 {tag}
               </span>
             ))}
@@ -239,7 +262,9 @@ function StyleCloneMockup() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="glass p-3 rounded-xl">
-            <div className="text-[9px] font-bold text-[var(--color-text-muted)] mb-1">Vocabulary</div>
+            <div className="text-[9px] font-bold text-[var(--color-text-muted)] mb-1">
+              Vocabulary
+            </div>
             <div className="h-12 rounded-lg bg-gradient-to-t from-[var(--color-accent-violet)]/10 to-transparent" />
           </div>
           <div className="glass p-3 rounded-xl">
@@ -262,7 +287,13 @@ function ImageGenMockup() {
           'from-emerald-600/30 to-green-600/20',
           'from-rose-600/30 to-pink-600/20',
         ].map((g, i) => (
-          <div key={i} className={clsx('aspect-square rounded-xl bg-gradient-to-br border border-white/[0.04]', g)}>
+          <div
+            key={i}
+            className={clsx(
+              'aspect-square rounded-xl bg-gradient-to-br border border-white/[0.04]',
+              g,
+            )}
+          >
             <div className="w-full h-full flex items-center justify-center">
               <ImagePlus size={20} className="text-white/20" />
             </div>
@@ -279,11 +310,16 @@ function TemplatesMockup() {
     <div className="glass-card p-6 rounded-2xl">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {templates.map((tpl) => (
-          <div key={tpl} className="glass p-3 rounded-xl text-center transition-all duration-200 hover:border-white/[0.12]">
+          <div
+            key={tpl}
+            className="glass p-3 rounded-xl text-center transition-all duration-200 hover:border-white/[0.12]"
+          >
             <div className="w-6 h-6 rounded-lg mx-auto mb-2 bg-gradient-to-br from-[var(--color-accent-blue)]/20 to-[var(--color-accent-violet)]/20 flex items-center justify-center">
               <FileText size={12} className="text-[var(--color-accent-violet)]" />
             </div>
-            <span className="text-[10px] font-semibold text-[var(--color-text-secondary)]">{tpl}</span>
+            <span className="text-[10px] font-semibold text-[var(--color-text-secondary)]">
+              {tpl}
+            </span>
           </div>
         ))}
       </div>
@@ -292,7 +328,20 @@ function TemplatesMockup() {
 }
 
 function HashtagMockup() {
-  const tags = ['#productivity', '#remote', '#leadership', '#startup', '#growth', '#marketing', '#content', '#ai', '#tech', '#social', '#brand', '#creator'];
+  const tags = [
+    '#productivity',
+    '#remote',
+    '#leadership',
+    '#startup',
+    '#growth',
+    '#marketing',
+    '#content',
+    '#ai',
+    '#tech',
+    '#social',
+    '#brand',
+    '#creator',
+  ];
   return (
     <div className="glass-card p-6 rounded-2xl">
       <div className="flex flex-wrap gap-2">
@@ -327,7 +376,10 @@ export function FeaturesPage() {
     {
       icon: Bot,
       title: t('features.multiAI.title', 'Multi-AI Generation'),
-      description: t('features.multiAI.desc', 'Harness the power of 5 leading AI models. Each excels at different content types - GPT-4 for creative flair, Claude for nuanced professional tone, Gemini for fact-rich content, Mistral for multilingual excellence, Ollama for fully private local generation.'),
+      description: t(
+        'features.multiAI.desc',
+        'Harness the power of 5 leading AI models. Each excels at different content types - GPT-4 for creative flair, Claude for nuanced professional tone, Gemini for fact-rich content, Mistral for multilingual excellence, Ollama for fully private local generation.',
+      ),
       benefits: [
         t('features.multiAI.b1', 'Switch between models with one click'),
         t('features.multiAI.b2', 'Compare outputs from different AI models'),
@@ -340,7 +392,10 @@ export function FeaturesPage() {
     {
       icon: Globe,
       title: t('features.sixPlatforms.title', '6 Platform Publishing'),
-      description: t('features.sixPlatforms.desc', 'Generate perfectly formatted content for LinkedIn, X/Twitter, Facebook, Instagram, TikTok, and Pinterest. Each post is automatically optimized for the target platform.'),
+      description: t(
+        'features.sixPlatforms.desc',
+        'Generate perfectly formatted content for LinkedIn, X/Twitter, Facebook, Instagram, TikTok, and Pinterest. Each post is automatically optimized for the target platform.',
+      ),
       benefits: [
         t('features.sixPlatforms.b1', 'Auto character limit enforcement'),
         t('features.sixPlatforms.b2', 'Platform-specific formatting and emojis'),
@@ -354,7 +409,10 @@ export function FeaturesPage() {
     {
       icon: BookOpen,
       title: t('features.viralLibrary.title', 'Viral Post Library'),
-      description: t('features.viralLibrary.desc', 'Browse a curated collection of viral posts from top creators. See what works, understand why it went viral, and use winning patterns as templates for your own content.'),
+      description: t(
+        'features.viralLibrary.desc',
+        'Browse a curated collection of viral posts from top creators. See what works, understand why it went viral, and use winning patterns as templates for your own content.',
+      ),
       benefits: [
         t('features.viralLibrary.b1', 'Thousands of real viral posts cataloged'),
         t('features.viralLibrary.b2', 'Filter by platform, industry, and tone'),
@@ -367,7 +425,10 @@ export function FeaturesPage() {
     {
       icon: Anchor,
       title: t('features.hookGen.title', 'Hook Generator'),
-      description: t('features.hookGen.desc', 'The first line decides if people read or scroll past. Generate attention-grabbing openers, provocative questions, and curiosity-inducing hooks that stop the scroll.'),
+      description: t(
+        'features.hookGen.desc',
+        'The first line decides if people read or scroll past. Generate attention-grabbing openers, provocative questions, and curiosity-inducing hooks that stop the scroll.',
+      ),
       benefits: [
         t('features.hookGen.b1', 'Dozens of proven hook templates'),
         t('features.hookGen.b2', 'A/B test different openers'),
@@ -381,7 +442,10 @@ export function FeaturesPage() {
     {
       icon: LayoutGrid,
       title: t('features.carousel.title', 'Carousel & Thread Creator'),
-      description: t('features.carousel.desc', 'Create multi-slide Instagram carousels and Twitter threads that keep audiences engaged slide by slide. Each slide is crafted to drive swiping and reading.'),
+      description: t(
+        'features.carousel.desc',
+        'Create multi-slide Instagram carousels and Twitter threads that keep audiences engaged slide by slide. Each slide is crafted to drive swiping and reading.',
+      ),
       benefits: [
         t('features.carousel.b1', 'Auto-split content into optimal slides'),
         t('features.carousel.b2', 'Hook slide + value slides + CTA slide'),
@@ -394,7 +458,10 @@ export function FeaturesPage() {
     {
       icon: RefreshCw,
       title: t('features.repurpose.title', 'Smart Repurposing'),
-      description: t('features.repurpose.desc', 'Write once, publish everywhere. Transform a single piece of content into platform-optimized versions for all your channels automatically.'),
+      description: t(
+        'features.repurpose.desc',
+        'Write once, publish everywhere. Transform a single piece of content into platform-optimized versions for all your channels automatically.',
+      ),
       benefits: [
         t('features.repurpose.b1', 'One post transforms into 6 platform versions'),
         t('features.repurpose.b2', 'Preserves core message while adapting format'),
@@ -408,7 +475,10 @@ export function FeaturesPage() {
     {
       icon: Palette,
       title: t('features.styleClone.title', 'Writing Style Cloning'),
-      description: t('features.styleClone.desc', 'Paste samples of your writing or any creator you admire. The AI learns the style, tone, vocabulary, and structure - then generates content that sounds exactly like you.'),
+      description: t(
+        'features.styleClone.desc',
+        'Paste samples of your writing or any creator you admire. The AI learns the style, tone, vocabulary, and structure - then generates content that sounds exactly like you.',
+      ),
       benefits: [
         t('features.styleClone.b1', 'Clone your unique writing voice'),
         t('features.styleClone.b2', 'Emulate top creators in your niche'),
@@ -421,7 +491,10 @@ export function FeaturesPage() {
     {
       icon: ImagePlus,
       title: t('features.imageGen.title', 'AI Image Generation'),
-      description: t('features.imageGen.desc', 'Create stunning visuals to accompany your posts. Generate custom images, graphics, and illustrations that match your content and boost engagement.'),
+      description: t(
+        'features.imageGen.desc',
+        'Create stunning visuals to accompany your posts. Generate custom images, graphics, and illustrations that match your content and boost engagement.',
+      ),
       benefits: [
         t('features.imageGen.b1', 'Generate images from post content'),
         t('features.imageGen.b2', 'Multiple style options and aspect ratios'),
@@ -435,7 +508,10 @@ export function FeaturesPage() {
     {
       icon: FileText,
       title: t('features.templates.title', 'Template Library'),
-      description: t('features.templates.desc', 'Start with battle-tested templates for every content type: listicles, stories, hot takes, tutorials, case studies, and more. Customize to match your brand.'),
+      description: t(
+        'features.templates.desc',
+        'Start with battle-tested templates for every content type: listicles, stories, hot takes, tutorials, case studies, and more. Customize to match your brand.',
+      ),
       benefits: [
         t('features.templates.b1', '50+ professional templates'),
         t('features.templates.b2', 'Categorized by content type and platform'),
@@ -448,7 +524,10 @@ export function FeaturesPage() {
     {
       icon: Hash,
       title: t('features.hashtags.title', 'Hashtag Research'),
-      description: t('features.hashtags.desc', 'Find the perfect hashtags to maximize your reach. Get trending, niche, and engagement-optimized hashtag suggestions for every post.'),
+      description: t(
+        'features.hashtags.desc',
+        'Find the perfect hashtags to maximize your reach. Get trending, niche, and engagement-optimized hashtag suggestions for every post.',
+      ),
       benefits: [
         t('features.hashtags.b1', 'Trending hashtag suggestions'),
         t('features.hashtags.b2', 'Niche-specific recommendations'),
@@ -473,14 +552,17 @@ export function FeaturesPage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="heading-lg text-white mb-6 animate-fade-in-up">
-            {t('features.title', 'Every Tool You')}
-            {' '}
-            <span className="gradient-text-brand">
-              {t('features.titleHighlight', 'Need')}
-            </span>
+            {t('features.title', 'Every Tool You')}{' '}
+            <span className="gradient-text-brand">{t('features.titleHighlight', 'Need')}</span>
           </h1>
-          <p className="text-lg text-[var(--color-text-secondary)] max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('features.subtitle', 'Explore every tool and feature that makes PostCommander the most complete AI social media assistant.')}
+          <p
+            className="text-lg text-[var(--color-text-secondary)] max-w-3xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'features.subtitle',
+              'Explore every tool and feature that makes PostCommander the most complete AI social media assistant.',
+            )}
           </p>
         </div>
       </section>
@@ -517,17 +599,29 @@ export function FeaturesPage() {
         <div className="absolute inset-0 mesh-gradient opacity-50" />
 
         <div className="orb w-72 h-72 top-[10%] left-[10%] bg-[var(--color-accent-blue)]/15" />
-        <div className="orb w-56 h-56 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '7s' }} />
+        <div
+          className="orb w-56 h-56 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/10"
+          style={{ animationDelay: '7s' }}
+        />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="heading-lg text-white mb-6 animate-fade-in-up">
             {t('features.ctaTitle', 'Ready to Try All These Features?')}
           </h2>
-          <p className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('features.ctaSubtitle', 'Start with the Free plan and explore. Upgrade to unlock everything.')}
+          <p
+            className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'features.ctaSubtitle',
+              'Start with the Free plan and explore. Upgrade to unlock everything.',
+            )}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div
+            className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
+            style={{ animationDelay: '0.2s' }}
+          >
             <Link to="/app" className="btn-primary-glow !text-lg !px-10 !py-5">
               {t('features.ctaButton', 'Get Started Free')}
               <ArrowRight size={22} />

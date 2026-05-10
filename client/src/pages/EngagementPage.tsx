@@ -74,25 +74,16 @@ function ScoreRing({ score, size = 120 }: { score: number; size?: number }) {
   const offset = circumference - (score / 100) * circumference;
 
   const color =
-    score >= 80
-      ? '#22c55e'
-      : score >= 60
-        ? '#f59e0b'
-        : score >= 40
-          ? '#f97316'
-          : '#ef4444';
+    score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : score >= 40 ? '#f97316' : '#ef4444';
 
   const label =
-    score >= 80
-      ? 'Excellent'
-      : score >= 60
-        ? 'Good'
-        : score >= 40
-          ? 'Fair'
-          : 'Needs Work';
+    score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : score >= 40 ? 'Fair' : 'Needs Work';
 
   return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+    <div
+      className="relative inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="transform -rotate-90">
         <circle
           cx={size / 2}
@@ -124,7 +115,12 @@ function ScoreRing({ score, size = 120 }: { score: number; size?: number }) {
   );
 }
 
-function MetricBar({ label, score, icon: Icon, description }: {
+function MetricBar({
+  label,
+  score,
+  icon: Icon,
+  description,
+}: {
   label: string;
   score: number;
   icon: React.ElementType;
@@ -153,9 +149,7 @@ function MetricBar({ label, score, icon: Icon, description }: {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon size={14} className="text-gray-500 dark:text-gray-400" />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {label}
-          </span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
         </div>
         <span className={`text-sm font-bold ${textColor}`}>{score}</span>
       </div>
@@ -195,11 +189,7 @@ export function EngagementPage() {
       setResult(data);
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -266,144 +256,155 @@ export function EngagementPage() {
 
       {activeTab === 'predictor' ? (
         <div className="space-y-6">
-
-      {/* Input Form */}
-      <Card>
-        <div className="space-y-5">
-          <TextArea
-            label={t('engagement.contentLabel', 'Post content')}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={t(
-              'engagement.contentPlaceholder',
-              'Paste or write your post content here...',
-            )}
-            rows={6}
-            disabled={mutation.isPending}
-          />
-
-          <Select
-            label={t('engagement.platform', 'Platform')}
-            options={platformOptions}
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value)}
-          />
-
-          <LLMSelector
-            provider={provider}
-            model={model}
-            onProviderChange={setProvider}
-            onModelChange={setModel}
-          />
-
-          <div className="pt-2">
-            <Button
-              onClick={handleAnalyze}
-              loading={mutation.isPending}
-              icon={<Gauge size={18} />}
-              size="lg"
-              disabled={!content.trim()}
-            >
-              {mutation.isPending
-                ? t('engagement.analyzing', 'Analyzing...')
-                : t('engagement.analyze', 'Analyze Engagement')}
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Loading */}
-      {mutation.isPending && (
-        <div className="flex flex-col items-center justify-center py-12 gap-3">
-          <Spinner size="lg" />
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {t('engagement.predicting', 'Analyzing engagement potential...')}
-          </p>
-        </div>
-      )}
-
-      {/* Results */}
-      {result && !mutation.isPending && (
-        <div className="space-y-5">
-          {/* Overall Score */}
-          <Card>
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <ScoreRing score={result.overallScore} />
-              <div className="flex-1 text-center sm:text-left">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {t('engagement.overallScore', 'Overall Engagement Score')}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {result.overallScore >= 80
-                    ? t('engagement.scoreExcellent', 'Your post has excellent engagement potential! It should perform well.')
-                    : result.overallScore >= 60
-                      ? t('engagement.scoreGood', 'Good engagement potential with room for improvement.')
-                      : result.overallScore >= 40
-                        ? t('engagement.scoreFair', 'Fair engagement potential. Consider applying the suggestions below.')
-                        : t('engagement.scoreNeedsWork', 'This post needs improvement. Check the suggestions below for actionable tips.')}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Metric Breakdown */}
+          {/* Input Form */}
           <Card>
             <div className="space-y-5">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                {t('engagement.breakdown', 'Score Breakdown')}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {Object.entries(metricConfig).map(([key, config]) => (
-                  <MetricBar
-                    key={key}
-                    label={t(`engagement.${key}`, config.label)}
-                    score={result.breakdown[key as keyof typeof result.breakdown]}
-                    icon={config.icon}
-                    description={t(`engagement.${key}Desc`, config.description)}
-                  />
-                ))}
+              <TextArea
+                label={t('engagement.contentLabel', 'Post content')}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={t(
+                  'engagement.contentPlaceholder',
+                  'Paste or write your post content here...',
+                )}
+                rows={6}
+                disabled={mutation.isPending}
+              />
+
+              <Select
+                label={t('engagement.platform', 'Platform')}
+                options={platformOptions}
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value)}
+              />
+
+              <LLMSelector
+                provider={provider}
+                model={model}
+                onProviderChange={setProvider}
+                onModelChange={setModel}
+              />
+
+              <div className="pt-2">
+                <Button
+                  onClick={handleAnalyze}
+                  loading={mutation.isPending}
+                  icon={<Gauge size={18} />}
+                  size="lg"
+                  disabled={!content.trim()}
+                >
+                  {mutation.isPending
+                    ? t('engagement.analyzing', 'Analyzing...')
+                    : t('engagement.analyze', 'Analyze Engagement')}
+                </Button>
               </div>
             </div>
           </Card>
 
-          {/* Suggestions */}
-          {result.suggestions.length > 0 && (
-            <Card>
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Lightbulb size={18} className="text-amber-500" />
+          {/* Loading */}
+          {mutation.isPending && (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <Spinner size="lg" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('engagement.predicting', 'Analyzing engagement potential...')}
+              </p>
+            </div>
+          )}
+
+          {/* Results */}
+          {result && !mutation.isPending && (
+            <div className="space-y-5">
+              {/* Overall Score */}
+              <Card>
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <ScoreRing score={result.overallScore} />
+                  <div className="flex-1 text-center sm:text-left">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {t('engagement.overallScore', 'Overall Engagement Score')}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {result.overallScore >= 80
+                        ? t(
+                            'engagement.scoreExcellent',
+                            'Your post has excellent engagement potential! It should perform well.',
+                          )
+                        : result.overallScore >= 60
+                          ? t(
+                              'engagement.scoreGood',
+                              'Good engagement potential with room for improvement.',
+                            )
+                          : result.overallScore >= 40
+                            ? t(
+                                'engagement.scoreFair',
+                                'Fair engagement potential. Consider applying the suggestions below.',
+                              )
+                            : t(
+                                'engagement.scoreNeedsWork',
+                                'This post needs improvement. Check the suggestions below for actionable tips.',
+                              )}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Metric Breakdown */}
+              <Card>
+                <div className="space-y-5">
                   <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                    {t('engagement.suggestions', 'Improvement Suggestions')}
+                    {t('engagement.breakdown', 'Score Breakdown')}
                   </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {Object.entries(metricConfig).map(([key, config]) => (
+                      <MetricBar
+                        key={key}
+                        label={t(`engagement.${key}`, config.label)}
+                        score={result.breakdown[key as keyof typeof result.breakdown]}
+                        icon={config.icon}
+                        description={t(`engagement.${key}Desc`, config.description)}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <ul className="space-y-3">
-                  {result.suggestions.map((suggestion, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold flex-shrink-0 mt-0.5">
-                        {idx + 1}
-                      </span>
-                      {suggestion}
-                    </li>
-                  ))}
-                </ul>
-                <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-                  <Button
-                    onClick={handleImproveWithAI}
-                    variant="secondary"
-                    icon={<Sparkles size={16} />}
-                  >
-                    {t('engagement.improveWithAI', 'Improve with AI')}
-                  </Button>
-                </div>
-              </div>
-            </Card>
+              </Card>
+
+              {/* Suggestions */}
+              {result.suggestions.length > 0 && (
+                <Card>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Lightbulb size={18} className="text-amber-500" />
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                        {t('engagement.suggestions', 'Improvement Suggestions')}
+                      </h3>
+                    </div>
+                    <ul className="space-y-3">
+                      {result.suggestions.map((suggestion, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300"
+                        >
+                          <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs font-bold flex-shrink-0 mt-0.5">
+                            {idx + 1}
+                          </span>
+                          {suggestion}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+                      <Button
+                        onClick={handleImproveWithAI}
+                        variant="secondary"
+                        icon={<Sparkles size={16} />}
+                      >
+                        {t('engagement.improveWithAI', 'Improve with AI')}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </div>
           )}
         </div>
-      )}
-      </div>
       ) : (
         <CommunityTab />
       )}

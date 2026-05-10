@@ -66,7 +66,9 @@ describe('Platforms Routes', () => {
     expect(authStart.body.data.authUrl).toContain('state=');
 
     const callback = await agent
-      .get(`/api/platforms/linkedin/callback?code=oauth-code&state=${encodeURIComponent(authStart.body.data.state)}`)
+      .get(
+        `/api/platforms/linkedin/callback?code=oauth-code&state=${encodeURIComponent(authStart.body.data.state)}`,
+      )
       .set('Authorization', `Bearer ${authToken}`);
 
     expect(callback.status).toBe(302);
@@ -91,9 +93,7 @@ describe('Platforms Routes', () => {
     const agent = request.agent(app);
     const authToken = createAuthToken(user.id);
 
-    await agent
-      .get('/api/platforms/linkedin/auth')
-      .set('Authorization', `Bearer ${authToken}`);
+    await agent.get('/api/platforms/linkedin/auth').set('Authorization', `Bearer ${authToken}`);
 
     const callback = await agent
       .get('/api/platforms/linkedin/callback?code=oauth-code&state=wrong-state')

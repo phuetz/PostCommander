@@ -8,17 +8,17 @@ import { requireRequestUser } from '../utils/request-user.js';
 /**
  * GET /api/templates
  */
-export const listTemplates = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  const query =
-    (req.validatedQuery as
-      | { page: number; pageSize: number; category?: string; platform?: string }
-      | undefined) ?? { page: 1, pageSize: 50 };
+export const listTemplates = catchAsync(async (req: Request, res: Response): Promise<void> => {
+  const query = (req.validatedQuery as
+    | { page: number; pageSize: number; category?: string; platform?: string }
+    | undefined) ?? { page: 1, pageSize: 50 };
   const { templates, total } = await getTemplates(query);
 
-  const response: ApiResponse<typeof templates> & { total: number; page: number; pageSize: number } = {
+  const response: ApiResponse<typeof templates> & {
+    total: number;
+    page: number;
+    pageSize: number;
+  } = {
     success: true,
     data: templates,
     total,
@@ -32,10 +32,7 @@ export const listTemplates = catchAsync(async (
 /**
  * GET /api/templates/:id
  */
-export const getTemplateById = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const getTemplateById = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const id = req.params.id as string;
   const template = await getTemplate(id);
   if (!template) {
@@ -51,17 +48,16 @@ export const getTemplateById = catchAsync(async (
 /**
  * POST /api/templates/:id/generate
  */
-export const generateFromTemplate = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
-  const requestUser = requireRequestUser(req);
-  const { variables, provider, model } = req.body;
-  const id = req.params.id as string;
-  const result = await useTemplate(id, variables, provider, model, requestUser.id);
-  const response: ApiResponse<typeof result> = {
-    success: true,
-    data: result,
-  };
-  res.json(response);
-});
+export const generateFromTemplate = catchAsync(
+  async (req: Request, res: Response): Promise<void> => {
+    const requestUser = requireRequestUser(req);
+    const { variables, provider, model } = req.body;
+    const id = req.params.id as string;
+    const result = await useTemplate(id, variables, provider, model, requestUser.id);
+    const response: ApiResponse<typeof result> = {
+      success: true,
+      data: result,
+    };
+    res.json(response);
+  },
+);

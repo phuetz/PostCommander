@@ -1,15 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Linkedin,
-  Twitter,
-  Facebook,
-  Instagram,
-  Music,
-  Pin,
-  Pencil,
-  Sparkles,
-} from 'lucide-react';
+import { Linkedin, Twitter, Facebook, Instagram, Music, Pin, Pencil, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
 import { PLATFORMS, type PlatformId } from '@postcommander/shared';
 import { CopyButton } from './CopyButton';
@@ -44,16 +35,13 @@ export function PostPreview({
 }: PostPreviewProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<PlatformId>(
-    platforms[0] || 'linkedin',
-  );
+  const [activeTab, setActiveTab] = useState<PlatformId>(platforms[0] || 'linkedin');
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
 
   if (platforms.length === 0) return null;
 
   const activePlatform = PLATFORMS[activeTab];
-  const content =
-    platformVariants[activeTab] || streamedContent || '';
+  const content = platformVariants[activeTab] || streamedContent || '';
   const charCount = content.length;
   const charLimit = activePlatform?.charLimit || 0;
   const ratio = charLimit > 0 ? charCount / charLimit : 0;
@@ -116,16 +104,17 @@ export function PostPreview({
             <div className="relative min-h-[120px]">
               <SocialMockup
                 platform={activeTab}
-                content={content || (
-                  streaming
+                content={
+                  content ||
+                  (streaming
                     ? t('generate.streaming', 'Generating...')
-                    : t('generate.previewPlaceholder', 'Generated content will appear here')
-                )}
+                    : t('generate.previewPlaceholder', 'Generated content will appear here'))
+                }
                 userName={user?.name || 'Your Name'}
                 userHandle={user?.email.split('@')[0] || 'yourhandle'}
                 userAvatar={user?.avatarUrl}
               />
-              
+
               {streaming && (
                 <div className="absolute bottom-2 right-2 flex items-center gap-2 px-2 py-1 rounded bg-brand-500/10 text-brand-600 text-[10px] font-bold uppercase tracking-wider animate-pulse">
                   <Sparkles size={10} />
@@ -148,12 +137,7 @@ export function PostPreview({
                     }}
                   />
                 </div>
-                <span
-                  className={clsx(
-                    'text-xs font-medium tabular-nums',
-                    getCharColor(),
-                  )}
-                >
+                <span className={clsx('text-xs font-medium tabular-nums', getCharColor())}>
                   {charCount.toLocaleString()} / {charLimit.toLocaleString()}
                 </span>
               </div>

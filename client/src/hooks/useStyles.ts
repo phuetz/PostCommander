@@ -23,7 +23,7 @@ export function useCreateStyle() {
     mutationFn: api.createStyle,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['styles'] });
-      toast.success('Style d\'écriture créé et analysé avec succès');
+      toast.success("Style d'écriture créé et analysé avec succès");
     },
     onError: (error: Error) => {
       toast.error(`Erreur: ${error.message}`);
@@ -47,10 +47,8 @@ export function useDeleteStyle() {
 
 export function useGenerateWithStyle() {
   return useMutation({
-    mutationFn: ({ id, params }: { 
-      id: string; 
-      params: api.GenerateWithStyleParams;
-    }) => api.generateWithStyle(id, params),
+    mutationFn: ({ id, params }: { id: string; params: api.GenerateWithStyleParams }) =>
+      api.generateWithStyle(id, params),
     onSuccess: () => {
       toast.success('Contenu généré avec votre style');
     },

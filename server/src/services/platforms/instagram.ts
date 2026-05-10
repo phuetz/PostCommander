@@ -30,8 +30,7 @@ export class InstagramAdapter extends BasePlatformAdapter {
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       state,
-      scope:
-        'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement',
+      scope: 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement',
       response_type: 'code',
     });
     return `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`;
@@ -111,8 +110,7 @@ export class InstagramAdapter extends BasePlatformAdapter {
     }
 
     const pagesData = (await pagesResponse.json()) as Record<string, any>;
-    const igAccountId =
-      pagesData.data?.[0]?.instagram_business_account?.id;
+    const igAccountId = pagesData.data?.[0]?.instagram_business_account?.id;
 
     if (!igAccountId) {
       throw new Error(
@@ -129,18 +127,15 @@ export class InstagramAdapter extends BasePlatformAdapter {
     }
 
     // Step 2: Create media container
-    const containerResponse = await fetch(
-      `https://graph.facebook.com/v19.0/${igAccountId}/media`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_url: options.mediaUrls[0],
-          caption: options.content,
-          access_token: options.accessToken,
-        }),
-      },
-    );
+    const containerResponse = await fetch(`https://graph.facebook.com/v19.0/${igAccountId}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image_url: options.mediaUrls[0],
+        caption: options.content,
+        access_token: options.accessToken,
+      }),
+    });
 
     if (!containerResponse.ok) {
       const text = await containerResponse.text();
@@ -190,8 +185,7 @@ export class InstagramAdapter extends BasePlatformAdapter {
     }
 
     const pagesData = (await pagesResponse.json()) as Record<string, any>;
-    const igAccount =
-      pagesData.data?.[0]?.instagram_business_account;
+    const igAccount = pagesData.data?.[0]?.instagram_business_account;
 
     if (!igAccount) {
       throw new Error('No Instagram Business account found');
@@ -199,9 +193,7 @@ export class InstagramAdapter extends BasePlatformAdapter {
 
     return {
       accountId: igAccount.id,
-      accountName: igAccount.username
-        ? `@${igAccount.username}`
-        : igAccount.name,
+      accountName: igAccount.username ? `@${igAccount.username}` : igAccount.name,
       profileUrl: igAccount.username
         ? `https://www.instagram.com/${igAccount.username}`
         : undefined,

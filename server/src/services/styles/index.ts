@@ -89,9 +89,7 @@ You MUST respond in valid JSON:
 
 Return ONLY valid JSON.`;
 
-  const samplesText = samplePosts
-    .map((post, i) => `--- Sample ${i + 1} ---\n${post}`)
-    .join('\n\n');
+  const samplesText = samplePosts.map((post, i) => `--- Sample ${i + 1} ---\n${post}`).join('\n\n');
 
   const user = `Analyze the writing style of these ${samplePosts.length} sample posts and create a replication system prompt:\n\n${samplesText}`;
 

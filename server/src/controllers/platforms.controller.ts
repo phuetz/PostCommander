@@ -31,10 +31,7 @@ function getOAuthStateCookieName(platformId: PlatformId): string {
  * GET /api/platforms
  * List all platforms with their connection status.
  */
-export const listPlatforms = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const listPlatforms = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const db = getDrizzle();
   const connections = await db
@@ -48,26 +45,24 @@ export const listPlatforms = catchAsync(async (
   }
 
   const platformIds = Object.keys(PLATFORMS) as PlatformId[];
-  const platforms: PlatformWithStatus[] = platformIds.map(
-    (pid) => {
-      const p = PLATFORMS[pid];
-      const conn = connectionMap.get(p.id);
-      return {
-        id: p.id,
-        name: p.name,
-        connected: !!conn,
-        connection: conn
-          ? {
-              id: conn.id,
-              platform: conn.platform,
-              accountName: conn.accountName,
-              connected: true,
-              connectedAt: conn.connectedAt,
-            }
-          : undefined,
-      };
-    },
-  );
+  const platforms: PlatformWithStatus[] = platformIds.map((pid) => {
+    const p = PLATFORMS[pid];
+    const conn = connectionMap.get(p.id);
+    return {
+      id: p.id,
+      name: p.name,
+      connected: !!conn,
+      connection: conn
+        ? {
+            id: conn.id,
+            platform: conn.platform,
+            accountName: conn.accountName,
+            connected: true,
+            connectedAt: conn.connectedAt,
+          }
+        : undefined,
+    };
+  });
 
   const response: ApiResponse<PlatformWithStatus[]> = {
     success: true,
@@ -81,10 +76,7 @@ export const listPlatforms = catchAsync(async (
  * GET /api/platforms/:platform/auth
  * Start the OAuth flow — returns the authorization URL.
  */
-export const startAuth = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const startAuth = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const platformId = req.params.platform as PlatformId;
 
@@ -125,10 +117,7 @@ export const startAuth = catchAsync(async (
  * GET /api/platforms/:platform/callback
  * Handle the OAuth callback — exchange code for tokens and store the connection.
  */
-export const handleCallback = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const handleCallback = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const platformId = req.params.platform as PlatformId;
 
@@ -184,7 +173,9 @@ export const handleCallback = catchAsync(async (
   // Remove any existing connection for this platform
   await db
     .delete(connectionsTable)
-    .where(and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)));
+    .where(
+      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)),
+    );
 
   // Store the new connection
   const connectionId = uuidv4();
@@ -209,19 +200,14 @@ export const handleCallback = catchAsync(async (
   });
 
   // Redirect back to the client settings page with success
-  res.redirect(
-    `${config.CLIENT_URL}/app/settings?platform=${platformId}&connected=true`,
-  );
+  res.redirect(`${config.CLIENT_URL}/app/settings?platform=${platformId}&connected=true`);
 });
 
 /**
  * DELETE /api/platforms/:platform/disconnect
  * Remove a platform connection.
  */
-export const disconnectPlatform = catchAsync(async (
-  req: Request,
-  res: Response,
-): Promise<void> => {
+export const disconnectPlatform = catchAsync(async (req: Request, res: Response): Promise<void> => {
   const requestUser = requireRequestUser(req);
   const platformId = req.params.platform as PlatformId;
 
@@ -230,21 +216,25 @@ export const disconnectPlatform = catchAsync(async (
   }
 
   const db = getDrizzle();
-  
+
   // First check if it exists
   const [existing] = await db
     .select()
     .from(connectionsTable)
-    .where(and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)))
+    .where(
+      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)),
+    )
     .limit(1);
-  
+
   if (!existing) {
     throw new AppError(404, `No connection found for ${platformId}`);
   }
 
   await db
     .delete(connectionsTable)
-    .where(and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)));
+    .where(
+      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)),
+    );
 
   const response: ApiResponse = {
     success: true,

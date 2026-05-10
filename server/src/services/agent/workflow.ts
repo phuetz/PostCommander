@@ -16,7 +16,10 @@ export async function processAgentWorkflow(commentId: string) {
       post: schema.posts,
     })
     .from(schema.socialComments)
-    .innerJoin(schema.postPublications, eq(schema.socialComments.postPublicationId, schema.postPublications.id))
+    .innerJoin(
+      schema.postPublications,
+      eq(schema.socialComments.postPublicationId, schema.postPublications.id),
+    )
     .innerJoin(schema.posts, eq(schema.postPublications.postId, schema.posts.id))
     .where(eq(schema.socialComments.id, commentId))
     .limit(1);
@@ -60,7 +63,7 @@ export async function processAgentWorkflow(commentId: string) {
           leadReason: scoring.leadReason,
         })
         .where(eq(schema.socialComments.id, commentId));
-        
+
       logger.info(`Comment ${commentId} scored: ${scoring.leadScore} (${scoring.leadStatus})`);
     } catch (error) {
       logger.error({ error, commentId }, 'Failed to score lead interaction.');
@@ -70,10 +73,7 @@ export async function processAgentWorkflow(commentId: string) {
 
   // 3. CONVERSATIONAL AGENT PHASE
   // Only proceed if it's a potential or hot lead and doesn't require a human already.
-  if (
-    (currentStatus === 'potential' || currentStatus === 'hot') &&
-    comment.requiresHuman !== 1
-  ) {
+  if ((currentStatus === 'potential' || currentStatus === 'hot') && comment.requiresHuman !== 1) {
     logger.info(`Running conversational agent for comment ${commentId}...`);
     try {
       // Parse history or initialize it
@@ -111,10 +111,9 @@ export async function processAgentWorkflow(commentId: string) {
         .where(eq(schema.socialComments.id, commentId));
 
       logger.info(`Agent responded to comment ${commentId}. Escalated: ${requiresHuman}`);
-      
+
       // Note: In a full system, you would now trigger the actual API call to the platform
       // (LinkedIn/Twitter) to post the 'replyContent' as a real comment.
-      
     } catch (error) {
       logger.error({ error, commentId }, 'Failed to run conversational agent.');
     }

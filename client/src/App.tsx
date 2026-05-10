@@ -7,50 +7,131 @@ import { AuthProvider, useAuth } from '@/hooks/useAuth';
 /* ---------- Lazy-loaded pages for code splitting ---------- */
 
 // Auth pages
-const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const RegisterPage = lazy(() => import('@/pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() =>
+  import('@/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })),
+);
 
 // App pages
-const DashboardPage = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
-const GeneratePage = lazy(() => import('@/pages/GeneratePage').then(m => ({ default: m.GeneratePage })));
-const HistoryPage = lazy(() => import('@/pages/HistoryPage').then(m => ({ default: m.HistoryPage })));
-const CalendarPage = lazy(() => import('@/pages/CalendarPage').then(m => ({ default: m.CalendarPage })));
-const SettingsPage = lazy(() => import('@/pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
-const ViralLibraryPage = lazy(() => import('@/pages/ViralLibraryPage').then(m => ({ default: m.ViralLibraryPage })));
-const HookGeneratorPage = lazy(() => import('@/pages/HookGeneratorPage').then(m => ({ default: m.HookGeneratorPage })));
-const CarouselPage = lazy(() => import('@/pages/CarouselPage').then(m => ({ default: m.CarouselPage })));
-const VideoScriptPage = lazy(() => import('@/pages/VideoScriptPage').then(m => ({ default: m.VideoScriptPage })));
-const TemplatesPage = lazy(() => import('@/pages/TemplatesPage').then(m => ({ default: m.TemplatesPage })));
-const RepurposePage = lazy(() => import('@/pages/RepurposePage').then(m => ({ default: m.RepurposePage })));
-const HashtagsPage = lazy(() => import('@/pages/HashtagsPage').then(m => ({ default: m.HashtagsPage })));
-const StylesPage = lazy(() => import('@/pages/StylesPage').then(m => ({ default: m.StylesPage })));
-const ImagesPage = lazy(() => import('@/pages/ImagesPage').then(m => ({ default: m.ImagesPage })));
-const ABTestPage = lazy(() => import('@/pages/ABTestPage').then(m => ({ default: m.ABTestPage })));
-const EngagementPage = lazy(() => import('@/pages/EngagementPage').then(m => ({ default: m.EngagementPage })));
-const TrendingPage = lazy(() => import('@/pages/TrendingPage').then(m => ({ default: m.TrendingPage })));
-const PillarsPage = lazy(() => import('@/pages/PillarsPage').then(m => ({ default: m.PillarsPage })));
-const SimulatorPage = lazy(() => import('@/pages/SimulatorPage').then(m => ({ default: m.SimulatorPage })));
-const BillingPage = lazy(() => import('@/pages/BillingPage').then(m => ({ default: m.BillingPage })));
-const DeletedAccountsPage = lazy(() => import('@/pages/DeletedAccountsPage').then(m => ({ default: m.DeletedAccountsPage })));
+const DashboardPage = lazy(() =>
+  import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })),
+);
+const GeneratePage = lazy(() =>
+  import('@/pages/GeneratePage').then((m) => ({ default: m.GeneratePage })),
+);
+const HistoryPage = lazy(() =>
+  import('@/pages/HistoryPage').then((m) => ({ default: m.HistoryPage })),
+);
+const CalendarPage = lazy(() =>
+  import('@/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })),
+);
+const SettingsPage = lazy(() =>
+  import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+);
+const ViralLibraryPage = lazy(() =>
+  import('@/pages/ViralLibraryPage').then((m) => ({ default: m.ViralLibraryPage })),
+);
+const HookGeneratorPage = lazy(() =>
+  import('@/pages/HookGeneratorPage').then((m) => ({ default: m.HookGeneratorPage })),
+);
+const CarouselPage = lazy(() =>
+  import('@/pages/CarouselPage').then((m) => ({ default: m.CarouselPage })),
+);
+const VideoScriptPage = lazy(() =>
+  import('@/pages/VideoScriptPage').then((m) => ({ default: m.VideoScriptPage })),
+);
+const AutoBlogPage = lazy(() =>
+  import('@/pages/AutoBlogPage').then((m) => ({ default: m.AutoBlogPage })),
+);
+const TemplatesPage = lazy(() =>
+  import('@/pages/TemplatesPage').then((m) => ({ default: m.TemplatesPage })),
+);
+const RepurposePage = lazy(() =>
+  import('@/pages/RepurposePage').then((m) => ({ default: m.RepurposePage })),
+);
+const HashtagsPage = lazy(() =>
+  import('@/pages/HashtagsPage').then((m) => ({ default: m.HashtagsPage })),
+);
+const StylesPage = lazy(() =>
+  import('@/pages/StylesPage').then((m) => ({ default: m.StylesPage })),
+);
+const ImagesPage = lazy(() =>
+  import('@/pages/ImagesPage').then((m) => ({ default: m.ImagesPage })),
+);
+const ABTestPage = lazy(() =>
+  import('@/pages/ABTestPage').then((m) => ({ default: m.ABTestPage })),
+);
+const EngagementPage = lazy(() =>
+  import('@/pages/EngagementPage').then((m) => ({ default: m.EngagementPage })),
+);
+const TrendingPage = lazy(() =>
+  import('@/pages/TrendingPage').then((m) => ({ default: m.TrendingPage })),
+);
+const PillarsPage = lazy(() =>
+  import('@/pages/PillarsPage').then((m) => ({ default: m.PillarsPage })),
+);
+const SimulatorPage = lazy(() =>
+  import('@/pages/SimulatorPage').then((m) => ({ default: m.SimulatorPage })),
+);
+const BillingPage = lazy(() =>
+  import('@/pages/BillingPage').then((m) => ({ default: m.BillingPage })),
+);
+const DeletedAccountsPage = lazy(() =>
+  import('@/pages/DeletedAccountsPage').then((m) => ({ default: m.DeletedAccountsPage })),
+);
 
 // Marketing pages
-const LandingPage = lazy(() => import('@/pages/marketing/LandingPage').then(m => ({ default: m.LandingPage })));
-const PricingPage = lazy(() => import('@/pages/marketing/PricingPage').then(m => ({ default: m.PricingPage })));
-const FeaturesPage = lazy(() => import('@/pages/marketing/FeaturesPage').then(m => ({ default: m.FeaturesPage })));
-const FAQPage = lazy(() => import('@/pages/marketing/FAQPage').then(m => ({ default: m.FAQPage })));
-const AboutPage = lazy(() => import('@/pages/marketing/AboutPage').then(m => ({ default: m.AboutPage })));
-const UseCasesPage = lazy(() => import('@/pages/marketing/UseCasesPage').then(m => ({ default: m.UseCasesPage })));
-const BlogPage = lazy(() => import('@/pages/marketing/BlogPage').then(m => ({ default: m.BlogPage })));
-const ContactPage = lazy(() => import('@/pages/marketing/ContactPage').then(m => ({ default: m.ContactPage })));
-const ChangelogPage = lazy(() => import('@/pages/marketing/ChangelogPage').then(m => ({ default: m.ChangelogPage })));
-const TermsPage = lazy(() => import('@/pages/marketing/TermsPage').then(m => ({ default: m.TermsPage })));
-const PrivacyPage = lazy(() => import('@/pages/marketing/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
-const DemoPage = lazy(() => import('@/pages/marketing/DemoPage').then(m => ({ default: m.DemoPage })));
-const ComparePage = lazy(() => import('@/pages/marketing/ComparePage').then(m => ({ default: m.ComparePage })));
-const IntegrationsPage = lazy(() => import('@/pages/marketing/IntegrationsPage').then(m => ({ default: m.IntegrationsPage })));
-const TestimonialsPage = lazy(() => import('@/pages/marketing/TestimonialsPage').then(m => ({ default: m.TestimonialsPage })));
-const PartnersPage = lazy(() => import('@/pages/marketing/PartnersPage').then(m => ({ default: m.PartnersPage })));
-const EnterprisePage = lazy(() => import('@/pages/marketing/EnterprisePage').then(m => ({ default: m.EnterprisePage })));
+const LandingPage = lazy(() =>
+  import('@/pages/marketing/LandingPage').then((m) => ({ default: m.LandingPage })),
+);
+const PricingPage = lazy(() =>
+  import('@/pages/marketing/PricingPage').then((m) => ({ default: m.PricingPage })),
+);
+const FeaturesPage = lazy(() =>
+  import('@/pages/marketing/FeaturesPage').then((m) => ({ default: m.FeaturesPage })),
+);
+const FAQPage = lazy(() =>
+  import('@/pages/marketing/FAQPage').then((m) => ({ default: m.FAQPage })),
+);
+const AboutPage = lazy(() =>
+  import('@/pages/marketing/AboutPage').then((m) => ({ default: m.AboutPage })),
+);
+const UseCasesPage = lazy(() =>
+  import('@/pages/marketing/UseCasesPage').then((m) => ({ default: m.UseCasesPage })),
+);
+const BlogPage = lazy(() =>
+  import('@/pages/marketing/BlogPage').then((m) => ({ default: m.BlogPage })),
+);
+const ContactPage = lazy(() =>
+  import('@/pages/marketing/ContactPage').then((m) => ({ default: m.ContactPage })),
+);
+const ChangelogPage = lazy(() =>
+  import('@/pages/marketing/ChangelogPage').then((m) => ({ default: m.ChangelogPage })),
+);
+const TermsPage = lazy(() =>
+  import('@/pages/marketing/TermsPage').then((m) => ({ default: m.TermsPage })),
+);
+const PrivacyPage = lazy(() =>
+  import('@/pages/marketing/PrivacyPage').then((m) => ({ default: m.PrivacyPage })),
+);
+const DemoPage = lazy(() =>
+  import('@/pages/marketing/DemoPage').then((m) => ({ default: m.DemoPage })),
+);
+const ComparePage = lazy(() =>
+  import('@/pages/marketing/ComparePage').then((m) => ({ default: m.ComparePage })),
+);
+const IntegrationsPage = lazy(() =>
+  import('@/pages/marketing/IntegrationsPage').then((m) => ({ default: m.IntegrationsPage })),
+);
+const TestimonialsPage = lazy(() =>
+  import('@/pages/marketing/TestimonialsPage').then((m) => ({ default: m.TestimonialsPage })),
+);
+const PartnersPage = lazy(() =>
+  import('@/pages/marketing/PartnersPage').then((m) => ({ default: m.PartnersPage })),
+);
+const EnterprisePage = lazy(() =>
+  import('@/pages/marketing/EnterprisePage').then((m) => ({ default: m.EnterprisePage })),
+);
 
 /* ---------- Loading fallback ---------- */
 function PageLoader() {
@@ -151,6 +232,7 @@ export default function App() {
               <Route path="hooks" element={<HookGeneratorPage />} />
               <Route path="carousel" element={<CarouselPage />} />
               <Route path="video-script" element={<VideoScriptPage />} />
+              <Route path="autoblog" element={<AutoBlogPage />} />
               <Route path="templates" element={<TemplatesPage />} />
               <Route path="repurpose" element={<RepurposePage />} />
               <Route path="hashtags" element={<HashtagsPage />} />

@@ -134,7 +134,9 @@ function HeroSection() {
           </span>
           <span
             className="bg-clip-text text-transparent block"
-            style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK}, ${AMBER})` }}
+            style={{
+              backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK}, ${AMBER})`,
+            }}
           >
             {t('marketing.enterprise.heroTitle2', 'Enterprise')}
           </span>
@@ -165,10 +167,12 @@ function HeroSection() {
               boxShadow: `0 0 30px ${AMBER_GLOW}, 0 4px 20px rgba(0,0,0,0.3)`,
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.boxShadow = `0 0 50px ${AMBER_GLOW_STRONG}, 0 0 80px ${AMBER_GLOW}, 0 8px 30px rgba(0,0,0,0.4)`;
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                `0 0 50px ${AMBER_GLOW_STRONG}, 0 0 80px ${AMBER_GLOW}, 0 8px 30px rgba(0,0,0,0.4)`;
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.boxShadow = `0 0 30px ${AMBER_GLOW}, 0 4px 20px rgba(0,0,0,0.3)`;
+              (e.currentTarget as HTMLElement).style.boxShadow =
+                `0 0 30px ${AMBER_GLOW}, 0 4px 20px rgba(0,0,0,0.3)`;
             }}
           >
             {t('marketing.enterprise.ctaPrimary', 'Request a Demo')}
@@ -265,8 +269,7 @@ function EnterpriseFeaturesSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.enterprise.featTitle1', 'Built for')}
-            {' '}
+            {t('marketing.enterprise.featTitle1', 'Built for')}{' '}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}
@@ -286,7 +289,8 @@ function EnterpriseFeaturesSection() {
                 borderColor: AMBER_BORDER,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${AMBER_GLOW}, 0 4px 40px rgba(0,0,0,0.3)`;
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  `0 0 40px ${AMBER_GLOW}, 0 4px 40px rgba(0,0,0,0.3)`;
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.boxShadow = '';
@@ -321,32 +325,50 @@ function SecuritySection() {
     {
       icon: Shield,
       title: t('marketing.enterprise.sec1Title', 'Authenticated Admin Access'),
-      description: t('marketing.enterprise.sec1Desc', 'Operational dashboards are protected behind login and explicit admin authorization.'),
+      description: t(
+        'marketing.enterprise.sec1Desc',
+        'Operational dashboards are protected behind login and explicit admin authorization.',
+      ),
     },
     {
       icon: Globe,
       title: t('marketing.enterprise.sec2Title', 'Account Export Tools'),
-      description: t('marketing.enterprise.sec2Desc', 'Users can download a machine-readable export of account data directly from settings.'),
+      description: t(
+        'marketing.enterprise.sec2Desc',
+        'Users can download a machine-readable export of account data directly from settings.',
+      ),
     },
     {
       icon: Lock,
       title: t('marketing.enterprise.sec3Title', 'Account Deletion'),
-      description: t('marketing.enterprise.sec3Desc', 'Authenticated users can permanently delete their account and active application data from the product UI.'),
+      description: t(
+        'marketing.enterprise.sec3Desc',
+        'Authenticated users can permanently delete their account and active application data from the product UI.',
+      ),
     },
     {
       icon: Lock,
       title: t('marketing.enterprise.sec4Title', 'Encrypted Stored Secrets'),
-      description: t('marketing.enterprise.sec4Desc', 'API keys and OAuth tokens are encrypted before they are persisted by the application.'),
+      description: t(
+        'marketing.enterprise.sec4Desc',
+        'API keys and OAuth tokens are encrypted before they are persisted by the application.',
+      ),
     },
     {
       icon: Clock,
       title: t('marketing.enterprise.sec5Title', 'Queue Health Visibility'),
-      description: t('marketing.enterprise.sec5Desc', 'Health checks now report database and background queue readiness instead of masking degraded scheduling.'),
+      description: t(
+        'marketing.enterprise.sec5Desc',
+        'Health checks now report database and background queue readiness instead of masking degraded scheduling.',
+      ),
     },
     {
       icon: Server,
       title: t('marketing.enterprise.sec6Title', 'Provider Choice'),
-      description: t('marketing.enterprise.sec6Desc', 'Choose managed AI providers or local Ollama models depending on your privacy and deployment requirements.'),
+      description: t(
+        'marketing.enterprise.sec6Desc',
+        'Choose managed AI providers or local Ollama models depending on your privacy and deployment requirements.',
+      ),
     },
   ];
 
@@ -362,8 +384,7 @@ function SecuritySection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.enterprise.secTitle1', 'Enterprise-Grade')}
-            {' '}
+            {t('marketing.enterprise.secTitle1', 'Enterprise-Grade')}{' '}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}
@@ -373,7 +394,10 @@ function SecuritySection() {
           </h2>
         </div>
 
-        <div className="glass-card p-8 sm:p-10 rounded-2xl animate-fade-in-up" style={{ borderColor: AMBER_BORDER }}>
+        <div
+          className="glass-card p-8 sm:p-10 rounded-2xl animate-fade-in-up"
+          style={{ borderColor: AMBER_BORDER }}
+        >
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {certifications.map((cert, i) => (
               <div
@@ -441,8 +465,7 @@ function ScaleComparisonSection() {
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.enterprise.compTitle1', 'Plans That Scale')}
-            {' '}
+            {t('marketing.enterprise.compTitle1', 'Plans That Scale')}{' '}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}
@@ -460,7 +483,9 @@ function ScaleComparisonSection() {
                 {t('marketing.enterprise.compBizTitle', 'Business')}
               </h3>
               <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-extrabold font-display text-white">{'\u20AC'}49</span>
+                <span className="text-3xl font-extrabold font-display text-white">
+                  {'\u20AC'}49
+                </span>
                 <span className="text-sm text-[var(--color-text-muted)]">
                   {t('marketing.enterprise.compPerMonth', '/month')}
                 </span>
@@ -476,10 +501,7 @@ function ScaleComparisonSection() {
               ))}
             </ul>
 
-            <Link
-              to="/pricing"
-              className="btn-ghost-glow w-full mt-8 !py-3 text-sm"
-            >
+            <Link to="/pricing" className="btn-ghost-glow w-full mt-8 !py-3 text-sm">
               {t('marketing.enterprise.compBizCta', 'View Pricing')}
             </Link>
           </div>
@@ -574,8 +596,7 @@ function CaseStudySection() {
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.enterprise.caseTitle1', 'Example')}
-            {' '}
+            {t('marketing.enterprise.caseTitle1', 'Example')}{' '}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}
@@ -585,21 +606,30 @@ function CaseStudySection() {
           </h2>
         </div>
 
-        <div className="glass-card p-8 sm:p-10 lg:p-12 rounded-2xl animate-fade-in-up" style={{ borderColor: AMBER_BORDER }}>
+        <div
+          className="glass-card p-8 sm:p-10 lg:p-12 rounded-2xl animate-fade-in-up"
+          style={{ borderColor: AMBER_BORDER }}
+        >
           {/* Company */}
           <div className="mb-8">
             <h3 className="heading-sm text-white mb-1">
               {t('marketing.enterprise.caseCompany', 'Typical engagement')}
             </h3>
             <p className="text-sm text-[var(--color-text-muted)]">
-              {t('marketing.enterprise.caseCompanyDesc', 'A marketing team validating PostCommander before a wider launch')}
+              {t(
+                'marketing.enterprise.caseCompanyDesc',
+                'A marketing team validating PostCommander before a wider launch',
+              )}
             </p>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-8 mb-8">
             {/* Challenge */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: AMBER }}>
+              <p
+                className="text-xs font-semibold uppercase tracking-wider mb-2"
+                style={{ color: AMBER }}
+              >
                 {t('marketing.enterprise.caseChallenge', 'Challenge')}
               </p>
               <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
@@ -612,7 +642,10 @@ function CaseStudySection() {
 
             {/* Solution */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: AMBER }}>
+              <p
+                className="text-xs font-semibold uppercase tracking-wider mb-2"
+                style={{ color: AMBER }}
+              >
                 {t('marketing.enterprise.caseSolution', 'Solution')}
               </p>
               <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
@@ -625,7 +658,10 @@ function CaseStudySection() {
 
             {/* Timeline */}
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: AMBER }}>
+              <p
+                className="text-xs font-semibold uppercase tracking-wider mb-2"
+                style={{ color: AMBER }}
+              >
                 {t('marketing.enterprise.caseTimeline', 'Timeline')}
               </p>
               <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
@@ -664,10 +700,12 @@ function CaseStudySection() {
             </div>
             <div>
               <p className="text-sm text-white leading-relaxed mb-3 italic">
-                &ldquo;{t(
+                &ldquo;
+                {t(
                   'marketing.enterprise.caseQuote',
                   'We use these rollout steps to scope what is already supported in the product versus what still needs implementation or customer-specific operating decisions.',
-                )}&rdquo;
+                )}
+                &rdquo;
               </p>
               <p className="text-xs font-semibold text-white">
                 {t('marketing.enterprise.caseQuoteAuthor', 'PostCommander team')}
@@ -706,8 +744,7 @@ function IntegrationSection() {
 
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="heading-sm text-white mb-10 animate-fade-in-up">
-          {t('marketing.enterprise.intTitle1', 'Integrates With')}
-          {' '}
+          {t('marketing.enterprise.intTitle1', 'Integrates With')}{' '}
           <span
             className="bg-clip-text text-transparent"
             style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}
@@ -716,7 +753,10 @@ function IntegrationSection() {
           </span>
         </h2>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-8 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <div
+          className="flex flex-wrap items-center justify-center gap-3 mb-8 animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
           {integrations.map((name, i) => (
             <div
               key={i}
@@ -728,8 +768,14 @@ function IntegrationSection() {
           ))}
         </div>
 
-        <p className="text-xs text-[var(--color-text-muted)] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          {t('marketing.enterprise.intNote', 'We currently help teams configure supported providers and publishing channels rather than advertising a public integration marketplace.')}
+        <p
+          className="text-xs text-[var(--color-text-muted)] animate-fade-in-up"
+          style={{ animationDelay: '0.2s' }}
+        >
+          {t(
+            'marketing.enterprise.intNote',
+            'We currently help teams configure supported providers and publishing channels rather than advertising a public integration marketplace.',
+          )}
         </p>
       </div>
     </section>
@@ -746,28 +792,40 @@ function OnboardingSection() {
     {
       num: '1',
       title: t('marketing.enterprise.onb1Title', 'Discovery Call'),
-      description: t('marketing.enterprise.onb1Desc', 'We review goals, provider choices, publishing requirements, and the operational risks that need to be addressed first.'),
+      description: t(
+        'marketing.enterprise.onb1Desc',
+        'We review goals, provider choices, publishing requirements, and the operational risks that need to be addressed first.',
+      ),
       timeline: t('marketing.enterprise.onb1Time', 'Day 1'),
       icon: Phone,
     },
     {
       num: '2',
       title: t('marketing.enterprise.onb2Title', 'Custom Setup & Brand Config'),
-      description: t('marketing.enterprise.onb2Desc', 'We configure the initial workspace, provider settings, social connections, and content system foundations you actually plan to use.'),
+      description: t(
+        'marketing.enterprise.onb2Desc',
+        'We configure the initial workspace, provider settings, social connections, and content system foundations you actually plan to use.',
+      ),
       timeline: t('marketing.enterprise.onb2Time', 'Week 1'),
       icon: Calendar,
     },
     {
       num: '3',
       title: t('marketing.enterprise.onb3Title', 'Team Training & Workshops'),
-      description: t('marketing.enterprise.onb3Desc', 'We walk through account export, deletion, billing, publishing, and the guardrails your operators need before launch.'),
+      description: t(
+        'marketing.enterprise.onb3Desc',
+        'We walk through account export, deletion, billing, publishing, and the guardrails your operators need before launch.',
+      ),
       timeline: t('marketing.enterprise.onb3Time', 'Week 2'),
       icon: BookOpen,
     },
     {
       num: '4',
       title: t('marketing.enterprise.onb4Title', 'Go Live + Ongoing Support'),
-      description: t('marketing.enterprise.onb4Desc', 'Launch the first validated workflow, then expand usage once the initial production checks are complete.'),
+      description: t(
+        'marketing.enterprise.onb4Desc',
+        'Launch the first validated workflow, then expand usage once the initial production checks are complete.',
+      ),
       timeline: t('marketing.enterprise.onb4Time', 'Week 3'),
       icon: Rocket,
     },
@@ -785,8 +843,7 @@ function OnboardingSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.enterprise.onbTitle1', 'White-Glove')}
-            {' '}
+            {t('marketing.enterprise.onbTitle1', 'White-Glove')}{' '}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}
@@ -800,7 +857,10 @@ function OnboardingSection() {
           {/* Connecting line (lg only) */}
           <div
             className="hidden lg:block absolute top-16 left-[calc(12.5%+1rem)] right-[calc(12.5%+1rem)] h-px"
-            style={{ background: `linear-gradient(90deg, ${AMBER}, ${AMBER_DARK}, ${AMBER}, ${AMBER_DARK})`, opacity: 0.3 }}
+            style={{
+              background: `linear-gradient(90deg, ${AMBER}, ${AMBER_DARK}, ${AMBER}, ${AMBER_DARK})`,
+              opacity: 0.3,
+            }}
           />
 
           {steps.map((step, i) => (
@@ -831,7 +891,11 @@ function OnboardingSection() {
 
               <span
                 className="inline-block px-3 py-1 rounded-full text-xs font-semibold"
-                style={{ background: AMBER_GLOW, color: AMBER, border: `1px solid ${AMBER_BORDER}` }}
+                style={{
+                  background: AMBER_GLOW,
+                  color: AMBER,
+                  border: `1px solid ${AMBER_BORDER}`,
+                }}
               >
                 {step.timeline}
               </span>
@@ -890,7 +954,8 @@ function ContactFormSection() {
       <div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(245, 158, 11, 0.04), transparent)',
+          background:
+            'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(245, 158, 11, 0.04), transparent)',
         }}
       />
       <div
@@ -901,8 +966,7 @@ function ContactFormSection() {
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.enterprise.contactTitle1', 'Get a Custom')}
-            {' '}
+            {t('marketing.enterprise.contactTitle1', 'Get a Custom')}{' '}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}
@@ -913,7 +977,10 @@ function ContactFormSection() {
         </div>
 
         {status === 'success' ? (
-          <div className="glass-card p-12 rounded-2xl text-center animate-scale-in" style={{ borderColor: AMBER_BORDER }}>
+          <div
+            className="glass-card p-12 rounded-2xl text-center animate-scale-in"
+            style={{ borderColor: AMBER_BORDER }}
+          >
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
               style={{ background: AMBER_GLOW, border: `1px solid ${AMBER_BORDER}` }}
@@ -938,7 +1005,10 @@ function ContactFormSection() {
             </button>
           </div>
         ) : (
-          <div className="glass-card p-8 sm:p-10 rounded-2xl animate-fade-in-up" style={{ borderColor: AMBER_BORDER }}>
+          <div
+            className="glass-card p-8 sm:p-10 rounded-2xl animate-fade-in-up"
+            style={{ borderColor: AMBER_BORDER }}
+          >
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div>
@@ -1163,8 +1233,7 @@ function EnterpriseFAQSection() {
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.enterprise.faqTitle1', 'Frequently Asked')}
-            {' '}
+            {t('marketing.enterprise.faqTitle1', 'Frequently Asked')}{' '}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: `linear-gradient(135deg, ${AMBER}, ${AMBER_DARK})` }}

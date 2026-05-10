@@ -30,7 +30,9 @@ export function MarketingHeader() {
     } else {
       document.body.style.overflow = '';
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [mobileOpen]);
 
   // Close "More" dropdown when clicking outside
@@ -85,7 +87,8 @@ export function MarketingHeader() {
             scrolled ? 'opacity-100' : 'opacity-0',
           )}
           style={{
-            background: 'linear-gradient(90deg, transparent, var(--color-accent-blue), var(--color-accent-violet), var(--color-accent-magenta), transparent)',
+            background:
+              'linear-gradient(90deg, transparent, var(--color-accent-blue), var(--color-accent-violet), var(--color-accent-magenta), transparent)',
           }}
         />
 
@@ -141,10 +144,7 @@ export function MarketingHeader() {
                   {t('marketing.nav.more', 'More')}
                   <ChevronDown
                     size={14}
-                    className={clsx(
-                      'transition-transform duration-200',
-                      moreOpen && 'rotate-180',
-                    )}
+                    className={clsx('transition-transform duration-200', moreOpen && 'rotate-180')}
                   />
                   <span
                     className={clsx(
@@ -185,10 +185,7 @@ export function MarketingHeader() {
 
             {/* Desktop CTA */}
             <div className="hidden md:flex items-center gap-3">
-              <Link
-                to="/app"
-                className="btn-primary-glow !px-5 !py-2.5 !text-sm !rounded-xl"
-              >
+              <Link to="/app" className="btn-primary-glow !px-5 !py-2.5 !text-sm !rounded-xl">
                 {t('marketing.nav.launchApp', 'Launch App')}
                 <ArrowRight size={14} />
               </Link>
@@ -226,9 +223,7 @@ export function MarketingHeader() {
         <div
           className={clsx(
             'absolute top-16 left-0 right-0 glass-strong rounded-b-2xl mx-4 p-6 transition-all duration-300 max-h-[70vh] overflow-y-auto',
-            mobileOpen
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 -translate-y-4',
+            mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4',
           )}
         >
           <nav className="space-y-1">
@@ -249,10 +244,7 @@ export function MarketingHeader() {
           </nav>
 
           <div className="mt-4 pt-4 border-t border-white/[0.06]">
-            <Link
-              to="/app"
-              className="btn-primary-glow w-full !text-sm !py-3"
-            >
+            <Link to="/app" className="btn-primary-glow w-full !text-sm !py-3">
               {t('marketing.nav.launchApp', 'Launch App')}
               <ArrowRight size={14} />
             </Link>

@@ -32,36 +32,47 @@ export async function exportAccountData(userId: string): Promise<ExportedAccount
     throw new Error('User not found');
   }
 
-  const [settings, platformConnections, posts, writingStyles, generatedImages, contentPillars, contentIdeas, subscriptions, invoices] =
-    await Promise.all([
-      db.select().from(settingsTable).where(eq(settingsTable.userId, userId)),
-      db.select().from(platformConnectionsTable).where(eq(platformConnectionsTable.userId, userId)),
-      db.select().from(postsTable).where(eq(postsTable.userId, userId)),
-      db.select().from(writingStylesTable).where(eq(writingStylesTable.userId, userId)),
-      db.select().from(generatedImagesTable).where(eq(generatedImagesTable.userId, userId)),
-      db.select().from(contentPillarsTable).where(eq(contentPillarsTable.userId, userId)),
-      db.select().from(contentIdeasTable).where(eq(contentIdeasTable.userId, userId)),
-      db.select().from(subscriptionsTable).where(eq(subscriptionsTable.userId, userId)),
-      db.select().from(invoicesTable).where(eq(invoicesTable.userId, userId)),
-    ]);
+  const [
+    settings,
+    platformConnections,
+    posts,
+    writingStyles,
+    generatedImages,
+    contentPillars,
+    contentIdeas,
+    subscriptions,
+    invoices,
+  ] = await Promise.all([
+    db.select().from(settingsTable).where(eq(settingsTable.userId, userId)),
+    db.select().from(platformConnectionsTable).where(eq(platformConnectionsTable.userId, userId)),
+    db.select().from(postsTable).where(eq(postsTable.userId, userId)),
+    db.select().from(writingStylesTable).where(eq(writingStylesTable.userId, userId)),
+    db.select().from(generatedImagesTable).where(eq(generatedImagesTable.userId, userId)),
+    db.select().from(contentPillarsTable).where(eq(contentPillarsTable.userId, userId)),
+    db.select().from(contentIdeasTable).where(eq(contentIdeasTable.userId, userId)),
+    db.select().from(subscriptionsTable).where(eq(subscriptionsTable.userId, userId)),
+    db.select().from(invoicesTable).where(eq(invoicesTable.userId, userId)),
+  ]);
 
   const settingsExport: Record<string, string> = {};
   for (const setting of settings) {
     settingsExport[setting.key] = SENSITIVE_SETTINGS.has(setting.key)
-      ? decryptSecret(setting.value) ?? ''
+      ? (decryptSecret(setting.value) ?? '')
       : setting.value;
   }
 
-  const platformConnectionsExport: ExportedPlatformConnection[] = platformConnections.map((connection) => ({
-    id: connection.id,
-    platform: connection.platform,
-    accountName: connection.accountName,
-    tokenExpires: connection.tokenExpires,
-    scopes: connection.scopes,
-    metadata: connection.metadata,
-    connectedAt: connection.connectedAt,
-    updatedAt: connection.updatedAt,
-  }));
+  const platformConnectionsExport: ExportedPlatformConnection[] = platformConnections.map(
+    (connection) => ({
+      id: connection.id,
+      platform: connection.platform,
+      accountName: connection.accountName,
+      tokenExpires: connection.tokenExpires,
+      scopes: connection.scopes,
+      metadata: connection.metadata,
+      connectedAt: connection.connectedAt,
+      updatedAt: connection.updatedAt,
+    }),
+  );
 
   const { passwordHash, ...safeUser } = user;
   void passwordHash;
@@ -78,9 +89,7 @@ export async function exportAccountData(userId: string): Promise<ExportedAccount
     contentIdeas,
     subscriptions,
     invoices,
-    notes: [
-      'Sensitive platform access tokens are excluded from exports for security reasons.',
-    ],
+    notes: ['Sensitive platform access tokens are excluded from exports for security reasons.'],
   };
 }
 
@@ -93,18 +102,27 @@ export async function deleteAccountData(userId: string): Promise<void> {
     return;
   }
 
-  const [settings, platformConnections, posts, writingStyles, generatedImages, contentPillars, contentIdeas, subscriptions, invoices] =
-    await Promise.all([
-      db.select().from(settingsTable).where(eq(settingsTable.userId, userId)),
-      db.select().from(platformConnectionsTable).where(eq(platformConnectionsTable.userId, userId)),
-      db.select().from(postsTable).where(eq(postsTable.userId, userId)),
-      db.select().from(writingStylesTable).where(eq(writingStylesTable.userId, userId)),
-      db.select().from(generatedImagesTable).where(eq(generatedImagesTable.userId, userId)),
-      db.select().from(contentPillarsTable).where(eq(contentPillarsTable.userId, userId)),
-      db.select().from(contentIdeasTable).where(eq(contentIdeasTable.userId, userId)),
-      db.select().from(subscriptionsTable).where(eq(subscriptionsTable.userId, userId)),
-      db.select().from(invoicesTable).where(eq(invoicesTable.userId, userId)),
-    ]);
+  const [
+    settings,
+    platformConnections,
+    posts,
+    writingStyles,
+    generatedImages,
+    contentPillars,
+    contentIdeas,
+    subscriptions,
+    invoices,
+  ] = await Promise.all([
+    db.select().from(settingsTable).where(eq(settingsTable.userId, userId)),
+    db.select().from(platformConnectionsTable).where(eq(platformConnectionsTable.userId, userId)),
+    db.select().from(postsTable).where(eq(postsTable.userId, userId)),
+    db.select().from(writingStylesTable).where(eq(writingStylesTable.userId, userId)),
+    db.select().from(generatedImagesTable).where(eq(generatedImagesTable.userId, userId)),
+    db.select().from(contentPillarsTable).where(eq(contentPillarsTable.userId, userId)),
+    db.select().from(contentIdeasTable).where(eq(contentIdeasTable.userId, userId)),
+    db.select().from(subscriptionsTable).where(eq(subscriptionsTable.userId, userId)),
+    db.select().from(invoicesTable).where(eq(invoicesTable.userId, userId)),
+  ]);
 
   const deletedAt = new Date().toISOString();
   const auditId = randomUUID();

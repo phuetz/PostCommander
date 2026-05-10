@@ -33,7 +33,7 @@ export async function publishPost(
     .from(postsTable)
     .where(and(eq(postsTable.userId, userId), eq(postsTable.id, postId)))
     .limit(1);
-  
+
   if (!row) {
     throw new Error(`Post not found: ${postId}`);
   }
@@ -65,7 +65,10 @@ export async function publishPost(
         usableImages.map((row) => readImageBytes({ imageUrl: row.url, imagePath: row.path })),
       );
     } catch (err) {
-      logger.warn({ err, postId }, 'Failed to load image bytes; upload-based platforms will skip media');
+      logger.warn(
+        { err, postId },
+        'Failed to load image bytes; upload-based platforms will skip media',
+      );
       mediaFiles = [];
     }
   }
@@ -76,12 +79,12 @@ export async function publishPost(
     const pubId = uuidv4();
 
     // Look up the platform connection
-      const [connection] = await db
-        .select()
-        .from(connectionsTable)
-        .where(and(eq(connectionsTable.userId, userId), eq(connectionsTable.platform, platformId)))
-        .orderBy(desc(connectionsTable.connectedAt))
-        .limit(1);
+    const [connection] = await db
+      .select()
+      .from(connectionsTable)
+      .where(and(eq(connectionsTable.userId, userId), eq(connectionsTable.platform, platformId)))
+      .orderBy(desc(connectionsTable.connectedAt))
+      .limit(1);
 
     if (!connection) {
       const errorMsg = `No ${platformId} account connected. Please connect your account first.`;
@@ -166,11 +169,12 @@ export async function publishPost(
   const anySucceeded = results.some((r) => r.success);
   const newStatus = anySucceeded ? 'published' : 'failed';
 
-  await db.update(postsTable)
-    .set({ 
-      status: newStatus as any, 
-      publishedAt: new Date().toISOString(), 
-      updatedAt: new Date().toISOString() 
+  await db
+    .update(postsTable)
+    .set({
+      status: newStatus as any,
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     })
     .where(and(eq(postsTable.userId, userId), eq(postsTable.id, postId)));
 

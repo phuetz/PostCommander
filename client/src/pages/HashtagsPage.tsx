@@ -1,15 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
-import {
-  Hash,
-  Copy,
-  Check,
-  TrendingUp,
-  Flame,
-  Target,
-  Search,
-} from 'lucide-react';
+import { Hash, Copy, Check, TrendingUp, Flame, Target, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 import { Card } from '@/components/ui/Card';
@@ -35,7 +27,12 @@ const countOptions = [5, 10, 15, 20, 25, 30].map((n) => ({
 
 const categoryConfig: Record<
   string,
-  { label: string; badgeVariant: 'danger' | 'warning' | 'info'; icon: React.ElementType; color: string }
+  {
+    label: string;
+    badgeVariant: 'danger' | 'warning' | 'info';
+    icon: React.ElementType;
+    color: string;
+  }
 > = {
   trending: {
     label: 'Trending',
@@ -60,11 +57,7 @@ const categoryConfig: Record<
 function RelevanceBar({ score }: { score: number }) {
   const percentage = Math.round(score * 100);
   const barColor =
-    percentage >= 80
-      ? 'bg-green-500'
-      : percentage >= 50
-        ? 'bg-amber-500'
-        : 'bg-blue-500';
+    percentage >= 80 ? 'bg-green-500' : percentage >= 50 ? 'bg-amber-500' : 'bg-blue-500';
 
   return (
     <div className="flex items-center gap-2 flex-1">
@@ -74,9 +67,7 @@ function RelevanceBar({ score }: { score: number }) {
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <span className="text-xs font-medium text-gray-400 w-8 text-right">
-        {percentage}%
-      </span>
+      <span className="text-xs font-medium text-gray-400 w-8 text-right">{percentage}%</span>
     </div>
   );
 }
@@ -103,11 +94,7 @@ export function HashtagsPage() {
       setSelected(new Set(data.map((h) => h.tag)));
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -170,10 +157,7 @@ export function HashtagsPage() {
           {t('hashtags.title', 'Hashtag Research')}
         </h2>
         <p className="text-gray-500 dark:text-gray-400 mt-2">
-          {t(
-            'hashtags.subtitle',
-            'Find the perfect hashtags to maximize your reach',
-          )}
+          {t('hashtags.subtitle', 'Find the perfect hashtags to maximize your reach')}
         </p>
       </div>
 
@@ -264,9 +248,7 @@ export function HashtagsPage() {
                 icon={copiedAll ? <Check size={14} /> : <Copy size={14} />}
                 onClick={handleCopyAll}
               >
-                {copiedAll
-                  ? t('post.copied', 'Copied!')
-                  : t('hashtags.copyAll', 'Copy All')}
+                {copiedAll ? t('post.copied', 'Copied!') : t('hashtags.copyAll', 'Copy All')}
               </Button>
             </div>
           </div>
@@ -286,9 +268,7 @@ export function HashtagsPage() {
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                       {t(`hashtags.${category}`, config.label)}
                     </h3>
-                    <Badge variant={config.badgeVariant}>
-                      {tags.length}
-                    </Badge>
+                    <Badge variant={config.badgeVariant}>{tags.length}</Badge>
                   </div>
 
                   {/* Hashtag list */}

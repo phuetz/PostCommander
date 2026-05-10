@@ -220,7 +220,8 @@ export async function updatePillar(
   if (data.color !== undefined) updates.color = data.color;
   if (data.topics !== undefined) updates.topics = JSON.stringify(data.topics);
   if (data.postingFrequency !== undefined) updates.postingFrequency = data.postingFrequency;
-  if (data.targetPlatforms !== undefined) updates.targetPlatforms = JSON.stringify(data.targetPlatforms);
+  if (data.targetPlatforms !== undefined)
+    updates.targetPlatforms = JSON.stringify(data.targetPlatforms);
 
   await db
     .update(contentPillars)
@@ -237,7 +238,9 @@ export async function deletePillar(userId: string, id: string): Promise<boolean>
     return false;
   }
 
-  await db.delete(contentPillars).where(and(eq(contentPillars.userId, userId), eq(contentPillars.id, id)));
+  await db
+    .delete(contentPillars)
+    .where(and(eq(contentPillars.userId, userId), eq(contentPillars.id, id)));
   return true;
 }
 
@@ -250,7 +253,7 @@ export async function listIdeas(userId: string, pillarId: string): Promise<Conte
     .from(contentIdeas)
     .where(and(eq(contentIdeas.userId, userId), eq(contentIdeas.pillarId, pillarId)))
     .orderBy(desc(contentIdeas.priority), desc(contentIdeas.createdAt));
-  
+
   return rows.map(rowToIdea);
 }
 
@@ -322,7 +325,9 @@ export async function deleteIdea(userId: string, ideaId: string): Promise<boolea
     return false;
   }
 
-  await db.delete(contentIdeas).where(and(eq(contentIdeas.userId, userId), eq(contentIdeas.id, ideaId)));
+  await db
+    .delete(contentIdeas)
+    .where(and(eq(contentIdeas.userId, userId), eq(contentIdeas.id, ideaId)));
   return true;
 }
 

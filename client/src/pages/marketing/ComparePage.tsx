@@ -187,11 +187,7 @@ function CellContent({ value, isPostCommander }: { value: CellValue; isPostComma
             ? 'bg-[var(--color-accent-emerald)]/20 text-[var(--color-accent-emerald)] glow-border'
             : 'bg-[var(--color-accent-emerald)]/10 text-[var(--color-accent-emerald)]',
         )}
-        style={
-          isPostCommander
-            ? { boxShadow: '0 0 12px rgba(16, 185, 129, 0.3)' }
-            : {}
-        }
+        style={isPostCommander ? { boxShadow: '0 0 12px rgba(16, 185, 129, 0.3)' } : {}}
       >
         <Check size={14} strokeWidth={3} />
       </span>
@@ -257,7 +253,10 @@ function HeroSection() {
           <span className="text-white block">
             {t('marketing.compare.titleLine1', 'How PostCommander')}
           </span>
-          <span className="gradient-text-brand animate-shimmer block" style={{ backgroundSize: '200% auto' }}>
+          <span
+            className="gradient-text-brand animate-shimmer block"
+            style={{ backgroundSize: '200% auto' }}
+          >
             {t('marketing.compare.titleLine2', 'Compares')}
           </span>
         </h1>
@@ -586,7 +585,12 @@ function PricingComparison() {
 
   const competitors = [
     { name: 'Taplio', price: 49, currency: '$' },
-    { name: 'Buffer', price: 6, currency: '$', note: t('marketing.compare.pricingBufferNote', 'Limited AI') },
+    {
+      name: 'Buffer',
+      price: 6,
+      currency: '$',
+      note: t('marketing.compare.pricingBufferNote', 'Limited AI'),
+    },
     { name: 'Hootsuite', price: 99, currency: '$' },
     { name: 'Copy.ai', price: 49, currency: '$' },
   ];
@@ -654,13 +658,12 @@ function PricingComparison() {
                 >
                   <div>
                     <div className="text-sm font-medium text-white">{c.name}</div>
-                    {c.note && (
-                      <div className="text-[10px] text-amber-400">{c.note}</div>
-                    )}
+                    {c.note && <div className="text-[10px] text-amber-400">{c.note}</div>}
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-[var(--color-text-secondary)]">
-                      {c.currency}{c.price}
+                      {c.currency}
+                      {c.price}
                       <span className="text-xs text-[var(--color-text-muted)]">/mo</span>
                     </div>
                   </div>

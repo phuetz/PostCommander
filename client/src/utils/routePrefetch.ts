@@ -1,6 +1,6 @@
 export const prefetchRoute = (path: string) => {
   const normalizedPath = path.replace('/app', '') || '/dashboard';
-  
+
   switch (normalizedPath) {
     case '/dashboard':
       import('@/pages/DashboardPage');

@@ -94,12 +94,9 @@ export class FacebookAdapter extends BasePlatformAdapter {
 
   async publishPost(options: PublishOptions): Promise<PublishResponse> {
     // First, get the user's pages
-    const pagesResponse = await fetch(
-      'https://graph.facebook.com/v19.0/me/accounts',
-      {
-        headers: { Authorization: `Bearer ${options.accessToken}` },
-      },
-    );
+    const pagesResponse = await fetch('https://graph.facebook.com/v19.0/me/accounts', {
+      headers: { Authorization: `Bearer ${options.accessToken}` },
+    });
 
     if (!pagesResponse.ok) {
       throw new Error('Failed to get Facebook pages');
@@ -151,12 +148,9 @@ export class FacebookAdapter extends BasePlatformAdapter {
   }
 
   async getAccountInfo(accessToken: string): Promise<AccountInfo> {
-    const response = await fetch(
-      'https://graph.facebook.com/v19.0/me?fields=id,name,picture',
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      },
-    );
+    const response = await fetch('https://graph.facebook.com/v19.0/me?fields=id,name,picture', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
     if (!response.ok) {
       throw new Error('Failed to get Facebook account info');

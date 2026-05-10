@@ -10,20 +10,26 @@ function FloatingActionButton() {
 
   const handleScrape = async () => {
     setStatus('loading');
-    
+
     try {
       // Best-effort generic scraping for LinkedIn comments
       // LinkedIn frequently changes classes, so this tries a few common patterns
       const commentElements = document.querySelectorAll(
-        '.comments-comment-item, .update-components-comment, article.comment'
+        '.comments-comment-item, .update-components-comment, article.comment',
       );
-      
-      const leads: Array<{ name: string, headline: string, content: string }> = [];
+
+      const leads: Array<{ name: string; headline: string; content: string }> = [];
 
       commentElements.forEach((el) => {
-        const nameEl = el.querySelector('.comments-post-meta__name-text, .update-components-actor__name, span.hoverable-link-text');
-        const headlineEl = el.querySelector('.comments-post-meta__headline, .update-components-actor__description');
-        const contentEl = el.querySelector('.comments-comment-item__main-content, .update-components-text');
+        const nameEl = el.querySelector(
+          '.comments-post-meta__name-text, .update-components-actor__name, span.hoverable-link-text',
+        );
+        const headlineEl = el.querySelector(
+          '.comments-post-meta__headline, .update-components-actor__description',
+        );
+        const contentEl = el.querySelector(
+          '.comments-comment-item__main-content, .update-components-text',
+        );
 
         if (nameEl && contentEl) {
           leads.push({
@@ -46,12 +52,12 @@ function FloatingActionButton() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer mvp_extension_token_123' 
+          Authorization: 'Bearer mvp_extension_token_123',
         },
         body: JSON.stringify({
           leads,
           sourceUrl: window.location.href,
-        })
+        }),
       });
 
       if (!response.ok) {
@@ -60,10 +66,9 @@ function FloatingActionButton() {
 
       const result = await response.json();
       console.log('PostCommander Scraping Result:', result);
-      
+
       setStatus('success');
       setTimeout(() => setStatus('idle'), 3000);
-
     } catch (err) {
       console.error('PostCommander Scraping Error:', err);
       alert('PostCommander: Failed to send leads to the server. Is localhost:3001 running?');
@@ -88,7 +93,7 @@ function FloatingActionButton() {
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         cursor: status === 'loading' ? 'wait' : 'pointer',
         zIndex: 99999,
-        transition: 'background-color 0.3s'
+        transition: 'background-color 0.3s',
       }}
       onClick={status === 'idle' ? handleScrape : undefined}
       title="Hijack Audience & Scrape Leads"
@@ -103,33 +108,37 @@ function FloatingActionButton() {
 // ── Ghostwrite Copilot (/ai) ──
 document.addEventListener('input', async (e) => {
   const target = e.target as HTMLElement;
-  
+
   // LinkedIn uses contenteditable divs with .ql-editor classes usually
   if (!target || (!target.isContentEditable && target.tagName !== 'TEXTAREA')) return;
-  
-  const textContent = target.isContentEditable ? target.innerText : (target as HTMLTextAreaElement).value;
-  
+
+  const textContent = target.isContentEditable
+    ? target.innerText
+    : (target as HTMLTextAreaElement).value;
+
   if (textContent.endsWith('/ai')) {
     console.log('PostCommander: Ghostwrite trigger detected!');
-    
+
     // Attempt to grab context from the nearest post
     const postElement = target.closest('.feed-shared-update-v2, .update-components-article');
-    const postContext = postElement ? (postElement as HTMLElement).innerText.substring(0, 500) : 'General LinkedIn Context';
+    const postContext = postElement
+      ? (postElement as HTMLElement).innerText.substring(0, 500)
+      : 'General LinkedIn Context';
 
     try {
       const response = await fetch('http://localhost:3001/api/agent/ghostwrite-comment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer mvp_extension_token_123' 
+          Authorization: 'Bearer mvp_extension_token_123',
         },
-        body: JSON.stringify({ context: postContext })
+        body: JSON.stringify({ context: postContext }),
       });
 
       if (response.ok) {
         const { data } = await response.json();
         const newText = textContent.replace('/ai', data.text);
-        
+
         if (target.isContentEditable) {
           target.innerText = newText;
           // Note: for React-controlled components in LinkedIn, setting innerText might not trigger their state update.
@@ -145,11 +154,13 @@ document.addEventListener('input', async (e) => {
 
   // ── Virality Checker ──
   // Check if we are typing a post (usually inside a modal)
-  const isPostEditor = target.closest('.share-creation-state__share-box-v2') || target.closest('.share-box-v2__wrapper');
+  const isPostEditor =
+    target.closest('.share-creation-state__share-box-v2') ||
+    target.closest('.share-box-v2__wrapper');
   if (isPostEditor && target.isContentEditable) {
     const textLength = textContent.length;
     let score = 0;
-    
+
     // Simple heuristic
     if (textLength > 100) score += 30; // Good length
     if (textLength > 500) score += 20; // Great length
@@ -222,7 +233,7 @@ if (window.location.href.includes('linkedin.com/in/')) {
     try {
       const nameEl = document.querySelector('h1.text-heading-xlarge');
       const headlineEl = document.querySelector('.text-body-medium.break-words');
-      
+
       if (nameEl && nameEl.textContent) {
         const name = nameEl.textContent.trim();
         const headline = headlineEl ? headlineEl.textContent?.trim() : '';
@@ -233,13 +244,13 @@ if (window.location.href.includes('linkedin.com/in/')) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer mvp_extension_token_123' 
+            Authorization: 'Bearer mvp_extension_token_123',
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             profileUrl: window.location.href,
             name,
-            headline
-          })
+            headline,
+          }),
         });
       }
     } catch (e) {

@@ -70,7 +70,8 @@ export function MarketingFooter() {
       <div
         className="absolute top-0 left-0 right-0 h-px"
         style={{
-          background: 'linear-gradient(90deg, transparent, var(--color-accent-blue), var(--color-accent-violet), var(--color-accent-magenta), transparent)',
+          background:
+            'linear-gradient(90deg, transparent, var(--color-accent-blue), var(--color-accent-violet), var(--color-accent-magenta), transparent)',
         }}
       />
 
@@ -114,11 +115,7 @@ export function MarketingFooter() {
                   type="submit"
                   className="btn-primary-glow !px-4 !py-2.5 !rounded-xl !text-sm"
                 >
-                  {subscribed ? (
-                    t('marketing.footer.subscribed', 'Done!')
-                  ) : (
-                    <Send size={16} />
-                  )}
+                  {subscribed ? t('marketing.footer.subscribed', 'Done!') : <Send size={16} />}
                 </button>
               </form>
             </div>
@@ -151,7 +148,8 @@ export function MarketingFooter() {
         {/* Bottom bar */}
         <div className="py-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[var(--color-text-muted)]">
-            &copy; {new Date().getFullYear()} PostCommander. {t('marketing.footer.rights', 'All rights reserved.')}
+            &copy; {new Date().getFullYear()} PostCommander.{' '}
+            {t('marketing.footer.rights', 'All rights reserved.')}
           </p>
 
           <div className="flex items-center gap-3">

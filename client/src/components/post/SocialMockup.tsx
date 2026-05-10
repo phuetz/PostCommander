@@ -1,10 +1,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { 
-  MessageCircle, 
-  Heart, 
-  Share2, 
-  Repeat2, 
+import {
+  MessageCircle,
+  Heart,
+  Share2,
+  Repeat2,
   MoreHorizontal,
   Globe,
   Verified,
@@ -30,7 +30,7 @@ export function SocialMockup({
 }: SocialMockupProps) {
   const { t } = useTranslation();
   const displayDate = date || t('post.social.justNow');
-  
+
   const Avatar = () => (
     <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex-shrink-0">
       {userAvatar ? (
@@ -53,7 +53,9 @@ export function SocialMockup({
               <span className="text-sm font-bold text-gray-900 dark:text-white truncate hover:underline cursor-pointer">
                 {userName}
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">• {t('post.social.first')}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                • {t('post.social.first')}
+              </span>
             </div>
             <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
               {t('post.social.mockBio')}
@@ -68,7 +70,7 @@ export function SocialMockup({
             <MoreHorizontal size={18} />
           </button>
         </div>
-        
+
         <div className="p-3 text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap leading-normal break-words">
           {content}
         </div>
@@ -117,7 +119,7 @@ export function SocialMockup({
               </div>
               <MoreHorizontal size={16} className="text-gray-500" />
             </div>
-            
+
             <div className="mt-1 text-[15px] text-gray-900 dark:text-white whitespace-pre-wrap leading-relaxed break-words">
               {content}
             </div>
@@ -160,7 +162,9 @@ export function SocialMockup({
         <Avatar />
         <div>
           <div className="font-bold text-sm text-gray-900 dark:text-white">{userName}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">{displayDate} • {platform}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            {displayDate} • {platform}
+          </div>
         </div>
       </div>
       <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">

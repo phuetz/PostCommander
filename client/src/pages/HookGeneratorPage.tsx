@@ -2,16 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import {
-  Zap,
-  Copy,
-  Check,
-  ArrowRight,
-  Lightbulb,
-  Target,
-  TrendingUp,
-  Hash,
-} from 'lucide-react';
+import { Zap, Copy, Check, ArrowRight, Lightbulb, Target, TrendingUp, Hash } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { LLMProviderId, ToneId } from '@postcommander/shared';
 import { Card } from '@/components/ui/Card';
@@ -47,11 +38,7 @@ const traitIcons: Record<string, React.ElementType> = {
 function ScoreBar({ score }: { score: number }) {
   const percentage = Math.round(score * 100);
   const color =
-    percentage >= 80
-      ? 'bg-green-500'
-      : percentage >= 60
-        ? 'bg-amber-500'
-        : 'bg-red-400';
+    percentage >= 80 ? 'bg-green-500' : percentage >= 60 ? 'bg-amber-500' : 'bg-red-400';
 
   return (
     <div className="flex items-center gap-2">
@@ -169,11 +156,7 @@ export function HookGeneratorPage() {
       setHooks(data);
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -200,10 +183,7 @@ export function HookGeneratorPage() {
           {t('hooks.title', 'Hook Generator')}
         </h2>
         <p className="text-gray-500 dark:text-gray-400 mt-2">
-          {t(
-            'hooks.subtitle',
-            'Generate attention-grabbing opening lines that stop the scroll',
-          )}
+          {t('hooks.subtitle', 'Generate attention-grabbing opening lines that stop the scroll')}
         </p>
       </div>
 

@@ -69,7 +69,7 @@ export function usePublishPost() {
       api.publishPost(id, platforms),
     onSuccess: (results) => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      const successCount = results.filter(r => r.success).length;
+      const successCount = results.filter((r) => r.success).length;
       if (successCount === results.length) {
         toast.success('Post publié avec succès sur toutes les plateformes');
       } else if (successCount > 0) {
@@ -109,7 +109,8 @@ export function useAddPostComment(id: string) {
 export function useUpdatePostStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => api.updatePostStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      api.updatePostStatus(id, status),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['post', id] });

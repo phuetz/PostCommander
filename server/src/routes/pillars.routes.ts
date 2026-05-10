@@ -38,10 +38,20 @@ router.delete('/:id', requireFeature('pillars'), handleDeletePillar);
 // Ideas for a pillar
 router.get('/:id/ideas', requireFeature('pillars'), handleListIdeas);
 router.post('/:id/ideas', requireFeature('pillars'), validate(createIdeaSchema), handleCreateIdea);
-router.post('/:id/generate-ideas', requireFeature('pillars'), validate(generateIdeasSchema), handleGenerateIdeas);
+router.post(
+  '/:id/generate-ideas',
+  requireFeature('pillars'),
+  validate(generateIdeasSchema),
+  handleGenerateIdeas,
+);
 
 // Individual idea management
-router.put('/ideas/:ideaId', requireFeature('pillars'), validate(updateIdeaSchema), handleUpdateIdea);
+router.put(
+  '/ideas/:ideaId',
+  requireFeature('pillars'),
+  validate(updateIdeaSchema),
+  handleUpdateIdea,
+);
 router.delete('/ideas/:ideaId', requireFeature('pillars'), handleDeleteIdea);
 
 export default router;

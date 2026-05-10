@@ -43,7 +43,9 @@ function rowToViralPost(row: any): ViralPost {
   };
 }
 
-export async function getViralPosts(filters: ViralFilters): Promise<{ posts: ViralPost[]; total: number }> {
+export async function getViralPosts(
+  filters: ViralFilters,
+): Promise<{ posts: ViralPost[]; total: number }> {
   const db = getDrizzle();
   const filters_list = [];
 
@@ -82,18 +84,20 @@ export async function getViralPosts(filters: ViralFilters): Promise<{ posts: Vir
 export async function searchViralPosts(query: string): Promise<ViralPost[]> {
   const db = getDrizzle();
   const pattern = `%${query}%`;
-  
+
   const rows = await db
     .select()
     .from(postsTable)
-    .where(or(
-      like(postsTable.content, pattern),
-      like(postsTable.authorName, pattern),
-      like(postsTable.tags, pattern)
-    ))
+    .where(
+      or(
+        like(postsTable.content, pattern),
+        like(postsTable.authorName, pattern),
+        like(postsTable.tags, pattern),
+      ),
+    )
     .orderBy(desc(postsTable.likes))
     .limit(50);
-    
+
   return rows.map(rowToViralPost);
 }
 
@@ -105,7 +109,7 @@ export async function getCategories(): Promise<string[]> {
     .where(sql`${postsTable.category} IS NOT NULL`)
     .groupBy(postsTable.category)
     .orderBy(postsTable.category);
-    
+
   return rows.map((r) => r.category as string);
 }
 

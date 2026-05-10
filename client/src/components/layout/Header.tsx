@@ -22,9 +22,7 @@ export function Header({ title, onMenuToggle }: HeaderProps) {
         >
           <Menu size={20} />
         </button>
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {title}
-        </h1>
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h1>
       </div>
 
       <div className="flex items-center gap-1">

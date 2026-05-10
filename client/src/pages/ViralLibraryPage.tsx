@@ -187,10 +187,7 @@ export function ViralLibraryPage() {
             return (
               <div key={post.id} className="break-inside-avoid">
                 <Card hover padding="none" className="group cursor-pointer overflow-hidden">
-                  <div
-                    onClick={() => setSelectedPost(post)}
-                    className="p-4 space-y-3"
-                  >
+                  <div onClick={() => setSelectedPost(post)} className="p-4 space-y-3">
                     {/* Platform & Author */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -204,9 +201,7 @@ export function ViralLibraryPage() {
                           <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                             {post.author || post.authorName}
                           </p>
-                          <p className="text-xs text-gray-400">
-                            @{post.authorHandle}
-                          </p>
+                          <p className="text-xs text-gray-400">@{post.authorHandle}</p>
                         </div>
                       </div>
                       <Badge variant="info">{post.category}</Badge>
@@ -262,13 +257,11 @@ export function ViralLibraryPage() {
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center text-white"
                 style={{
-                  backgroundColor:
-                    platformColors[selectedPost.platform] || '#6366f1',
+                  backgroundColor: platformColors[selectedPost.platform] || '#6366f1',
                 }}
               >
                 {(() => {
-                  const Icon =
-                    platformIcons[selectedPost.platform] || Sparkles;
+                  const Icon = platformIcons[selectedPost.platform] || Sparkles;
                   return <Icon size={18} />;
                 })()}
               </div>
@@ -276,9 +269,7 @@ export function ViralLibraryPage() {
                 <p className="font-semibold text-gray-900 dark:text-gray-100">
                   {selectedPost.author || selectedPost.authorName}
                 </p>
-                <p className="text-sm text-gray-500">
-                  @{selectedPost.authorHandle}
-                </p>
+                <p className="text-sm text-gray-500">@{selectedPost.authorHandle}</p>
               </div>
               <div className="ml-auto flex items-center gap-2">
                 <Badge variant="info">{selectedPost.category}</Badge>
@@ -300,27 +291,21 @@ export function ViralLibraryPage() {
                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {formatNumber(selectedPost.likes)}
                 </span>
-                <span className="text-xs text-gray-500">
-                  {t('viral.likes', 'likes')}
-                </span>
+                <span className="text-xs text-gray-500">{t('viral.likes', 'likes')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MessageCircle size={16} className="text-blue-400" />
                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {formatNumber(selectedPost.comments)}
                 </span>
-                <span className="text-xs text-gray-500">
-                  {t('viral.comments', 'comments')}
-                </span>
+                <span className="text-xs text-gray-500">{t('viral.comments', 'comments')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Share2 size={16} className="text-green-400" />
                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {formatNumber(selectedPost.shares)}
                 </span>
-                <span className="text-xs text-gray-500">
-                  {t('viral.shares', 'shares')}
-                </span>
+                <span className="text-xs text-gray-500">{t('viral.shares', 'shares')}</span>
               </div>
             </div>
 

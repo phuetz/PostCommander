@@ -98,7 +98,9 @@ describe('LinkedInAdapter image publishing', () => {
 
   it('registers, uploads, then attaches the asset to the ugcPost', async () => {
     // 1. /v2/userinfo
-    fetchMock.mockResolvedValueOnce(makeResponse({ ok: true, json: async () => ({ sub: 'me-123' }) }));
+    fetchMock.mockResolvedValueOnce(
+      makeResponse({ ok: true, json: async () => ({ sub: 'me-123' }) }),
+    );
     // 2. /v2/assets?action=registerUpload
     fetchMock.mockResolvedValueOnce(
       makeResponse({
@@ -134,14 +136,18 @@ describe('LinkedInAdapter image publishing', () => {
 
     const ugcCall = fetchMock.mock.calls[3] as [string, { body: string }];
     const ugcBody = JSON.parse(ugcCall[1].body);
-    expect(ugcBody.specificContent['com.linkedin.ugc.ShareContent'].shareMediaCategory).toBe('IMAGE');
+    expect(ugcBody.specificContent['com.linkedin.ugc.ShareContent'].shareMediaCategory).toBe(
+      'IMAGE',
+    );
     expect(ugcBody.specificContent['com.linkedin.ugc.ShareContent'].media).toEqual([
       { status: 'READY', media: 'urn:li:digitalmediaAsset:asset-xyz' },
     ]);
   });
 
   it('uses shareMediaCategory: NONE when no mediaFiles are passed', async () => {
-    fetchMock.mockResolvedValueOnce(makeResponse({ ok: true, json: async () => ({ sub: 'me-123' }) }));
+    fetchMock.mockResolvedValueOnce(
+      makeResponse({ ok: true, json: async () => ({ sub: 'me-123' }) }),
+    );
     fetchMock.mockResolvedValueOnce(
       makeResponse({ ok: true, json: async () => ({ id: 'urn:li:share:share-2' }) }),
     );
@@ -152,7 +158,9 @@ describe('LinkedInAdapter image publishing', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     const ugcCall = fetchMock.mock.calls[1] as [string, { body: string }];
     const ugcBody = JSON.parse(ugcCall[1].body);
-    expect(ugcBody.specificContent['com.linkedin.ugc.ShareContent'].shareMediaCategory).toBe('NONE');
+    expect(ugcBody.specificContent['com.linkedin.ugc.ShareContent'].shareMediaCategory).toBe(
+      'NONE',
+    );
     expect(ugcBody.specificContent['com.linkedin.ugc.ShareContent'].media).toBeUndefined();
   });
 });
@@ -187,7 +195,10 @@ describe('TwitterAdapter image publishing', () => {
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    const [uploadUrl, uploadInit] = fetchMock.mock.calls[0] as [string, { method: string; body: FormData }];
+    const [uploadUrl, uploadInit] = fetchMock.mock.calls[0] as [
+      string,
+      { method: string; body: FormData },
+    ];
     expect(uploadUrl).toBe('https://api.twitter.com/2/media/upload');
     expect(uploadInit.method).toBe('POST');
     expect(uploadInit.body).toBeInstanceOf(FormData);

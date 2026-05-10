@@ -81,12 +81,7 @@ function calculateEngagementScore(content: string): number {
 }
 
 function ScoreCircle({ score }: { score: number }) {
-  const color =
-    score >= 80
-      ? 'text-green-500'
-      : score >= 60
-        ? 'text-amber-500'
-        : 'text-red-400';
+  const color = score >= 80 ? 'text-green-500' : score >= 60 ? 'text-amber-500' : 'text-red-400';
   const bgColor =
     score >= 80
       ? 'bg-green-50 dark:bg-green-900/20'
@@ -145,9 +140,7 @@ function VariantCard({
               <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 {variant.angle}
               </h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {variant.hookStyle}
-              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{variant.hookStyle}</p>
             </div>
           </div>
           <ScoreCircle score={engagementScore} />
@@ -204,9 +197,7 @@ function VariantCard({
             )}
           >
             <Trophy size={12} />
-            {isWinner
-              ? t('abtest.winner', 'Winner!')
-              : t('abtest.pickWinner', 'Pick Winner')}
+            {isWinner ? t('abtest.winner', 'Winner!') : t('abtest.pickWinner', 'Pick Winner')}
           </button>
         </div>
 
@@ -249,11 +240,7 @@ export function ABTestPage() {
       setWinnerId(null);
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -365,10 +352,14 @@ export function ABTestPage() {
             </Badge>
           </div>
 
-          <div className={clsx(
-            'grid gap-5',
-            variants.length <= 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3',
-          )}>
+          <div
+            className={clsx(
+              'grid gap-5',
+              variants.length <= 2
+                ? 'grid-cols-1 lg:grid-cols-2'
+                : 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3',
+            )}
+          >
             {variants.map((variant, index) => (
               <VariantCard
                 key={variant.id}

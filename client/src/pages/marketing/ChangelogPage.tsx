@@ -38,12 +38,24 @@ function useChangelogData() {
       version: 'v2.5',
       codename: t('marketing.changelog.v25Name', 'Strategy Suite'),
       tags: [
-        { label: t('marketing.changelog.tagNewFeature', 'New Feature'), color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-        { label: t('marketing.changelog.tagAI', 'AI'), color: 'bg-violet-500/20 text-violet-400 border-violet-500/30' },
-        { label: t('marketing.changelog.tagStrategy', 'Strategy'), color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
+        {
+          label: t('marketing.changelog.tagNewFeature', 'New Feature'),
+          color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        },
+        {
+          label: t('marketing.changelog.tagAI', 'AI'),
+          color: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+        },
+        {
+          label: t('marketing.changelog.tagStrategy', 'Strategy'),
+          color: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+        },
       ],
       features: [
-        { icon: Layers, text: t('marketing.changelog.v25f1', 'Content Pillars & Strategy Planner') },
+        {
+          icon: Layers,
+          text: t('marketing.changelog.v25f1', 'Content Pillars & Strategy Planner'),
+        },
         { icon: Target, text: t('marketing.changelog.v25f2', 'A/B Testing for post variants') },
         { icon: BarChart3, text: t('marketing.changelog.v25f3', 'Engagement Score Prediction') },
         { icon: TrendingUp, text: t('marketing.changelog.v25f4', 'Trending Topics Discovery') },
@@ -55,14 +67,29 @@ function useChangelogData() {
       version: 'v2.0',
       codename: t('marketing.changelog.v20Name', 'Creative Powerhouse'),
       tags: [
-        { label: t('marketing.changelog.tagMajor', 'Major Release'), color: 'bg-magenta-500/20 text-pink-400 border-pink-500/30' },
-        { label: t('marketing.changelog.tagNewFeature', 'New Feature'), color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+        {
+          label: t('marketing.changelog.tagMajor', 'Major Release'),
+          color: 'bg-magenta-500/20 text-pink-400 border-pink-500/30',
+        },
+        {
+          label: t('marketing.changelog.tagNewFeature', 'New Feature'),
+          color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        },
       ],
       features: [
-        { icon: Star, text: t('marketing.changelog.v20f1', 'Viral Post Library (50+ curated examples)') },
-        { icon: Sparkles, text: t('marketing.changelog.v20f2', 'Hook Generator (8 hook strategies)') },
+        {
+          icon: Star,
+          text: t('marketing.changelog.v20f1', 'Viral Post Library (50+ curated examples)'),
+        },
+        {
+          icon: Sparkles,
+          text: t('marketing.changelog.v20f2', 'Hook Generator (8 hook strategies)'),
+        },
         { icon: LayoutGrid, text: t('marketing.changelog.v20f3', 'Carousel & Thread Creator') },
-        { icon: FileText, text: t('marketing.changelog.v20f4', 'Template Library (30+ templates)') },
+        {
+          icon: FileText,
+          text: t('marketing.changelog.v20f4', 'Template Library (30+ templates)'),
+        },
         { icon: RefreshCw, text: t('marketing.changelog.v20f5', 'Content Repurposing Engine') },
         { icon: Hash, text: t('marketing.changelog.v20f6', 'Hashtag Research Tool') },
         { icon: Palette, text: t('marketing.changelog.v20f7', 'Writing Style Cloning') },
@@ -74,11 +101,23 @@ function useChangelogData() {
       version: 'v1.5',
       codename: t('marketing.changelog.v15Name', 'Multi-Language'),
       tags: [
-        { label: t('marketing.changelog.tagI18n', 'i18n'), color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-        { label: t('marketing.changelog.tagEnhancement', 'Enhancement'), color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+        {
+          label: t('marketing.changelog.tagI18n', 'i18n'),
+          color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+        },
+        {
+          label: t('marketing.changelog.tagEnhancement', 'Enhancement'),
+          color: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+        },
       ],
       features: [
-        { icon: Languages, text: t('marketing.changelog.v15f1', '8 language UI support (FR, EN, ES, DE, PT, AR, ZH, JA)') },
+        {
+          icon: Languages,
+          text: t(
+            'marketing.changelog.v15f1',
+            '8 language UI support (FR, EN, ES, DE, PT, AR, ZH, JA)',
+          ),
+        },
         { icon: Globe, text: t('marketing.changelog.v15f2', 'Multi-language content generation') },
         { icon: BookOpen, text: t('marketing.changelog.v15f3', 'RTL support for Arabic') },
       ],
@@ -88,14 +127,38 @@ function useChangelogData() {
       version: 'v1.0',
       codename: t('marketing.changelog.v10Name', 'Launch'),
       tags: [
-        { label: t('marketing.changelog.tagLaunch', 'Launch'), color: 'bg-violet-500/20 text-violet-400 border-violet-500/30' },
-        { label: t('marketing.changelog.tagCore', 'Core Feature'), color: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
+        {
+          label: t('marketing.changelog.tagLaunch', 'Launch'),
+          color: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+        },
+        {
+          label: t('marketing.changelog.tagCore', 'Core Feature'),
+          color: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+        },
       ],
       features: [
-        { icon: Bot, text: t('marketing.changelog.v10f1', 'Multi-AI generation (OpenAI, Claude, Gemini, Mistral, Ollama)') },
-        { icon: Send, text: t('marketing.changelog.v10f2', '6 platform publishing (LinkedIn, X, Facebook, Instagram, TikTok, Pinterest)') },
-        { icon: Sparkles, text: t('marketing.changelog.v10f3', 'Streaming generation with real-time display') },
-        { icon: FileText, text: t('marketing.changelog.v10f4', 'Post history with search and filters') },
+        {
+          icon: Bot,
+          text: t(
+            'marketing.changelog.v10f1',
+            'Multi-AI generation (OpenAI, Claude, Gemini, Mistral, Ollama)',
+          ),
+        },
+        {
+          icon: Send,
+          text: t(
+            'marketing.changelog.v10f2',
+            '6 platform publishing (LinkedIn, X, Facebook, Instagram, TikTok, Pinterest)',
+          ),
+        },
+        {
+          icon: Sparkles,
+          text: t('marketing.changelog.v10f3', 'Streaming generation with real-time display'),
+        },
+        {
+          icon: FileText,
+          text: t('marketing.changelog.v10f4', 'Post history with search and filters'),
+        },
         { icon: Calendar, text: t('marketing.changelog.v10f5', 'Content calendar') },
         { icon: Target, text: t('marketing.changelog.v10f6', 'Platform-specific optimization') },
       ],
@@ -123,7 +186,10 @@ export function ChangelogPage() {
         <div className="absolute inset-0 grid-pattern" />
 
         <div className="orb w-72 h-72 top-[15%] right-[10%] bg-[var(--color-accent-violet)]/20" />
-        <div className="orb w-56 h-56 top-[50%] left-[5%] bg-[var(--color-accent-blue)]/15" style={{ animationDelay: '5s' }} />
+        <div
+          className="orb w-56 h-56 top-[50%] left-[5%] bg-[var(--color-accent-blue)]/15"
+          style={{ animationDelay: '5s' }}
+        />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass animate-fade-in-up animate-glow-pulse mb-8">
@@ -148,7 +214,7 @@ export function ChangelogPage() {
           >
             {t(
               'marketing.changelog.heroSubtitle',
-              'See the latest features and improvements we\'ve shipped. We release updates regularly to make PostCommander better for you.',
+              "See the latest features and improvements we've shipped. We release updates regularly to make PostCommander better for you.",
             )}
           </p>
         </div>
@@ -157,7 +223,10 @@ export function ChangelogPage() {
       {/* Timeline */}
       <section className="relative py-16 overflow-hidden">
         <div className="absolute inset-0 dot-pattern" />
-        <div className="orb w-64 h-64 top-[40%] right-[5%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '3s' }} />
+        <div
+          className="orb w-64 h-64 top-[40%] right-[5%] bg-[var(--color-accent-magenta)]/10"
+          style={{ animationDelay: '3s' }}
+        />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Timeline line */}
@@ -185,9 +254,7 @@ export function ChangelogPage() {
 
                 {/* Card */}
                 <div className="glass-card p-6 sm:p-8 rounded-2xl">
-                  <h3 className="heading-md text-white mb-4">
-                    {entry.codename}
-                  </h3>
+                  <h3 className="heading-md text-white mb-4">{entry.codename}</h3>
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mb-6">
@@ -208,7 +275,10 @@ export function ChangelogPage() {
                   <div className="space-y-3">
                     {entry.features.map((feature, j) => (
                       <div key={j} className="flex items-start gap-3">
-                        <feature.icon size={16} className="text-[var(--color-accent-blue)] shrink-0 mt-0.5" />
+                        <feature.icon
+                          size={16}
+                          className="text-[var(--color-accent-blue)] shrink-0 mt-0.5"
+                        />
                         <span className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
                           {feature.text}
                         </span>
@@ -231,13 +301,19 @@ export function ChangelogPage() {
           <h2 className="heading-lg text-white mb-6 animate-fade-in-up">
             {t('marketing.changelog.ctaTitle', 'Try the Latest Features')}
           </h2>
-          <p className="text-[var(--color-text-secondary)] mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <p
+            className="text-[var(--color-text-secondary)] mb-10 animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
             {t(
               'marketing.changelog.ctaSubtitle',
               'All new features are available immediately. Start using PostCommander today and experience the difference.',
             )}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div
+            className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
+            style={{ animationDelay: '0.2s' }}
+          >
             <Link to="/app" className="btn-primary-glow">
               {t('marketing.changelog.ctaPrimary', 'Launch App')}
               <ArrowRight size={18} />

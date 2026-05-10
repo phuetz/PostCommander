@@ -13,14 +13,14 @@ import toast from 'react-hot-toast';
 
 export function VideoScriptPage() {
   const { t } = useTranslation();
-  
+
   const [topic, setTopic] = useState('');
   const [platform, setPlatform] = useState<'tiktok' | 'reels' | 'shorts'>('tiktok');
   const [duration, setDuration] = useState<'short' | 'medium' | 'long'>('short');
   const [tone, setTone] = useState<ToneId>('professional');
   const [provider, setProvider] = useState<LLMProviderId>('openai');
   const [model, setModel] = useState('');
-  
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VideoScriptResult | null>(null);
 
@@ -141,7 +141,9 @@ export function VideoScriptPage() {
               disabled={loading || !topic}
               icon={loading ? <Spinner size="sm" /> : <Sparkles size={18} />}
             >
-              {loading ? t('common.generating', 'Generating...') : t('videoScript.generate', 'Generate Script')}
+              {loading
+                ? t('common.generating', 'Generating...')
+                : t('videoScript.generate', 'Generate Script')}
             </Button>
           </div>
         </div>
@@ -167,9 +169,7 @@ export function VideoScriptPage() {
                   <h3 className="text-sm font-bold text-brand-700 dark:text-brand-300 uppercase tracking-wider mb-1">
                     {t('videoScript.hook', 'The Hook')}
                   </h3>
-                  <p className="text-gray-800 dark:text-gray-200 font-medium">
-                    {result.hook}
-                  </p>
+                  <p className="text-gray-800 dark:text-gray-200 font-medium">{result.hook}</p>
                 </div>
               </div>
 
@@ -177,10 +177,13 @@ export function VideoScriptPage() {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                   <Video size={18} /> {t('videoScript.script', 'Script & Visuals')}
                 </h3>
-                
+
                 <div className="space-y-4">
                   {result.parts.map((part, index) => (
-                    <div key={index} className="flex gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+                    <div
+                      key={index}
+                      className="flex gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700"
+                    >
                       <div className="hidden sm:flex flex-col items-center justify-start text-gray-400 mt-1">
                         <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center font-bold text-sm shadow-sm">
                           {index + 1}
@@ -198,9 +201,7 @@ export function VideoScriptPage() {
                             <Music size={12} /> {part.audio}
                           </span>
                         </div>
-                        <p className="text-gray-800 dark:text-gray-200 text-lg">
-                          "{part.script}"
-                        </p>
+                        <p className="text-gray-800 dark:text-gray-200 text-lg">"{part.script}"</p>
                       </div>
                     </div>
                   ))}
@@ -240,7 +241,10 @@ export function VideoScriptPage() {
                 {t('videoScript.emptyTitle', 'Ready to go viral?')}
               </h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-sm">
-                {t('videoScript.emptyDesc', 'Enter a topic, select your platform, and let AI generate a fully structured video script for you.')}
+                {t(
+                  'videoScript.emptyDesc',
+                  'Enter a topic, select your platform, and let AI generate a fully structured video script for you.',
+                )}
               </p>
             </div>
           )}

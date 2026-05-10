@@ -137,8 +137,14 @@ function IntegrationsHero() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="orb w-72 h-72 top-[10%] left-[5%] bg-[var(--color-accent-blue)]/20" />
-      <div className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-violet)]/15" style={{ animationDelay: '5s' }} />
-      <div className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-cyan)]/10" style={{ animationDelay: '10s' }} />
+      <div
+        className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-violet)]/15"
+        style={{ animationDelay: '5s' }}
+      />
+      <div
+        className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-cyan)]/10"
+        style={{ animationDelay: '10s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass animate-fade-in-up animate-glow-pulse mb-8">
@@ -148,25 +154,40 @@ function IntegrationsHero() {
           </span>
         </div>
 
-        <h1 className="heading-lg text-white mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <h1
+          className="heading-lg text-white mb-6 animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
           {t('marketing.integrations.heroTitle', 'Connected to')}{' '}
           <span className="gradient-text-cool">
             {t('marketing.integrations.heroTitleHighlight', 'Everything You Need')}
           </span>
         </h1>
 
-        <p className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <p
+          className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up"
+          style={{ animationDelay: '0.2s' }}
+        >
           {t(
             'marketing.integrations.heroSubtitle',
-            'PostCommander integrates with the world\'s most powerful AI models and social platforms',
+            "PostCommander integrates with the world's most powerful AI models and social platforms",
           )}
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 sm:gap-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <div
+          className="flex flex-wrap justify-center gap-4 sm:gap-8 animate-fade-in-up"
+          style={{ animationDelay: '0.3s' }}
+        >
           {[
-            { value: `${counters.integrations}+`, label: t('marketing.integrations.statIntegrations', 'Integrations') },
+            {
+              value: `${counters.integrations}+`,
+              label: t('marketing.integrations.statIntegrations', 'Integrations'),
+            },
             { value: `${counters.ai}`, label: t('marketing.integrations.statAI', 'AI Models') },
-            { value: `${counters.social}`, label: t('marketing.integrations.statSocial', 'Social Platforms') },
+            {
+              value: `${counters.social}`,
+              label: t('marketing.integrations.statSocial', 'Social Platforms'),
+            },
           ].map((stat) => (
             <div key={stat.label} className="glass-card px-6 py-4 min-w-[120px]">
               <div className="heading-md gradient-text-brand">{stat.value}</div>
@@ -227,7 +248,10 @@ function HubVisualization() {
             {t('marketing.integrations.hubTitle', 'Your Command Center')}
           </h2>
           <p className="text-[var(--color-text-secondary)] max-w-lg mx-auto">
-            {t('marketing.integrations.hubSubtitle', 'PostCommander sits at the heart of your content workflow, connecting AI and distribution in one place')}
+            {t(
+              'marketing.integrations.hubSubtitle',
+              'PostCommander sits at the heart of your content workflow, connecting AI and distribution in one place',
+            )}
           </p>
         </div>
 
@@ -303,7 +327,16 @@ interface AIModelCardProps {
   index: number;
 }
 
-function AIModelCard({ name, color, icon, bestFor, models, description, specialNote, index }: AIModelCardProps) {
+function AIModelCard({
+  name,
+  color,
+  icon,
+  bestFor,
+  models,
+  description,
+  specialNote,
+  index,
+}: AIModelCardProps) {
   return (
     <div
       className={clsx(
@@ -339,7 +372,9 @@ function AIModelCard({ name, color, icon, bestFor, models, description, specialN
         </div>
       </div>
 
-      <p className="text-sm text-[var(--color-text-secondary)] mb-4 leading-relaxed">{description}</p>
+      <p className="text-sm text-[var(--color-text-secondary)] mb-4 leading-relaxed">
+        {description}
+      </p>
 
       <div className="mb-4">
         <div className="text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] mb-2 font-semibold">
@@ -390,10 +425,14 @@ function AIModelsSection() {
       color: '#D4A574',
       icon: <Sparkles size={22} />,
       bestFor: t('marketing.integrations.anthropic.bestFor', 'Nuanced, human-sounding content'),
-      models: ['Claude Opus 4.6 (premium)', 'Claude Sonnet 4.6 (balanced)', 'Claude Haiku 4.5 (fast)'],
+      models: [
+        'Claude Opus 4.6 (premium)',
+        'Claude Sonnet 4.6 (balanced)',
+        'Claude Haiku 4.5 (fast)',
+      ],
       description: t(
         'marketing.integrations.anthropic.desc',
-        'Anthropic\'s Claude models produce thoughtful, nuanced content that reads naturally. From premium long-form with Opus to rapid-fire social posts with Haiku, find the perfect balance of quality and speed.',
+        "Anthropic's Claude models produce thoughtful, nuanced content that reads naturally. From premium long-form with Opus to rapid-fire social posts with Haiku, find the perfect balance of quality and speed.",
       ),
     },
     {
@@ -404,14 +443,17 @@ function AIModelsSection() {
       models: ['Gemini 2.0 Flash (fastest)', 'Gemini 2.0 Pro (most capable)'],
       description: t(
         'marketing.integrations.google.desc',
-        'Google\'s Gemini models excel at rapid content generation and multilingual support. Gemini Flash is the fastest model in our lineup, perfect for high-volume content workflows.',
+        "Google's Gemini models excel at rapid content generation and multilingual support. Gemini Flash is the fastest model in our lineup, perfect for high-volume content workflows.",
       ),
     },
     {
       name: 'Mistral',
       color: '#FF7000',
       icon: <Zap size={22} />,
-      bestFor: t('marketing.integrations.mistral.bestFor', 'European languages, efficient generation'),
+      bestFor: t(
+        'marketing.integrations.mistral.bestFor',
+        'European languages, efficient generation',
+      ),
       models: ['Mistral Large (capable)', 'Mistral Small (compact)'],
       description: t(
         'marketing.integrations.mistral.desc',
@@ -428,7 +470,10 @@ function AIModelsSection() {
         'marketing.integrations.ollama.desc',
         'Run AI models entirely on your own hardware. Ollama integration means zero data leaves your machine \u2014 perfect for sensitive industries, compliance requirements, or simply keeping your content strategy private.',
       ),
-      specialNote: t('marketing.integrations.ollama.privacy', '100% Private \u2014 Your data never leaves your machine'),
+      specialNote: t(
+        'marketing.integrations.ollama.privacy',
+        '100% Private \u2014 Your data never leaves your machine',
+      ),
     },
   ];
 
@@ -436,7 +481,10 @@ function AIModelsSection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
       <div className="absolute inset-0 grid-pattern" />
-      <div className="orb w-72 h-72 top-[20%] right-[5%] bg-[var(--color-accent-emerald)]/10" style={{ animationDelay: '3s' }} />
+      <div
+        className="orb w-72 h-72 top-[20%] right-[5%] bg-[var(--color-accent-emerald)]/10"
+        style={{ animationDelay: '3s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -452,7 +500,10 @@ function AIModelsSection() {
             </span>
           </h2>
           <p className="text-[var(--color-text-secondary)] max-w-2xl mx-auto">
-            {t('marketing.integrations.aiSubtitle', 'Choose the perfect AI for every piece of content. Switch models instantly, compare outputs, and find your voice.')}
+            {t(
+              'marketing.integrations.aiSubtitle',
+              'Choose the perfect AI for every piece of content. Switch models instantly, compare outputs, and find your voice.',
+            )}
           </p>
         </div>
 
@@ -523,16 +574,22 @@ function SocialPlatformCard({
         <h3 className="heading-sm text-white">{name}</h3>
       </div>
 
-      <p className="text-sm text-[var(--color-text-secondary)] mb-4 leading-relaxed">{description}</p>
+      <p className="text-sm text-[var(--color-text-secondary)] mb-4 leading-relaxed">
+        {description}
+      </p>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="glass px-3 py-2 rounded-xl">
-          <div className="text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] mb-0.5">Char Limit</div>
+          <div className="text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] mb-0.5">
+            Char Limit
+          </div>
           <div className="text-sm font-semibold text-white">{charLimit}</div>
         </div>
         <div className="glass px-3 py-2 rounded-xl">
-          <div className="text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] mb-0.5">Features</div>
+          <div className="text-[10px] uppercase tracking-widest text-[var(--color-text-muted)] mb-0.5">
+            Features
+          </div>
           <div className="text-sm font-semibold text-white">{features.length}</div>
         </div>
       </div>
@@ -540,7 +597,10 @@ function SocialPlatformCard({
       {/* Features */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {features.map((f) => (
-          <span key={f} className="glass px-2 py-0.5 rounded-md text-[11px] text-[var(--color-text-secondary)]">
+          <span
+            key={f}
+            className="glass px-2 py-0.5 rounded-md text-[11px] text-[var(--color-text-secondary)]"
+          >
             {f}
           </span>
         ))}
@@ -570,10 +630,13 @@ function SocialPlatformsSection() {
         t('marketing.integrations.linkedin.f4', 'Company pages'),
       ],
       charLimit: '3,000',
-      bestFor: t('marketing.integrations.linkedin.bestFor', 'B2B, thought leadership, professional networking'),
+      bestFor: t(
+        'marketing.integrations.linkedin.bestFor',
+        'B2B, thought leadership, professional networking',
+      ),
       description: t(
         'marketing.integrations.linkedin.desc',
-        'Dominate professional networking with AI-crafted posts optimized for LinkedIn\'s algorithm. Generate articles, carousels, and company page content with OAuth2 integration.',
+        "Dominate professional networking with AI-crafted posts optimized for LinkedIn's algorithm. Generate articles, carousels, and company page content with OAuth2 integration.",
       ),
     },
     {
@@ -621,10 +684,13 @@ function SocialPlatformsSection() {
         t('marketing.integrations.facebook.f4', 'Page content'),
       ],
       charLimit: '63,206',
-      bestFor: t('marketing.integrations.facebook.bestFor', 'Community building, events, diverse audiences'),
+      bestFor: t(
+        'marketing.integrations.facebook.bestFor',
+        'Community building, events, diverse audiences',
+      ),
       description: t(
         'marketing.integrations.facebook.desc',
-        'Build thriving communities with engaging posts, stories, and group content. Facebook\'s generous character limit means more room for compelling storytelling.',
+        "Build thriving communities with engaging posts, stories, and group content. Facebook's generous character limit means more room for compelling storytelling.",
       ),
     },
     {
@@ -639,7 +705,7 @@ function SocialPlatformsSection() {
       bestFor: t('marketing.integrations.tiktok.bestFor', 'Gen Z, viral trends, entertainment'),
       description: t(
         'marketing.integrations.tiktok.desc',
-        'Generate viral video descriptions with trend-aware hashtags. Optimize your content for TikTok\'s discovery algorithm and reach the next generation of consumers.',
+        "Generate viral video descriptions with trend-aware hashtags. Optimize your content for TikTok's discovery algorithm and reach the next generation of consumers.",
       ),
     },
     {
@@ -654,7 +720,7 @@ function SocialPlatformsSection() {
       bestFor: t('marketing.integrations.pinterest.bestFor', 'E-commerce, DIY, visual discovery'),
       description: t(
         'marketing.integrations.pinterest.desc',
-        'Create search-optimized pin descriptions that drive traffic and sales. Pinterest\'s unique discovery engine rewards well-crafted descriptions with lasting visibility.',
+        "Create search-optimized pin descriptions that drive traffic and sales. Pinterest's unique discovery engine rewards well-crafted descriptions with lasting visibility.",
       ),
     },
   ];
@@ -663,8 +729,14 @@ function SocialPlatformsSection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-void)]" />
       <div className="absolute inset-0 dot-pattern" />
-      <div className="orb w-80 h-80 bottom-[10%] left-[5%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '7s' }} />
-      <div className="orb w-56 h-56 top-[15%] right-[10%] bg-[var(--color-accent-blue)]/15" style={{ animationDelay: '12s' }} />
+      <div
+        className="orb w-80 h-80 bottom-[10%] left-[5%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '7s' }}
+      />
+      <div
+        className="orb w-56 h-56 top-[15%] right-[10%] bg-[var(--color-accent-blue)]/15"
+        style={{ animationDelay: '12s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -681,7 +753,10 @@ function SocialPlatformsSection() {
             </span>
           </h2>
           <p className="text-[var(--color-text-secondary)] max-w-2xl mx-auto">
-            {t('marketing.integrations.socialSubtitle', 'One click to publish optimized content across six major platforms. Each post tailored to the platform\'s audience and format.')}
+            {t(
+              'marketing.integrations.socialSubtitle',
+              "One click to publish optimized content across six major platforms. Each post tailored to the platform's audience and format.",
+            )}
           </p>
         </div>
 
@@ -702,7 +777,10 @@ function PaymentSection() {
   const { t } = useTranslation();
 
   const trustBadges = [
-    { icon: <Shield size={16} />, label: t('marketing.integrations.stripe.pci', 'PCI DSS Compliant') },
+    {
+      icon: <Shield size={16} />,
+      label: t('marketing.integrations.stripe.pci', 'PCI DSS Compliant'),
+    },
     { icon: <Lock size={16} />, label: t('marketing.integrations.stripe.ssl', 'SSL Encrypted') },
     { icon: <Check size={16} />, label: t('marketing.integrations.stripe.gdpr', 'GDPR Compliant') },
   ];
@@ -722,7 +800,10 @@ function PaymentSection() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="glass-card p-8 sm:p-12 animate-fade-in-up" style={{ borderLeft: '3px solid #635BFF' }}>
+        <div
+          className="glass-card p-8 sm:p-12 animate-fade-in-up"
+          style={{ borderLeft: '3px solid #635BFF' }}
+        >
           <div className="flex flex-col sm:flex-row sm:items-start gap-6">
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -743,7 +824,10 @@ function PaymentSection() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
                 {features.map((f) => (
-                  <div key={f} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+                  <div
+                    key={f}
+                    className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]"
+                  >
                     <Check size={14} className="text-[#635BFF] flex-shrink-0" />
                     {f}
                   </div>
@@ -842,16 +926,31 @@ function DeveloperAPISection() {
   const { t } = useTranslation();
 
   const apiFeatures = [
-    { icon: <Code2 size={18} />, label: t('marketing.integrations.api.rest', 'REST API'), desc: t('marketing.integrations.api.restDesc', 'Standard RESTful endpoints with JSON') },
-    { icon: <Radio size={18} />, label: t('marketing.integrations.api.streaming', 'Streaming'), desc: t('marketing.integrations.api.streamingDesc', 'Real-time SSE for live generation') },
-    { icon: <Webhook size={18} />, label: t('marketing.integrations.api.webhooks', 'Webhooks'), desc: t('marketing.integrations.api.webhooksDesc', 'Event-driven notifications') },
+    {
+      icon: <Code2 size={18} />,
+      label: t('marketing.integrations.api.rest', 'REST API'),
+      desc: t('marketing.integrations.api.restDesc', 'Standard RESTful endpoints with JSON'),
+    },
+    {
+      icon: <Radio size={18} />,
+      label: t('marketing.integrations.api.streaming', 'Streaming'),
+      desc: t('marketing.integrations.api.streamingDesc', 'Real-time SSE for live generation'),
+    },
+    {
+      icon: <Webhook size={18} />,
+      label: t('marketing.integrations.api.webhooks', 'Webhooks'),
+      desc: t('marketing.integrations.api.webhooksDesc', 'Event-driven notifications'),
+    },
   ];
 
   return (
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
       <div className="absolute inset-0 grid-pattern" />
-      <div className="orb w-64 h-64 top-[20%] left-[10%] bg-[var(--color-accent-cyan)]/10" style={{ animationDelay: '5s' }} />
+      <div
+        className="orb w-64 h-64 top-[20%] left-[10%] bg-[var(--color-accent-cyan)]/10"
+        style={{ animationDelay: '5s' }}
+      />
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
@@ -868,7 +967,10 @@ function DeveloperAPISection() {
             </span>
           </h2>
           <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto">
-            {t('marketing.integrations.apiSubtitle', 'Integrate AI content generation directly into your workflows, products, and automations.')}
+            {t(
+              'marketing.integrations.apiSubtitle',
+              'Integrate AI content generation directly into your workflows, products, and automations.',
+            )}
           </p>
         </div>
 
@@ -879,7 +981,9 @@ function DeveloperAPISection() {
               <div className="w-3 h-3 rounded-full bg-red-500/60" />
               <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
               <div className="w-3 h-3 rounded-full bg-green-500/60" />
-              <span className="ml-2 text-[11px] text-[var(--color-text-muted)] font-mono">generate.sh</span>
+              <span className="ml-2 text-[11px] text-[var(--color-text-muted)] font-mono">
+                generate.sh
+              </span>
             </div>
             <pre className="p-6 overflow-x-auto">
               <code className="text-sm leading-relaxed" style={{ fontFamily: 'var(--font-mono)' }}>
@@ -888,27 +992,34 @@ function DeveloperAPISection() {
                 {'\n'}
                 <span className="text-[var(--color-text-muted)]">{'{'}</span>
                 {'\n'}
-                {'  '}<span className="text-[var(--color-accent-magenta)]">"prompt"</span>
+                {'  '}
+                <span className="text-[var(--color-accent-magenta)]">"prompt"</span>
                 <span className="text-[var(--color-text-muted)]">:</span>{' '}
-                <span className="text-[var(--color-accent-emerald)]">"5 AI tips for productivity"</span>
+                <span className="text-[var(--color-accent-emerald)]">
+                  "5 AI tips for productivity"
+                </span>
                 <span className="text-[var(--color-text-muted)]">,</span>
                 {'\n'}
-                {'  '}<span className="text-[var(--color-accent-magenta)]">"platforms"</span>
+                {'  '}
+                <span className="text-[var(--color-accent-magenta)]">"platforms"</span>
                 <span className="text-[var(--color-text-muted)]">:</span>{' '}
                 <span className="text-[var(--color-accent-emerald)]">["linkedin", "twitter"]</span>
                 <span className="text-[var(--color-text-muted)]">,</span>
                 {'\n'}
-                {'  '}<span className="text-[var(--color-accent-magenta)]">"tone"</span>
+                {'  '}
+                <span className="text-[var(--color-accent-magenta)]">"tone"</span>
                 <span className="text-[var(--color-text-muted)]">:</span>{' '}
                 <span className="text-[var(--color-accent-emerald)]">"professional"</span>
                 <span className="text-[var(--color-text-muted)]">,</span>
                 {'\n'}
-                {'  '}<span className="text-[var(--color-accent-magenta)]">"provider"</span>
+                {'  '}
+                <span className="text-[var(--color-accent-magenta)]">"provider"</span>
                 <span className="text-[var(--color-text-muted)]">:</span>{' '}
                 <span className="text-[var(--color-accent-emerald)]">"anthropic"</span>
                 <span className="text-[var(--color-text-muted)]">,</span>
                 {'\n'}
-                {'  '}<span className="text-[var(--color-accent-magenta)]">"model"</span>
+                {'  '}
+                <span className="text-[var(--color-accent-magenta)]">"model"</span>
                 <span className="text-[var(--color-text-muted)]">:</span>{' '}
                 <span className="text-[var(--color-accent-emerald)]">"claude-sonnet-4-6"</span>
                 {'\n'}
@@ -929,7 +1040,9 @@ function DeveloperAPISection() {
                   <span className="text-[var(--color-accent-cyan)]">{feature.icon}</span>
                   <span className="font-display font-semibold text-white">{feature.label}</span>
                 </div>
-                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{feature.desc}</p>
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  {feature.desc}
+                </p>
               </div>
             ))}
 
@@ -960,7 +1073,10 @@ function IntegrationsCTA() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="orb w-80 h-80 top-[10%] left-[10%] bg-[var(--color-accent-blue)]/20" />
-      <div className="orb w-60 h-60 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/15" style={{ animationDelay: '7s' }} />
+      <div
+        className="orb w-60 h-60 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/15"
+        style={{ animationDelay: '7s' }}
+      />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="heading-lg text-white mb-6 animate-fade-in-up">
@@ -971,11 +1087,20 @@ function IntegrationsCTA() {
           {t('marketing.integrations.ctaTitleEnd', 'Today')}
         </h2>
 
-        <p className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          {t('marketing.integrations.ctaSubtitle', 'Set up your integrations in minutes. Connect your AI models and social platforms, then let PostCommander handle the rest.')}
+        <p
+          className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
+          {t(
+            'marketing.integrations.ctaSubtitle',
+            'Set up your integrations in minutes. Connect your AI models and social platforms, then let PostCommander handle the rest.',
+          )}
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <div
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up"
+          style={{ animationDelay: '0.2s' }}
+        >
           <Link to="/app" className="btn-primary-glow !text-lg !px-10 !py-5">
             {t('marketing.integrations.ctaPrimary', 'Get Started Free')}
             <ArrowRight size={20} />
@@ -985,8 +1110,14 @@ function IntegrationsCTA() {
           </Link>
         </div>
 
-        <p className="mt-6 text-xs text-[var(--color-text-muted)] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          {t('marketing.integrations.ctaNote', 'Free plan includes all integrations. No credit card required.')}
+        <p
+          className="mt-6 text-xs text-[var(--color-text-muted)] animate-fade-in-up"
+          style={{ animationDelay: '0.3s' }}
+        >
+          {t(
+            'marketing.integrations.ctaNote',
+            'Free plan includes all integrations. No credit card required.',
+          )}
         </p>
       </div>
     </section>

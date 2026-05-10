@@ -20,11 +20,7 @@ export function createApp(): express.Application {
   app.use(cookieParser());
 
   // ── Stripe webhook (needs raw body BEFORE json parsing) ────
-  app.post(
-    '/api/stripe/webhook',
-    express.raw({ type: 'application/json' }),
-    stripeWebhookHandler,
-  );
+  app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
 
   // ── Body parsing ────────────────────────────────────────────
   app.use(express.json({ limit: '1mb' }));

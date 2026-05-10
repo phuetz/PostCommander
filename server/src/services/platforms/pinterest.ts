@@ -36,9 +36,7 @@ export class PinterestAdapter extends BasePlatformAdapter {
   }
 
   async exchangeCode(code: string): Promise<OAuthTokens> {
-    const credentials = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64');
+    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
 
     const response = await fetch('https://api.pinterest.com/v5/oauth/token', {
       method: 'POST',
@@ -59,9 +57,7 @@ export class PinterestAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,
@@ -72,9 +68,7 @@ export class PinterestAdapter extends BasePlatformAdapter {
   }
 
   async refreshToken(refreshToken: string): Promise<OAuthTokens> {
-    const credentials = Buffer.from(
-      `${this.clientId}:${this.clientSecret}`,
-    ).toString('base64');
+    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
 
     const response = await fetch('https://api.pinterest.com/v5/oauth/token', {
       method: 'POST',
@@ -94,9 +88,7 @@ export class PinterestAdapter extends BasePlatformAdapter {
     }
 
     const data = (await response.json()) as OAuthTokenResponse;
-    const expiresAt = new Date(
-      Date.now() + (data.expires_in as number) * 1000,
-    ).toISOString();
+    const expiresAt = new Date(Date.now() + (data.expires_in as number) * 1000).toISOString();
 
     return {
       accessToken: data.access_token as string,
@@ -109,18 +101,13 @@ export class PinterestAdapter extends BasePlatformAdapter {
   async publishPost(options: PublishOptions): Promise<PublishResponse> {
     // Pinterest requires an image to create a pin
     if (!options.mediaUrls || options.mediaUrls.length === 0) {
-      throw new Error(
-        'Pinterest requires an image. Text-only pins are not supported.',
-      );
+      throw new Error('Pinterest requires an image. Text-only pins are not supported.');
     }
 
     // First get the user's boards
-    const boardsResponse = await fetch(
-      'https://api.pinterest.com/v5/boards',
-      {
-        headers: { Authorization: `Bearer ${options.accessToken}` },
-      },
-    );
+    const boardsResponse = await fetch('https://api.pinterest.com/v5/boards', {
+      headers: { Authorization: `Bearer ${options.accessToken}` },
+    });
 
     if (!boardsResponse.ok) {
       throw new Error('Failed to get Pinterest boards');
@@ -164,12 +151,9 @@ export class PinterestAdapter extends BasePlatformAdapter {
   }
 
   async getAccountInfo(accessToken: string): Promise<AccountInfo> {
-    const response = await fetch(
-      'https://api.pinterest.com/v5/user_account',
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      },
-    );
+    const response = await fetch('https://api.pinterest.com/v5/user_account', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
 
     if (!response.ok) {
       throw new Error('Failed to get Pinterest account info');

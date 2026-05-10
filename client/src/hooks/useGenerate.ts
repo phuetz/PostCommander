@@ -19,71 +19,67 @@ export function useGenerate() {
 
   const abortRef = useRef<(() => void) | null>(null);
 
-  const generate = useCallback(
-    async (request: GenerateRequest, useStream = true) => {
-      // Cancel previous generation
-      if (abortRef.current) {
-        abortRef.current();
-        abortRef.current = null;
-      }
+  const generate = useCallback(async (request: GenerateRequest, useStream = true) => {
+    // Cancel previous generation
+    if (abortRef.current) {
+      abortRef.current();
+      abortRef.current = null;
+    }
 
-      setState({
-        isGenerating: true,
-        streamedContent: '',
-        result: null,
-        error: null,
-      });
+    setState({
+      isGenerating: true,
+      streamedContent: '',
+      result: null,
+      error: null,
+    });
 
-      if (useStream) {
-        const cancel = streamPost(
-          request,
-          (token) => {
-            setState((prev) => ({
-              ...prev,
-              streamedContent: prev.streamedContent + token,
-            }));
-          },
-          (result) => {
-            setState({
-              isGenerating: false,
-              streamedContent: result.content,
-              result,
-              error: null,
-            });
-            abortRef.current = null;
-          },
-          (error) => {
-            setState((prev) => ({
-              ...prev,
-              isGenerating: false,
-              error,
-            }));
-            abortRef.current = null;
-          },
-        );
-        abortRef.current = cancel;
-      } else {
-        try {
-          const result = await generatePost(request);
+    if (useStream) {
+      const cancel = streamPost(
+        request,
+        (token) => {
+          setState((prev) => ({
+            ...prev,
+            streamedContent: prev.streamedContent + token,
+          }));
+        },
+        (result) => {
           setState({
             isGenerating: false,
             streamedContent: result.content,
             result,
             error: null,
           });
-        } catch (err: unknown) {
-          const message =
-            err instanceof Error ? err.message : 'Generation failed';
+          abortRef.current = null;
+        },
+        (error) => {
           setState((prev) => ({
             ...prev,
             isGenerating: false,
-            error: message,
+            error,
           }));
-        }
+          abortRef.current = null;
+        },
+      );
+      abortRef.current = cancel;
+    } else {
+      try {
+        const result = await generatePost(request);
+        setState({
+          isGenerating: false,
+          streamedContent: result.content,
+          result,
+          error: null,
+        });
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Generation failed';
+        setState((prev) => ({
+          ...prev,
+          isGenerating: false,
+          error: message,
+        }));
       }
-    },
-    [],
-  );
+    }
+  }, []);
 
   const cancel = useCallback(() => {
     if (abortRef.current) {

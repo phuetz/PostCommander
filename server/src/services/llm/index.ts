@@ -132,3 +132,39 @@ export async function streamPost(
     hashtags,
   };
 }
+
+/**
+ * Generate a long-form blog article based on the custom prompt strategy.
+ */
+export async function generateBlogArticle(
+  request: any, // using any for now to avoid strict typing issues with the newly added schema fields
+  userId?: string,
+): Promise<{ content: string }> {
+  const { buildBlogArticlePrompt } = await import('../ai/blog-prompts.js');
+
+  const model = createModel(request.provider, request.model, userId);
+
+  const prompt = buildBlogArticlePrompt({
+    topic: request.topic,
+    articleType: request.articleType,
+    authorName: request.authorName,
+    authorRole: request.authorRole,
+    authorContext: request.authorContext,
+    authorReferences: request.authorReferences,
+    catalogMatched: request.catalogMatched,
+    similarSources: request.similarSources,
+    language: request.language,
+  });
+
+  const result = await generateText({
+    model,
+    system: 'You are an expert technical blog writer following specific stylistic constraints.',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.7,
+    maxTokens: 4000, // Blog articles are longer
+  });
+
+  return {
+    content: result.text,
+  };
+}

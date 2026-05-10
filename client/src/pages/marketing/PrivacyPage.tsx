@@ -39,7 +39,7 @@ function usePrivacySections() {
       title: t('marketing.privacy.s4Title', '4. AI Processing & Third Parties'),
       content: t(
         'marketing.privacy.s4Content',
-        'To generate content, we transmit your prompts and generation parameters to third-party AI providers. The providers we use include:\n\nOpenAI (USA): Processes prompts through GPT models. Subject to OpenAI\'s API data usage policy — API data is not used for training.\n\nAnthropic (USA): Processes prompts through Claude models. Subject to Anthropic\'s API terms — API inputs and outputs are not used for model training.\n\nGoogle (USA): Processes prompts through Gemini models. Subject to Google Cloud\'s data processing terms.\n\nMistral AI (France/EU): Processes prompts through Mistral models. Data processed within the EU.\n\nOllama (Local): When using local models, your data remains entirely on your device and is not transmitted to any third party.\n\nWe select providers that commit to not using API data for model training. However, we recommend not including sensitive personal data in your content generation prompts.',
+        "To generate content, we transmit your prompts and generation parameters to third-party AI providers. The providers we use include:\n\nOpenAI (USA): Processes prompts through GPT models. Subject to OpenAI's API data usage policy — API data is not used for training.\n\nAnthropic (USA): Processes prompts through Claude models. Subject to Anthropic's API terms — API inputs and outputs are not used for model training.\n\nGoogle (USA): Processes prompts through Gemini models. Subject to Google Cloud's data processing terms.\n\nMistral AI (France/EU): Processes prompts through Mistral models. Data processed within the EU.\n\nOllama (Local): When using local models, your data remains entirely on your device and is not transmitted to any third party.\n\nWe select providers that commit to not using API data for model training. However, we recommend not including sensitive personal data in your content generation prompts.",
       ),
     },
     {
@@ -47,7 +47,7 @@ function usePrivacySections() {
       title: t('marketing.privacy.s5Title', '5. Social Media Platform Data'),
       content: t(
         'marketing.privacy.s5Content',
-        'If you connect your social media accounts to PostCommander for publishing, we access only the permissions strictly necessary for content publishing. We do not access your private messages, contact lists, or non-public profile information.\n\nThe social media platforms we integrate with include LinkedIn, X (Twitter), Facebook, Instagram, TikTok, and Pinterest. Each platform\'s data processing is governed by their respective privacy policies. We encourage you to review the privacy policies of any social media platforms you connect.',
+        "If you connect your social media accounts to PostCommander for publishing, we access only the permissions strictly necessary for content publishing. We do not access your private messages, contact lists, or non-public profile information.\n\nThe social media platforms we integrate with include LinkedIn, X (Twitter), Facebook, Instagram, TikTok, and Pinterest. Each platform's data processing is governed by their respective privacy policies. We encourage you to review the privacy policies of any social media platforms you connect.",
       ),
     },
     {
@@ -63,7 +63,7 @@ function usePrivacySections() {
       title: t('marketing.privacy.s7Title', '7. Stripe Payment Processing'),
       content: t(
         'marketing.privacy.s7Content',
-        'Payment processing is handled by Stripe, Inc., a PCI DSS Level 1 certified payment processor. When you provide payment information, it is transmitted directly to Stripe via their secure SDK — we never receive or store your full payment card details.\n\nStripe processes your payment data in accordance with their privacy policy (https://stripe.com/privacy). We receive only: a tokenized payment reference, subscription status, transaction amounts, and billing dates.\n\nFor more information about Stripe\'s data practices, please visit: https://stripe.com/privacy',
+        "Payment processing is handled by Stripe, Inc., a PCI DSS Level 1 certified payment processor. When you provide payment information, it is transmitted directly to Stripe via their secure SDK — we never receive or store your full payment card details.\n\nStripe processes your payment data in accordance with their privacy policy (https://stripe.com/privacy). We receive only: a tokenized payment reference, subscription status, transaction amounts, and billing dates.\n\nFor more information about Stripe's data practices, please visit: https://stripe.com/privacy",
       ),
     },
     {
@@ -181,12 +181,13 @@ export function PrivacyPage() {
           </div>
 
           <h1 className="heading-lg mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <span className="text-white">
-              {t('marketing.privacy.heroTitle', 'Privacy Policy')}
-            </span>
+            <span className="text-white">{t('marketing.privacy.heroTitle', 'Privacy Policy')}</span>
           </h1>
 
-          <p className="text-sm text-[var(--color-text-muted)] animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <p
+            className="text-sm text-[var(--color-text-muted)] animate-fade-in-up"
+            style={{ animationDelay: '0.2s' }}
+          >
             {t('marketing.privacy.lastUpdated', 'Last updated: April 16, 2026')}
           </p>
         </div>

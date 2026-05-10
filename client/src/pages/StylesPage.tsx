@@ -45,7 +45,9 @@ function TraitBadge({ traitKey, value }: { traitKey: string; value: string }) {
   const color = traitColors[traitKey] || 'bg-gray-100 text-gray-700';
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${color}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${color}`}
+    >
       <Icon size={12} />
       {value}
     </span>
@@ -73,9 +75,7 @@ function StyleCard({
               <Palette size={20} />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                {style.name}
-              </h3>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">{style.name}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-0.5">
                 <Calendar size={10} />
                 {format(new Date(style.createdAt), 'MMM d, yyyy')}
@@ -94,9 +94,7 @@ function StyleCard({
         </div>
 
         {/* Description */}
-        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-          {style.description}
-        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{style.description}</p>
 
         {/* Traits */}
         <div className="flex flex-wrap gap-1.5">
@@ -150,13 +148,13 @@ export function StylesPage() {
       toast.error(t('styles.samplesRequired', 'Please provide at least 3 sample posts'));
       return;
     }
-    
+
     await createMutation.mutateAsync({
       name: newName,
       description: newDescription,
       samplePosts: samples,
     });
-    
+
     setShowCreateModal(false);
     setNewName('');
     setNewDescription('');
@@ -184,16 +182,10 @@ export function StylesPage() {
             {t('styles.title', 'Writing Styles')}
           </h2>
           <p className="text-gray-500 dark:text-gray-400 mt-2">
-            {t(
-              'styles.subtitle',
-              'Create and manage your personal writing styles',
-            )}
+            {t('styles.subtitle', 'Create and manage your personal writing styles')}
           </p>
         </div>
-        <Button
-          icon={<Plus size={18} />}
-          onClick={() => setShowCreateModal(true)}
-        >
+        <Button icon={<Plus size={18} />} onClick={() => setShowCreateModal(true)}>
           {t('styles.createNew', 'Create New Style')}
         </Button>
       </div>
@@ -216,10 +208,7 @@ export function StylesPage() {
                 'Create your first writing style by providing sample posts. We will analyze your writing patterns and tone.',
               )}
             </p>
-            <Button
-              icon={<Plus size={18} />}
-              onClick={() => setShowCreateModal(true)}
-            >
+            <Button icon={<Plus size={18} />} onClick={() => setShowCreateModal(true)}>
               {t('styles.createFirst', 'Create Your First Style')}
             </Button>
           </div>
@@ -309,9 +298,7 @@ export function StylesPage() {
         {selectedStyle && (
           <div className="space-y-5 max-h-[70vh] overflow-y-auto">
             {/* Description */}
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {selectedStyle.description}
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{selectedStyle.description}</p>
 
             {/* Style Profile */}
             <div className="space-y-3">
@@ -331,13 +318,13 @@ export function StylesPage() {
                       key={key}
                       className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50"
                     >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}>
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}
+                      >
                         <Icon size={16} />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {label}
-                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {value as string}
                         </p>
@@ -356,10 +343,7 @@ export function StylesPage() {
                 </h4>
                 <div className="space-y-2">
                   {selectedStyle.samplePosts.map((sample, i) => (
-                    <div
-                      key={i}
-                      className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3"
-                    >
+                    <div key={i} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                       <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed">
                         {sample}
                       </p>

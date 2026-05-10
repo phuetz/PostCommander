@@ -1,13 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  FileText,
-  Copy,
-  Check,
-  Sparkles,
-  Search,
-  LayoutGrid,
-} from 'lucide-react';
+import { FileText, Copy, Check, Sparkles, Search, LayoutGrid } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -41,22 +34,20 @@ const categoryColors: Record<string, string> = {
   Tech: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
 };
 
-function TemplateCard({
-  template,
-  onClick,
-}: {
-  template: Template;
-  onClick: () => void;
-}) {
+function TemplateCard({ template, onClick }: { template: Template; onClick: () => void }) {
   const { t } = useTranslation();
-  const colorClass = categoryColors[template.category] || 'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+  const colorClass =
+    categoryColors[template.category] ||
+    'bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
 
   return (
     <Card hover padding="none" className="cursor-pointer group" onClick={onClick}>
       <div className="p-5 space-y-3">
         {/* Header badges */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}>
+          <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colorClass}`}
+          >
             {template.category}
           </span>
           <Badge variant="default">{template.platform}</Badge>
@@ -142,12 +133,11 @@ export function TemplatesPage() {
 
   const handleGenerate = async () => {
     if (!selectedTemplate) return;
-    
+
     const missingVars = selectedTemplate.variables.filter((v) => !variables[v]?.trim());
     if (missingVars.length > 0) {
       toast.error(
-        t('templates.fillAllVars', 'Please fill in all variables: ') +
-          missingVars.join(', '),
+        t('templates.fillAllVars', 'Please fill in all variables: ') + missingVars.join(', '),
       );
       return;
     }
@@ -157,7 +147,7 @@ export function TemplatesPage() {
         id: selectedTemplate.id,
         variables,
         provider: 'openai', // Default provider, could be dynamic
-        model: 'gpt-4o',    // Default model, could be dynamic
+        model: 'gpt-4o', // Default model, could be dynamic
       });
       if (result && typeof result === 'object' && 'content' in result) {
         setGeneratedContent(result.content as string);
@@ -188,10 +178,7 @@ export function TemplatesPage() {
             {t('templates.title', 'Templates Library')}
           </h2>
           <p className="text-gray-500 dark:text-gray-400 mt-2">
-            {t(
-              'templates.subtitle',
-              'Proven post templates ready to customize',
-            )}
+            {t('templates.subtitle', 'Proven post templates ready to customize')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -341,9 +328,7 @@ export function TemplatesPage() {
                     }`}
                   >
                     {contentCopied ? <Check size={12} /> : <Copy size={12} />}
-                    {contentCopied
-                      ? t('post.copied', 'Copied!')
-                      : t('post.copy', 'Copy')}
+                    {contentCopied ? t('post.copied', 'Copied!') : t('post.copy', 'Copy')}
                   </button>
                 </div>
                 <div className="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-xl p-4">

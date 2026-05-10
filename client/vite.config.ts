@@ -22,16 +22,16 @@ export default defineConfig({
           {
             src: '/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: '/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      }
-    })
+            type: 'image/png',
+          },
+        ],
+      },
+    }),
   ],
   resolve: {
     alias: {
@@ -54,7 +54,12 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-utils': ['axios', 'date-fns', 'clsx', 'react-hot-toast'],
           'vendor-icons': ['lucide-react'],
-          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-http-backend', 'i18next-browser-languagedetector'],
+          'vendor-i18n': [
+            'i18next',
+            'react-i18next',
+            'i18next-http-backend',
+            'i18next-browser-languagedetector',
+          ],
           'vendor-query': ['@tanstack/react-query'],
         },
       },

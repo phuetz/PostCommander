@@ -52,12 +52,24 @@ const platformOptions = [
 ];
 
 const colorOptions = [
-  '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444',
-  '#f59e0b', '#22c55e', '#06b6d4', '#6366f1',
-  '#14b8a6', '#f97316', '#a855f7', '#64748b',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
+  '#ef4444',
+  '#f59e0b',
+  '#22c55e',
+  '#06b6d4',
+  '#6366f1',
+  '#14b8a6',
+  '#f97316',
+  '#a855f7',
+  '#64748b',
 ];
 
-const statusConfig: Record<string, { label: string; variant: 'default' | 'info' | 'warning' | 'success' }> = {
+const statusConfig: Record<
+  string,
+  { label: string; variant: 'default' | 'info' | 'warning' | 'success' }
+> = {
   idea: { label: 'Idea', variant: 'info' },
   drafted: { label: 'Drafted', variant: 'warning' },
   scheduled: { label: 'Scheduled', variant: 'default' },
@@ -112,14 +124,16 @@ function StrategyStats({ pillars }: { pillars: PillarWithCount[] }) {
             <span className="text-gray-500 dark:text-gray-400">
               {t('pillars.published', 'Published')}:
             </span>
-            <span className="font-semibold text-green-600 dark:text-green-400">{totalPublished}</span>
+            <span className="font-semibold text-green-600 dark:text-green-400">
+              {totalPublished}
+            </span>
           </div>
         </div>
 
         {/* Mini distribution bar */}
         {pillars.length > 0 && totalIdeas > 0 && (
           <div className="w-full flex h-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
-            {pillars.map((pillar) => (
+            {pillars.map((pillar) =>
               pillar.ideaCount > 0 ? (
                 <div
                   key={pillar.id}
@@ -130,8 +144,8 @@ function StrategyStats({ pillars }: { pillars: PillarWithCount[] }) {
                   }}
                   title={`${pillar.name}: ${pillar.ideaCount} ideas`}
                 />
-              ) : null
-            ))}
+              ) : null,
+            )}
           </div>
         )}
       </div>
@@ -174,9 +188,7 @@ function IdeaCard({
           </p>
         )}
         <div className="flex items-center justify-between">
-          <Badge variant={config.variant}>
-            {t(`pillars.status.${idea.status}`, config.label)}
-          </Badge>
+          <Badge variant={config.variant}>{t(`pillars.status.${idea.status}`, config.label)}</Badge>
           <select
             value={idea.status}
             onChange={(e) => onUpdateStatus(e.target.value)}
@@ -220,7 +232,10 @@ function PillarColumn({
 
   const handleAddIdea = async () => {
     if (!newIdeaTitle.trim()) return;
-    await createIdeaMutation.mutateAsync({ pillarId: pillar.id, data: { title: newIdeaTitle.trim() } });
+    await createIdeaMutation.mutateAsync({
+      pillarId: pillar.id,
+      data: { title: newIdeaTitle.trim() },
+    });
     setNewIdeaTitle('');
     setShowAddIdea(false);
   };
@@ -403,9 +418,7 @@ function PillarModal({
 
   const togglePlatform = (platformId: string) => {
     setSelectedPlatforms((prev) =>
-      prev.includes(platformId)
-        ? prev.filter((p) => p !== platformId)
-        : [...prev, platformId],
+      prev.includes(platformId) ? prev.filter((p) => p !== platformId) : [...prev, platformId],
     );
   };
 
@@ -418,7 +431,10 @@ function PillarModal({
       name: name.trim(),
       description: description.trim() || undefined,
       color,
-      topics: topics.split(',').map((t) => t.trim()).filter(Boolean),
+      topics: topics
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean),
       postingFrequency: frequency,
       targetPlatforms: selectedPlatforms,
     });
@@ -428,9 +444,9 @@ function PillarModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={pillar
-        ? t('pillars.editPillar', 'Edit Pillar')
-        : t('pillars.createPillar', 'Create Pillar')}
+      title={
+        pillar ? t('pillars.editPillar', 'Edit Pillar') : t('pillars.createPillar', 'Create Pillar')
+      }
       maxWidth="lg"
     >
       <div className="space-y-5">
@@ -453,7 +469,10 @@ function PillarModal({
           label={t('pillars.topics', 'Subtopics (comma-separated)')}
           value={topics}
           onChange={(e) => setTopics(e.target.value)}
-          placeholder={t('pillars.topicsPlaceholder', 'e.g., team management, decision making, communication')}
+          placeholder={t(
+            'pillars.topicsPlaceholder',
+            'e.g., team management, decision making, communication',
+          )}
         />
 
         {/* Color Picker */}
@@ -468,7 +487,8 @@ function PillarModal({
                 onClick={() => setColor(c)}
                 className={clsx(
                   'w-8 h-8 rounded-full transition-all',
-                  color === c && 'ring-2 ring-offset-2 ring-gray-900 dark:ring-gray-100 dark:ring-offset-gray-900',
+                  color === c &&
+                    'ring-2 ring-offset-2 ring-gray-900 dark:ring-gray-100 dark:ring-offset-gray-900',
                 )}
                 style={{ backgroundColor: c }}
               />
@@ -511,9 +531,7 @@ function PillarModal({
             {t('common.cancel', 'Cancel')}
           </Button>
           <Button onClick={handleSubmit} loading={loading} disabled={!name.trim()}>
-            {pillar
-              ? t('common.save', 'Save')
-              : t('common.create', 'Create')}
+            {pillar ? t('common.save', 'Save') : t('common.create', 'Create')}
           </Button>
         </div>
       </div>
@@ -540,14 +558,20 @@ export function PillarsPage() {
   const pillars = pillarsQuery.data || [];
   const isLoading = pillarsQuery.isLoading;
 
-  const handleGenerateIdeas = useCallback(async (pillarId: string) => {
-    setGeneratingPillarId(pillarId);
-    try {
-      await generateIdeasMutation.mutateAsync({ pillarId, params: { provider, model, count: 5 } });
-    } finally {
-      setGeneratingPillarId(null);
-    }
-  }, [provider, model, generateIdeasMutation]);
+  const handleGenerateIdeas = useCallback(
+    async (pillarId: string) => {
+      setGeneratingPillarId(pillarId);
+      try {
+        await generateIdeasMutation.mutateAsync({
+          pillarId,
+          params: { provider, model, count: 5 },
+        });
+      } finally {
+        setGeneratingPillarId(null);
+      }
+    },
+    [provider, model, generateIdeasMutation],
+  );
 
   const handleDeletePillar = (pillar: PillarWithCount) => {
     if (window.confirm(t('pillars.confirmDelete', `Delete "${pillar.name}" and all its ideas?`))) {
@@ -580,10 +604,7 @@ export function PillarsPage() {
             onProviderChange={setProvider}
             onModelChange={setModel}
           />
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            icon={<Plus size={18} />}
-          >
+          <Button onClick={() => setShowCreateModal(true)} icon={<Plus size={18} />}>
             {t('pillars.addPillar', 'Add Pillar')}
           </Button>
         </div>
@@ -620,10 +641,7 @@ export function PillarsPage() {
                 )}
               </p>
             </div>
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              icon={<Plus size={18} />}
-            >
+            <Button onClick={() => setShowCreateModal(true)} icon={<Plus size={18} />}>
               {t('pillars.createFirst', 'Create First Pillar')}
             </Button>
           </div>

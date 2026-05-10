@@ -1,34 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Check,
-  X as XIcon,
-  ChevronDown,
-  ArrowRight,
-  Shield,
-  Loader2,
-} from 'lucide-react';
+import { Check, X as XIcon, ChevronDown, ArrowRight, Shield, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 import { createCheckout } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 
 function getCheckoutErrorMessage(error: unknown): string {
-  return error instanceof Error
-    ? error.message
-    : 'Failed to start checkout. Please try again.';
+  return error instanceof Error ? error.message : 'Failed to start checkout. Please try again.';
 }
 
 /* ------------------------------------------------------------------ */
 /*  Billing Toggle                                                     */
 /* ------------------------------------------------------------------ */
-function BillingToggle({
-  yearly,
-  onToggle,
-}: {
-  yearly: boolean;
-  onToggle: () => void;
-}) {
+function BillingToggle({ yearly, onToggle }: { yearly: boolean; onToggle: () => void }) {
   const { t } = useTranslation();
 
   return (
@@ -196,7 +181,13 @@ function PricingCards({ yearly }: { yearly: boolean }) {
           >
             {plan.popular && (
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                <span className="px-4 py-1.5 rounded-full text-xs font-bold text-white" style={{ background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))' }}>
+                <span
+                  className="px-4 py-1.5 rounded-full text-xs font-bold text-white"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))',
+                  }}
+                >
                   {t('pricing.mostPopular', 'Most Popular')}
                 </span>
               </div>
@@ -216,24 +207,29 @@ function PricingCards({ yearly }: { yearly: boolean }) {
               </div>
 
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display text-5xl font-extrabold text-white">{price}&euro;</span>
-                <span className="text-sm text-[var(--color-text-muted)]">/{t('pricing.perMonth', 'month')}</span>
+                <span className="font-display text-5xl font-extrabold text-white">
+                  {price}&euro;
+                </span>
+                <span className="text-sm text-[var(--color-text-muted)]">
+                  /{t('pricing.perMonth', 'month')}
+                </span>
               </div>
 
               {yearly && plan.monthlyPrice > 0 && (
                 <div className="mb-6">
-                  <span className="text-sm text-[var(--color-text-muted)] line-through">{plan.monthlyPrice}&euro;/mo</span>
+                  <span className="text-sm text-[var(--color-text-muted)] line-through">
+                    {plan.monthlyPrice}&euro;/mo
+                  </span>
                   <span className="ml-2 text-sm font-medium text-[var(--color-accent-emerald)]">
-                    {t('pricing.youSave', 'Save')} {(plan.monthlyPrice - plan.yearlyPrice) * 12}&euro;/{t('pricing.year', 'yr')}
+                    {t('pricing.youSave', 'Save')} {(plan.monthlyPrice - plan.yearlyPrice) * 12}
+                    &euro;/{t('pricing.year', 'yr')}
                   </span>
                 </div>
               )}
 
               {!yearly && <div className="mb-6" />}
 
-              {checkoutError && (
-                <p className="mb-4 text-xs text-red-400">{checkoutError}</p>
-              )}
+              {checkoutError && <p className="mb-4 text-xs text-red-400">{checkoutError}</p>}
 
               {isFree ? (
                 <Link
@@ -276,16 +272,17 @@ function PricingCards({ yearly }: { yearly: boolean }) {
                   {plan.features.map((f) => (
                     <li key={f.label} className="flex items-start gap-3">
                       {f.included ? (
-                        <Check size={14} className="text-[var(--color-accent-emerald)] mt-0.5 shrink-0" />
+                        <Check
+                          size={14}
+                          className="text-[var(--color-accent-emerald)] mt-0.5 shrink-0"
+                        />
                       ) : (
                         <XIcon size={14} className="text-white/10 mt-0.5 shrink-0" />
                       )}
                       <span
                         className={clsx(
                           'text-sm',
-                          f.included
-                            ? 'text-[var(--color-text-secondary)]'
-                            : 'text-white/20',
+                          f.included ? 'text-[var(--color-text-secondary)]' : 'text-white/20',
                         )}
                       >
                         {f.label}
@@ -312,42 +309,137 @@ function ComparisonTable() {
     {
       name: t('pricing.table.contentGen', 'Content Generation'),
       features: [
-        { name: t('pricing.table.posts', 'Posts per month'), free: '10', pro: t('pricing.table.unlimited', 'Unlimited'), business: t('pricing.table.unlimited', 'Unlimited') },
-        { name: t('pricing.table.aiProviders', 'AI providers'), free: '1', pro: '5', business: '5' },
+        {
+          name: t('pricing.table.posts', 'Posts per month'),
+          free: '10',
+          pro: t('pricing.table.unlimited', 'Unlimited'),
+          business: t('pricing.table.unlimited', 'Unlimited'),
+        },
+        {
+          name: t('pricing.table.aiProviders', 'AI providers'),
+          free: '1',
+          pro: '5',
+          business: '5',
+        },
         { name: t('pricing.table.platforms', 'Platforms'), free: '2', pro: '6', business: '6' },
-        { name: t('pricing.table.tones', 'Writing tones'), free: '3', pro: '8 + custom', business: '8 + custom' },
+        {
+          name: t('pricing.table.tones', 'Writing tones'),
+          free: '3',
+          pro: '8 + custom',
+          business: '8 + custom',
+        },
         { name: t('pricing.table.languages', 'Languages'), free: '2', pro: '8', business: '8' },
       ],
     },
     {
       name: t('pricing.table.tools', 'Tools'),
       features: [
-        { name: t('pricing.table.viralLib', 'Viral post library'), free: false, pro: true, business: true },
-        { name: t('pricing.table.hookGen', 'Hook generator'), free: false, pro: true, business: true },
-        { name: t('pricing.table.carousel', 'Carousel/thread creator'), free: false, pro: true, business: true },
-        { name: t('pricing.table.templates', 'Template library'), free: false, pro: true, business: true },
-        { name: t('pricing.table.hashtags', 'Hashtag research'), free: false, pro: true, business: true },
-        { name: t('pricing.table.repurpose', 'Content repurposing'), free: false, pro: false, business: true },
-        { name: t('pricing.table.styleClone', 'Style cloning'), free: false, pro: false, business: true },
-        { name: t('pricing.table.imageGen', 'AI image generation'), free: false, pro: false, business: true },
+        {
+          name: t('pricing.table.viralLib', 'Viral post library'),
+          free: false,
+          pro: true,
+          business: true,
+        },
+        {
+          name: t('pricing.table.hookGen', 'Hook generator'),
+          free: false,
+          pro: true,
+          business: true,
+        },
+        {
+          name: t('pricing.table.carousel', 'Carousel/thread creator'),
+          free: false,
+          pro: true,
+          business: true,
+        },
+        {
+          name: t('pricing.table.templates', 'Template library'),
+          free: false,
+          pro: true,
+          business: true,
+        },
+        {
+          name: t('pricing.table.hashtags', 'Hashtag research'),
+          free: false,
+          pro: true,
+          business: true,
+        },
+        {
+          name: t('pricing.table.repurpose', 'Content repurposing'),
+          free: false,
+          pro: false,
+          business: true,
+        },
+        {
+          name: t('pricing.table.styleClone', 'Style cloning'),
+          free: false,
+          pro: false,
+          business: true,
+        },
+        {
+          name: t('pricing.table.imageGen', 'AI image generation'),
+          free: false,
+          pro: false,
+          business: true,
+        },
       ],
     },
     {
       name: t('pricing.table.management', 'Management'),
       features: [
-        { name: t('pricing.table.history', 'Post history'), free: '30 days', pro: t('pricing.table.unlimited', 'Unlimited'), business: t('pricing.table.unlimited', 'Unlimited') },
-        { name: t('pricing.table.calendar', 'Content calendar'), free: false, pro: false, business: true },
-        { name: t('pricing.table.analytics', 'Analytics'), free: false, pro: false, business: true },
-        { name: t('pricing.table.team', 'Content pillars'), free: false, pro: false, business: true },
-        { name: t('pricing.table.api', 'Performance simulator'), free: false, pro: false, business: true },
+        {
+          name: t('pricing.table.history', 'Post history'),
+          free: '30 days',
+          pro: t('pricing.table.unlimited', 'Unlimited'),
+          business: t('pricing.table.unlimited', 'Unlimited'),
+        },
+        {
+          name: t('pricing.table.calendar', 'Content calendar'),
+          free: false,
+          pro: false,
+          business: true,
+        },
+        {
+          name: t('pricing.table.analytics', 'Analytics'),
+          free: false,
+          pro: false,
+          business: true,
+        },
+        {
+          name: t('pricing.table.team', 'Content pillars'),
+          free: false,
+          pro: false,
+          business: true,
+        },
+        {
+          name: t('pricing.table.api', 'Performance simulator'),
+          free: false,
+          pro: false,
+          business: true,
+        },
       ],
     },
     {
       name: t('pricing.table.support', 'Support'),
       features: [
-        { name: t('pricing.table.community', 'Community support'), free: true, pro: true, business: true },
-        { name: t('pricing.table.priority', 'Priority support'), free: false, pro: true, business: true },
-        { name: t('pricing.table.dedicated', 'Account export tools'), free: false, pro: false, business: true },
+        {
+          name: t('pricing.table.community', 'Community support'),
+          free: true,
+          pro: true,
+          business: true,
+        },
+        {
+          name: t('pricing.table.priority', 'Priority support'),
+          free: false,
+          pro: true,
+          business: true,
+        },
+        {
+          name: t('pricing.table.dedicated', 'Account export tools'),
+          free: false,
+          pro: false,
+          business: true,
+        },
       ],
     },
   ];
@@ -374,14 +466,19 @@ function ComparisonTable() {
           </h2>
         </div>
 
-        <div className="glass-card rounded-2xl overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <div
+          className="glass-card rounded-2xl overflow-hidden animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
           {/* Sticky header */}
           <div className="grid grid-cols-4 gap-4 px-6 py-4 border-b border-white/[0.06] sticky top-16 lg:top-20 z-10 bg-[var(--color-surface-raised)]/90 backdrop-blur-xl">
             <div className="font-display text-sm font-bold text-[var(--color-text-muted)]">
               {t('pricing.table.feature', 'Feature')}
             </div>
             <div className="text-center font-display text-sm font-bold text-white">Free</div>
-            <div className="text-center font-display text-sm font-bold gradient-text-brand">Pro</div>
+            <div className="text-center font-display text-sm font-bold gradient-text-brand">
+              Pro
+            </div>
             <div className="text-center font-display text-sm font-bold text-white">Business</div>
           </div>
 
@@ -426,19 +523,31 @@ function PricingFAQ() {
   const faqs = [
     {
       q: t('pricing.faq.q1', 'Can I change my plan at any time?'),
-      a: t('pricing.faq.a1', 'Yes! You can upgrade or downgrade your plan at any time. When upgrading, you will be charged the prorated difference. When downgrading, the remaining credit will be applied to your next billing cycle.'),
+      a: t(
+        'pricing.faq.a1',
+        'Yes! You can upgrade or downgrade your plan at any time. When upgrading, you will be charged the prorated difference. When downgrading, the remaining credit will be applied to your next billing cycle.',
+      ),
     },
     {
       q: t('pricing.faq.q2', 'What payment methods do you accept?'),
-      a: t('pricing.faq.a2', 'We accept major credit cards through Stripe for the self-serve checkout flow.'),
+      a: t(
+        'pricing.faq.a2',
+        'We accept major credit cards through Stripe for the self-serve checkout flow.',
+      ),
     },
     {
       q: t('pricing.faq.q3', 'What if I have a billing issue?'),
-      a: t('pricing.faq.a3', 'Contact support if you run into an unexpected billing problem. Billing questions are reviewed case by case.'),
+      a: t(
+        'pricing.faq.a3',
+        'Contact support if you run into an unexpected billing problem. Billing questions are reviewed case by case.',
+      ),
     },
     {
       q: t('pricing.faq.q4', 'Do I need my own API keys?'),
-      a: t('pricing.faq.a4', 'You can use your own API keys for the AI providers (OpenAI, Anthropic, Google, Mistral) or use our built-in quota which is included in your plan. Bring-your-own-key users get lower costs.'),
+      a: t(
+        'pricing.faq.a4',
+        'You can use your own API keys for the AI providers (OpenAI, Anthropic, Google, Mistral) or use our built-in quota which is included in your plan. Bring-your-own-key users get lower costs.',
+      ),
     },
   ];
 
@@ -464,9 +573,7 @@ function PricingFAQ() {
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
                 className="w-full flex items-center justify-between px-6 py-5 text-left"
               >
-                <span className="text-sm font-semibold text-white pr-4">
-                  {faq.q}
-                </span>
+                <span className="text-sm font-semibold text-white pr-4">{faq.q}</span>
                 <ChevronDown
                   size={18}
                   className={clsx(
@@ -510,18 +617,24 @@ export function PricingPage() {
 
         {/* Orbs */}
         <div className="orb w-64 h-64 top-[10%] left-[10%] bg-[var(--color-accent-blue)]/15" />
-        <div className="orb w-48 h-48 top-[20%] right-[15%] bg-[var(--color-accent-violet)]/10" style={{ animationDelay: '8s' }} />
+        <div
+          className="orb w-48 h-48 top-[20%] right-[15%] bg-[var(--color-accent-violet)]/10"
+          style={{ animationDelay: '8s' }}
+        />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="heading-lg text-white mb-6 animate-fade-in-up">
-            {t('pricing.title', 'Simple, Transparent')}
-            {' '}
-            <span className="gradient-text-brand">
-              {t('pricing.titleHighlight', 'Pricing')}
-            </span>
+            {t('pricing.title', 'Simple, Transparent')}{' '}
+            <span className="gradient-text-brand">{t('pricing.titleHighlight', 'Pricing')}</span>
           </h1>
-          <p className="text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('pricing.subtitle', 'Start free and upgrade when you need more. No hidden fees, no surprises.')}
+          <p
+            className="text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-10 animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'pricing.subtitle',
+              'Start free and upgrade when you need more. No hidden fees, no surprises.',
+            )}
           </p>
 
           <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -543,7 +656,13 @@ export function PricingPage() {
         <div className="absolute inset-0 bg-[var(--color-surface)]" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="glass-card flex flex-col md:flex-row items-center gap-6 p-8 rounded-2xl animate-fade-in-up">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))' }}>
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background:
+                  'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-violet))',
+              }}
+            >
               <Shield size={24} className="text-white" />
             </div>
             <div className="text-center md:text-left">
@@ -551,7 +670,10 @@ export function PricingPage() {
                 {t('pricing.guarantee.title', 'Start monthly, cancel anytime')}
               </h3>
               <p className="text-sm text-[var(--color-text-secondary)]">
-                {t('pricing.guarantee.desc', 'Most teams begin on monthly billing, validate the workflow, then switch to annual billing once the rollout is proven.')}
+                {t(
+                  'pricing.guarantee.desc',
+                  'Most teams begin on monthly billing, validate the workflow, then switch to annual billing once the rollout is proven.',
+                )}
               </p>
             </div>
           </div>
@@ -570,14 +692,23 @@ export function PricingPage() {
         <div className="absolute inset-0 mesh-gradient opacity-50" />
 
         <div className="orb w-72 h-72 top-[10%] left-[10%] bg-[var(--color-accent-blue)]/15" />
-        <div className="orb w-56 h-56 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '7s' }} />
+        <div
+          className="orb w-56 h-56 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/10"
+          style={{ animationDelay: '7s' }}
+        />
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="heading-lg text-white mb-6 animate-fade-in-up">
             {t('pricing.ctaTitle', 'Ready to Supercharge Your Content?')}
           </h2>
-          <p className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            {t('pricing.ctaSubtitle', 'Start with the Free plan and upgrade anytime. No credit card required.')}
+          <p
+            className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
+          >
+            {t(
+              'pricing.ctaSubtitle',
+              'Start with the Free plan and upgrade anytime. No credit card required.',
+            )}
           </p>
 
           <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>

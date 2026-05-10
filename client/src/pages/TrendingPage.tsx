@@ -2,12 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import {
-  TrendingUp,
-  ArrowRight,
-  Flame,
-  Sparkles,
-} from 'lucide-react';
+import { TrendingUp, ArrowRight, Flame, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { LLMProviderId } from '@postcommander/shared';
 import { Card } from '@/components/ui/Card';
@@ -58,10 +53,8 @@ const languageOptions = [
 ];
 
 function TrendScoreBadge({ score }: { score: number }) {
-  const variant =
-    score >= 80 ? 'danger' : score >= 60 ? 'warning' : 'info';
-  const label =
-    score >= 80 ? 'Hot' : score >= 60 ? 'Rising' : 'Emerging';
+  const variant = score >= 80 ? 'danger' : score >= 60 ? 'warning' : 'info';
+  const label = score >= 80 ? 'Hot' : score >= 60 ? 'Rising' : 'Emerging';
 
   return (
     <Badge variant={variant} dot>
@@ -156,11 +149,7 @@ export function TrendingPage() {
       setTopics(data.topics);
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t('common.error', 'An error occurred'),
-      );
+      toast.error(error instanceof Error ? error.message : t('common.error', 'An error occurred'));
     },
   });
 
@@ -169,9 +158,10 @@ export function TrendingPage() {
   };
 
   const handleGeneratePost = (topic: TrendingTopic) => {
-    const angles = topic.suggestedAngles.length > 0
-      ? `\n\nSuggested angles: ${topic.suggestedAngles.join(', ')}`
-      : '';
+    const angles =
+      topic.suggestedAngles.length > 0
+        ? `\n\nSuggested angles: ${topic.suggestedAngles.join(', ')}`
+        : '';
     navigate('/app/generate', {
       state: {
         prompt: `${topic.title}: ${topic.description}${angles}`,

@@ -85,7 +85,10 @@ function HeroSection() {
 
       {/* Floating orbs */}
       <div className="orb w-72 h-72 top-[10%] left-[5%] bg-[var(--color-accent-blue)]/20" />
-      <div className="orb w-80 h-80 top-[50%] right-[8%] bg-emerald-500/15" style={{ animationDelay: '7s' }} />
+      <div
+        className="orb w-80 h-80 top-[50%] right-[8%] bg-emerald-500/15"
+        style={{ animationDelay: '7s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
         {/* Badge */}
@@ -216,8 +219,7 @@ function HowItWorksSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.partners.howTitle1', 'Simple, Transparent,')}
-            {' '}
+            {t('marketing.partners.howTitle1', 'Simple, Transparent,')}{' '}
             <span className="gradient-text-brand">
               {t('marketing.partners.howTitle2', 'Rewarding')}
             </span>
@@ -226,7 +228,13 @@ function HowItWorksSection() {
 
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8 relative">
           {/* Connecting gradient lines (visible on md+) */}
-          <div className="hidden md:block absolute top-1/2 left-[calc(33.33%-1rem)] right-[calc(33.33%-1rem)] h-px -translate-y-1/2" style={{ background: 'linear-gradient(90deg, var(--color-accent-blue), var(--color-accent-violet), var(--color-accent-emerald))' }} />
+          <div
+            className="hidden md:block absolute top-1/2 left-[calc(33.33%-1rem)] right-[calc(33.33%-1rem)] h-px -translate-y-1/2"
+            style={{
+              background:
+                'linear-gradient(90deg, var(--color-accent-blue), var(--color-accent-violet), var(--color-accent-emerald))',
+            }}
+          />
 
           {steps.map((step, i) => (
             <div
@@ -237,7 +245,8 @@ function HowItWorksSection() {
                 boxShadow: `0 0 0 1px ${step.glowBorder}`,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = `0 0 40px ${step.glowBg}, 0 0 0 1px ${step.glowBorder}`;
+                (e.currentTarget as HTMLElement).style.boxShadow =
+                  `0 0 40px ${step.glowBg}, 0 0 0 1px ${step.glowBorder}`;
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.boxShadow = `0 0 0 1px ${step.glowBorder}`;
@@ -294,13 +303,15 @@ function EarningsCalculatorSection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-void)]" />
       <div className="absolute inset-0 mesh-gradient opacity-30" />
-      <div className="orb w-56 h-56 bottom-[20%] left-[10%] bg-[var(--color-accent-violet)]/10" style={{ animationDelay: '3s' }} />
+      <div
+        className="orb w-56 h-56 bottom-[20%] left-[10%] bg-[var(--color-accent-violet)]/10"
+        style={{ animationDelay: '3s' }}
+      />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.partners.calcTitle1', 'Calculate Your')}
-            {' '}
+            {t('marketing.partners.calcTitle1', 'Calculate Your')}{' '}
             <span className="gradient-text-brand">
               {t('marketing.partners.calcTitle2', 'Earnings')}
             </span>
@@ -366,7 +377,8 @@ function EarningsCalculatorSection() {
                 {t('marketing.partners.calcMonthly', 'Monthly Revenue')}
               </p>
               <p className="text-3xl sm:text-4xl font-extrabold font-display gradient-text-cool">
-                {'\u20AC'}{monthly.toLocaleString()}
+                {'\u20AC'}
+                {monthly.toLocaleString()}
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
@@ -374,7 +386,8 @@ function EarningsCalculatorSection() {
                 {t('marketing.partners.calcAnnual', 'Annual Revenue')}
               </p>
               <p className="text-3xl sm:text-4xl font-extrabold font-display gradient-text-brand">
-                {'\u20AC'}{annual.toLocaleString()}
+                {'\u20AC'}
+                {annual.toLocaleString()}
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl bg-white/[0.02] border border-white/[0.04]">
@@ -382,7 +395,8 @@ function EarningsCalculatorSection() {
                 {t('marketing.partners.calcLifetime', 'Lifetime Revenue')}
               </p>
               <p className="text-3xl sm:text-4xl font-extrabold font-display gradient-text-cool">
-                {'\u20AC'}{lifetime.toLocaleString()}
+                {'\u20AC'}
+                {lifetime.toLocaleString()}
               </p>
             </div>
           </div>
@@ -413,7 +427,10 @@ function PartnerTypesSection() {
         'marketing.partners.type1Desc',
         'Share your honest review and earn from your recommendations.',
       ),
-      bestFor: t('marketing.partners.type1Best', 'Best for: YouTubers, bloggers, newsletter authors'),
+      bestFor: t(
+        'marketing.partners.type1Best',
+        'Best for: YouTubers, bloggers, newsletter authors',
+      ),
       color: 'var(--color-accent-blue)',
       bg: 'rgba(59, 130, 246, 0.08)',
       border: 'rgba(59, 130, 246, 0.15)',
@@ -425,7 +442,10 @@ function PartnerTypesSection() {
         'marketing.partners.type2Desc',
         'White-label PostCommander for your clients and earn on every account.',
       ),
-      bestFor: t('marketing.partners.type2Best', 'Best for: Digital agencies, social media managers'),
+      bestFor: t(
+        'marketing.partners.type2Best',
+        'Best for: Digital agencies, social media managers',
+      ),
       color: 'var(--color-accent-violet)',
       bg: 'rgba(139, 92, 246, 0.08)',
       border: 'rgba(139, 92, 246, 0.15)',
@@ -449,7 +469,10 @@ function PartnerTypesSection() {
         'marketing.partners.type4Desc',
         'Recommend PostCommander in your courses and workshops.',
       ),
-      bestFor: t('marketing.partners.type4Best', 'Best for: Online course creators, business coaches'),
+      bestFor: t(
+        'marketing.partners.type4Best',
+        'Best for: Online course creators, business coaches',
+      ),
       color: 'var(--color-accent-emerald)',
       bg: 'rgba(16, 185, 129, 0.08)',
       border: 'rgba(16, 185, 129, 0.15)',
@@ -464,8 +487,7 @@ function PartnerTypesSection() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.partners.typesTitle1', 'Who Can Partner')}
-            {' '}
+            {t('marketing.partners.typesTitle1', 'Who Can Partner')}{' '}
             <span className="gradient-text-brand">
               {t('marketing.partners.typesTitle2', 'With Us?')}
             </span>
@@ -490,9 +512,7 @@ function PartnerTypesSection() {
               <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-4">
                 {type.description}
               </p>
-              <p className="text-xs text-[var(--color-text-muted)] font-medium">
-                {type.bestFor}
-              </p>
+              <p className="text-xs text-[var(--color-text-muted)] font-medium">{type.bestFor}</p>
             </div>
           ))}
         </div>
@@ -511,42 +531,66 @@ function BenefitsSection() {
     {
       icon: DollarSign,
       title: t('marketing.partners.benefit1Title', '30% Recurring Commission'),
-      description: t('marketing.partners.benefit1Desc', 'Earn 30% of every payment your referrals make, every month, for as long as they stay.'),
+      description: t(
+        'marketing.partners.benefit1Desc',
+        'Earn 30% of every payment your referrals make, every month, for as long as they stay.',
+      ),
     },
     {
       icon: Clock,
       title: t('marketing.partners.benefit2Title', '90-Day Cookie Duration'),
-      description: t('marketing.partners.benefit2Desc', 'Generous 90-day tracking window ensures you get credit for referrals who take their time.'),
+      description: t(
+        'marketing.partners.benefit2Desc',
+        'Generous 90-day tracking window ensures you get credit for referrals who take their time.',
+      ),
     },
     {
       icon: Wallet,
       title: t('marketing.partners.benefit3Title', 'Monthly Payouts via Stripe'),
-      description: t('marketing.partners.benefit3Desc', 'Reliable monthly payouts directly to your bank account through Stripe.'),
+      description: t(
+        'marketing.partners.benefit3Desc',
+        'Reliable monthly payouts directly to your bank account through Stripe.',
+      ),
     },
     {
       icon: BarChart3,
       title: t('marketing.partners.benefit4Title', 'Real-time Dashboard & Analytics'),
-      description: t('marketing.partners.benefit4Desc', 'Track clicks, conversions, and earnings in real-time with your dedicated dashboard.'),
+      description: t(
+        'marketing.partners.benefit4Desc',
+        'Track clicks, conversions, and earnings in real-time with your dedicated dashboard.',
+      ),
     },
     {
       icon: LinkIcon,
       title: t('marketing.partners.benefit5Title', 'Custom Referral Links'),
-      description: t('marketing.partners.benefit5Desc', 'Create branded, custom referral links that match your content and campaigns.'),
+      description: t(
+        'marketing.partners.benefit5Desc',
+        'Create branded, custom referral links that match your content and campaigns.',
+      ),
     },
     {
       icon: Image,
       title: t('marketing.partners.benefit6Title', 'Marketing Materials & Assets'),
-      description: t('marketing.partners.benefit6Desc', 'Access banners, email templates, and social media assets to promote effectively.'),
+      description: t(
+        'marketing.partners.benefit6Desc',
+        'Access banners, email templates, and social media assets to promote effectively.',
+      ),
     },
     {
       icon: Users,
       title: t('marketing.partners.benefit7Title', 'Dedicated Partner Manager'),
-      description: t('marketing.partners.benefit7Desc', 'Get a personal point of contact to help you maximize your earnings.'),
+      description: t(
+        'marketing.partners.benefit7Desc',
+        'Get a personal point of contact to help you maximize your earnings.',
+      ),
     },
     {
       icon: Zap,
       title: t('marketing.partners.benefit8Title', 'Early Access to New Features'),
-      description: t('marketing.partners.benefit8Desc', 'Be the first to try and promote new features before they go live.'),
+      description: t(
+        'marketing.partners.benefit8Desc',
+        'Be the first to try and promote new features before they go live.',
+      ),
     },
   ];
 
@@ -554,13 +598,15 @@ function BenefitsSection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-void)]" />
       <div className="absolute inset-0 dot-pattern" />
-      <div className="orb w-64 h-64 top-[20%] right-[5%] bg-[var(--color-accent-blue)]/10" style={{ animationDelay: '4s' }} />
+      <div
+        className="orb w-64 h-64 top-[20%] right-[5%] bg-[var(--color-accent-blue)]/10"
+        style={{ animationDelay: '4s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.partners.benefitsTitle1', 'Partner')}
-            {' '}
+            {t('marketing.partners.benefitsTitle1', 'Partner')}{' '}
             <span className="gradient-text-brand">
               {t('marketing.partners.benefitsTitle2', 'Benefits')}
             </span>
@@ -624,7 +670,11 @@ function PartnerStatsSection() {
           <div className="glass-card rounded-2xl p-8 sm:p-12">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat, i) => (
-                <div key={i} className="text-center animate-fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>
+                <div
+                  key={i}
+                  className="text-center animate-fade-in-up"
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                >
                   <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-display gradient-text-brand mb-2">
                     {stat.value}
                   </p>
@@ -649,7 +699,10 @@ function TestimonialSection() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-void)]" />
       <div className="absolute inset-0 dot-pattern" />
-      <div className="orb w-48 h-48 top-[30%] left-[5%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '6s' }} />
+      <div
+        className="orb w-48 h-48 top-[30%] left-[5%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '6s' }}
+      />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="glass-card p-8 sm:p-12 rounded-2xl glow-border animate-fade-in-up">
@@ -662,10 +715,12 @@ function TestimonialSection() {
 
           {/* Quote */}
           <blockquote className="text-base sm:text-lg text-white leading-relaxed mb-8 font-medium">
-            &ldquo;{t(
+            &ldquo;
+            {t(
               'marketing.partners.testimonialQuote',
               "PostCommander's partner program is the most generous I've seen in SaaS. The 30% recurring commission adds up fast \u2014 I'm earning \u20AC2,000/month just from recommending a tool I genuinely love.",
-            )}&rdquo;
+            )}
+            &rdquo;
           </blockquote>
 
           {/* Author */}
@@ -678,7 +733,10 @@ function TestimonialSection() {
                 {t('marketing.partners.testimonialAuthor', 'Alex Turner')}
               </p>
               <p className="text-xs text-[var(--color-text-secondary)]">
-                {t('marketing.partners.testimonialRole', 'Creator Economy Newsletter (12K subscribers)')}
+                {t(
+                  'marketing.partners.testimonialRole',
+                  'Creator Economy Newsletter (12K subscribers)',
+                )}
               </p>
             </div>
           </div>
@@ -741,13 +799,15 @@ function ApplicationFormSection() {
     <section id="apply" className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-surface)]" />
       <div className="absolute inset-0 mesh-gradient opacity-20" />
-      <div className="orb w-64 h-64 bottom-[10%] right-[5%] bg-emerald-500/10" style={{ animationDelay: '9s' }} />
+      <div
+        className="orb w-64 h-64 bottom-[10%] right-[5%] bg-emerald-500/10"
+        style={{ animationDelay: '9s' }}
+      />
 
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.partners.applyTitle1', 'Apply to')}
-            {' '}
+            {t('marketing.partners.applyTitle1', 'Apply to')}{' '}
             <span className="gradient-text-brand">
               {t('marketing.partners.applyTitle2', 'Join')}
             </span>
@@ -940,10 +1000,7 @@ function PartnerFAQSection() {
 
   const faqs = [
     {
-      q: t(
-        'marketing.partners.faq1Q',
-        'How does the commission work?',
-      ),
+      q: t('marketing.partners.faq1Q', 'How does the commission work?'),
       a: t(
         'marketing.partners.faq1A',
         'You earn 30% of every payment made by customers you refer. This is a recurring commission, meaning you earn every month for the lifetime of the customer. For example, if you refer someone who subscribes to the Pro plan at \u20AC19/month, you earn \u20AC5.70 every month they remain subscribed.',
@@ -953,7 +1010,7 @@ function PartnerFAQSection() {
       q: t('marketing.partners.faq2Q', 'When do I get paid?'),
       a: t(
         'marketing.partners.faq2A',
-        'Commissions are paid out monthly via Stripe. Payouts are processed on the 1st of each month for the previous month\'s earnings. There is a 30-day hold period to account for refunds and chargebacks.',
+        "Commissions are paid out monthly via Stripe. Payouts are processed on the 1st of each month for the previous month's earnings. There is a 30-day hold period to account for refunds and chargebacks.",
       ),
     },
     {
@@ -987,8 +1044,7 @@ function PartnerFAQSection() {
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="heading-md text-white mb-4 animate-fade-in-up">
-            {t('marketing.partners.faqTitle1', 'Frequently Asked')}
-            {' '}
+            {t('marketing.partners.faqTitle1', 'Frequently Asked')}{' '}
             <span className="gradient-text-brand">
               {t('marketing.partners.faqTitle2', 'Questions')}
             </span>

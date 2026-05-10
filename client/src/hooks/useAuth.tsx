@@ -60,12 +60,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [checkAuth]);
 
   const login = async (email: string, password: string) => {
-    const { data } = await axios.post<AuthResponse>(`${API_URL}/auth/login`, {
-      email,
-      password,
-    }, {
-      withCredentials: true,
-    });
+    const { data } = await axios.post<AuthResponse>(
+      `${API_URL}/auth/login`,
+      {
+        email,
+        password,
+      },
+      {
+        withCredentials: true,
+      },
+    );
 
     if (!data.success || !data.data) {
       throw new Error(data.error || 'Login failed');
@@ -75,13 +79,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (email: string, password: string, name: string) => {
-    const { data } = await axios.post<AuthResponse>(`${API_URL}/auth/register`, {
-      email,
-      password,
-      name,
-    }, {
-      withCredentials: true,
-    });
+    const { data } = await axios.post<AuthResponse>(
+      `${API_URL}/auth/register`,
+      {
+        email,
+        password,
+        name,
+      },
+      {
+        withCredentials: true,
+      },
+    );
 
     if (!data.success || !data.data) {
       throw new Error(data.error || 'Registration failed');

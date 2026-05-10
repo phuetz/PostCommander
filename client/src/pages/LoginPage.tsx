@@ -44,7 +44,10 @@ export function LoginPage() {
 
       const plan = searchParams.get('plan');
       const interval = searchParams.get('interval');
-      if ((plan === 'pro' || plan === 'business') && (interval === 'month' || interval === 'year')) {
+      if (
+        (plan === 'pro' || plan === 'business') &&
+        (interval === 'month' || interval === 'year')
+      ) {
         const { url } = await createCheckout(plan, interval);
         window.location.assign(url);
         return;
@@ -92,19 +95,13 @@ export function LoginPage() {
             disabled={isLoading}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            loading={isLoading}
-          >
+          <Button type="submit" className="w-full" loading={isLoading}>
             Sign In
           </Button>
         </form>
 
         <div className="mt-8 text-center text-sm">
-          <span className="text-[var(--color-text-muted)]">
-            Don't have an account?{' '}
-          </span>
+          <span className="text-[var(--color-text-muted)]">Don't have an account? </span>
           <Link
             to="/register"
             className="text-[var(--color-accent-violet)] hover:underline font-medium"

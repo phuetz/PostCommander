@@ -140,13 +140,11 @@ export function SettingsPage() {
   }));
 
   const currentProvider = LLM_PROVIDERS.find((p) => p.id === form.defaultProvider);
-  const modelOptions = (currentProvider?.models || LLM_PROVIDERS[0].models).map(
-    (m) => ({
-      value: m.id,
-      label: m.name,
-      description: m.description,
-    }),
-  );
+  const modelOptions = (currentProvider?.models || LLM_PROVIDERS[0].models).map((m) => ({
+    value: m.id,
+    label: m.name,
+    description: m.description,
+  }));
 
   const toneOptions = TONES.map((tone) => ({
     value: tone.id,
@@ -355,9 +353,7 @@ export function SettingsPage() {
                         {platform.name}
                       </p>
                       {isConnected && connection?.accountName && (
-                        <p className="text-xs text-gray-500">
-                          {connection.accountName}
-                        </p>
+                        <p className="text-xs text-gray-500">{connection.accountName}</p>
                       )}
                     </div>
                   </div>

@@ -17,13 +17,7 @@ const maxWidthStyles = {
   xl: 'max-w-xl',
 };
 
-export function Modal({
-  open,
-  onClose,
-  title,
-  children,
-  maxWidth = 'md',
-}: ModalProps) {
+export function Modal({ open, onClose, title, children, maxWidth = 'md' }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {

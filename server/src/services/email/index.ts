@@ -85,7 +85,11 @@ function writeToOutbox(payload: PasswordResetEmailPayload): void {
   const filepath = path.join(OUTBOX_DIR, filename);
   fs.writeFileSync(
     filepath,
-    JSON.stringify({ type: 'password_reset', createdAt: new Date().toISOString(), ...payload }, null, 2),
+    JSON.stringify(
+      { type: 'password_reset', createdAt: new Date().toISOString(), ...payload },
+      null,
+      2,
+    ),
   );
   logger.warn(
     { email: payload.email, filepath },

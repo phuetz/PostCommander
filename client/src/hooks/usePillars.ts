@@ -83,7 +83,7 @@ export function useUpdateIdea() {
       api.updateIdeaApi(ideaId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pillars'] });
-      // Note: we don't know the pillarId here to invalidate specific ideas list, 
+      // Note: we don't know the pillarId here to invalidate specific ideas list,
       // but usually the page will refresh pillars which includes counts
       queryClient.invalidateQueries({ queryKey: ['pillar-ideas'] });
     },

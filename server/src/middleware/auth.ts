@@ -21,7 +21,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   // 1. Check cookies first
   if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
-  } 
+  }
   // 2. Fallback to Authorization header
   else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
     token = req.headers.authorization.split(' ')[1];
@@ -59,19 +59,25 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         };
 
         const workspaceId = req.headers['x-workspace-id'] as string;
-        
+
         if (workspaceId) {
-          db.query.workspaceMembers.findFirst({
-            where: and(eq(workspaceMembersTable.workspaceId, workspaceId), eq(workspaceMembersTable.userId, user.id))
-          }).then(member => {
-            if (member) {
-              req.workspaceId = workspaceId;
-            }
-            next();
-          }).catch(err => {
-            logger.error({ err }, 'Failed to verify workspace membership');
-            next(); // Still proceed, just without workspaceId
-          });
+          db.query.workspaceMembers
+            .findFirst({
+              where: and(
+                eq(workspaceMembersTable.workspaceId, workspaceId),
+                eq(workspaceMembersTable.userId, user.id),
+              ),
+            })
+            .then((member) => {
+              if (member) {
+                req.workspaceId = workspaceId;
+              }
+              next();
+            })
+            .catch((err) => {
+              logger.error({ err }, 'Failed to verify workspace membership');
+              next(); // Still proceed, just without workspaceId
+            });
         } else {
           next();
         }

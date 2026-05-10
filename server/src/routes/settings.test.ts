@@ -113,10 +113,7 @@ describe('Settings Routes', () => {
       .select()
       .from(settingsTable)
       .where(eq(settingsTable.userId, userA.id));
-    const bobTone = await db
-      .select()
-      .from(settingsTable)
-      .where(eq(settingsTable.userId, userB.id));
+    const bobTone = await db.select().from(settingsTable).where(eq(settingsTable.userId, userB.id));
 
     expect(aliceTone.find((row) => row.key === 'defaultTone')?.value).toBe('casual');
     expect(bobTone.find((row) => row.key === 'defaultTone')?.value).toBe('educational');

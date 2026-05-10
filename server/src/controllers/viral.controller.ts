@@ -6,14 +6,10 @@ import { getViralPosts, searchViralPosts, getCategories } from '../services/vira
 /**
  * GET /api/viral
  */
-export const listViralPosts = catchAsync(async (
-  req: Request,
-  res: Response,
-) => {
-  const query =
-    (req.validatedQuery as
-      | { page: number; pageSize: number; platform?: string; category?: string; language?: string }
-      | undefined) ?? { page: 1, pageSize: 50 };
+export const listViralPosts = catchAsync(async (req: Request, res: Response) => {
+  const query = (req.validatedQuery as
+    | { page: number; pageSize: number; platform?: string; category?: string; language?: string }
+    | undefined) ?? { page: 1, pageSize: 50 };
   const { posts, total } = await getViralPosts(query);
 
   const response: ApiResponse<typeof posts> & { total: number; page: number; pageSize: number } = {
@@ -29,10 +25,7 @@ export const listViralPosts = catchAsync(async (
 /**
  * GET /api/viral/categories
  */
-export const listViralCategories = catchAsync(async (
-  _req: Request,
-  res: Response,
-) => {
+export const listViralCategories = catchAsync(async (_req: Request, res: Response) => {
   const categories = await getCategories();
   const response: ApiResponse<typeof categories> = {
     success: true,
@@ -44,10 +37,7 @@ export const listViralCategories = catchAsync(async (
 /**
  * GET /api/viral/search?q=...
  */
-export const searchViral = catchAsync(async (
-  req: Request,
-  res: Response,
-) => {
+export const searchViral = catchAsync(async (req: Request, res: Response) => {
   const query = req.validatedQuery as { q: string };
   const posts = await searchViralPosts(query.q);
   const response: ApiResponse<typeof posts> = {

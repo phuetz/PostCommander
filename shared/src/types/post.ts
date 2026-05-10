@@ -2,7 +2,13 @@ import type { PlatformId } from '../constants/platforms.js';
 import type { ToneId } from '../constants/tones.js';
 import type { LLMProviderId } from '../constants/llm-providers.js';
 
-export type PostStatus = 'draft' | 'pending_approval' | 'approved' | 'scheduled' | 'published' | 'failed';
+export type PostStatus =
+  | 'draft'
+  | 'pending_approval'
+  | 'approved'
+  | 'scheduled'
+  | 'published'
+  | 'failed';
 
 export interface Post {
   id: string;

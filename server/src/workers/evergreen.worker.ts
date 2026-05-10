@@ -32,8 +32,8 @@ export async function runEvergreenRecycling() {
     .where(
       and(
         gt(postPublications.likes, 0), // au moins 1 like pour la démo
-        sql`posts.original_post_id IS NULL` // Ne pas recycler un post déjà recyclé
-      )
+        sql`posts.original_post_id IS NULL`, // Ne pas recycler un post déjà recyclé
+      ),
     )
     .limit(5);
 
@@ -47,7 +47,7 @@ export async function runEvergreenRecycling() {
   // 2. Réécrire et reprogrammer
   for (const post of candidates) {
     console.log(`[Evergreen Worker] Recyclage du post ${post.id}...`);
-    
+
     try {
       const model = createModel('openai', 'gpt-4o', post.userId || undefined);
 
@@ -95,7 +95,9 @@ Return ONLY the new post text.`;
         });
       }
 
-      console.log(`[Evergreen Worker] Post ${post.id} recyclé avec succès -> Nouveau ID: ${newPostId}`);
+      console.log(
+        `[Evergreen Worker] Post ${post.id} recyclé avec succès -> Nouveau ID: ${newPostId}`,
+      );
     } catch (e) {
       console.error(`[Evergreen Worker] Erreur lors du recyclage du post ${post.id}:`, e);
     }

@@ -19,19 +19,29 @@ export const users = sqliteTable('users', {
 export const workspaces = sqliteTable('workspaces', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
-  ownerId: text('owner_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  ownerId: text('owner_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });
 
-export const workspaceMembers = sqliteTable('workspace_members', {
-  id: text('id').primaryKey(),
-  workspaceId: text('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  role: text('role').notNull().default('member'), // 'owner', 'admin', 'member'
-  joinedAt: text('joined_at').notNull().default('CURRENT_TIMESTAMP'),
-}, (table) => ({
-  workspaceUserIdx: uniqueIndex('idx_workspace_members_user').on(table.workspaceId, table.userId),
-}));
+export const workspaceMembers = sqliteTable(
+  'workspace_members',
+  {
+    id: text('id').primaryKey(),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().default('member'), // 'owner', 'admin', 'member'
+    joinedAt: text('joined_at').notNull().default('CURRENT_TIMESTAMP'),
+  },
+  (table) => ({
+    workspaceUserIdx: uniqueIndex('idx_workspace_members_user').on(table.workspaceId, table.userId),
+  }),
+);
 
 export const settings = sqliteTable(
   'settings',
@@ -106,8 +116,12 @@ export const postComments = sqliteTable(
   'post_comments',
   {
     id: text('id').primaryKey(),
-    postId: text('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
-    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    postId: text('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
     content: text('content').notNull(),
     createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
   },
@@ -119,7 +133,9 @@ export const postComments = sqliteTable(
 
 export const postPublications = sqliteTable('post_publications', {
   id: text('id').primaryKey(),
-  postId: text('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+  postId: text('post_id')
+    .notNull()
+    .references(() => posts.id, { onDelete: 'cascade' }),
   platform: text('platform').notNull(),
   connectionId: text('connection_id').references(() => platformConnections.id),
   platformPostId: text('platform_post_id'),
@@ -138,7 +154,9 @@ export const postPublications = sqliteTable('post_publications', {
 
 export const socialComments = sqliteTable('social_comments', {
   id: text('id').primaryKey(),
-  postPublicationId: text('post_publication_id').notNull().references(() => postPublications.id, { onDelete: 'cascade' }),
+  postPublicationId: text('post_publication_id')
+    .notNull()
+    .references(() => postPublications.id, { onDelete: 'cascade' }),
   platformCommentId: text('platform_comment_id').notNull(),
   authorName: text('author_name').notNull(),
   authorHandle: text('author_handle'),
@@ -157,7 +175,9 @@ export const socialComments = sqliteTable('social_comments', {
 
 export const subscriptions = sqliteTable('subscriptions', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   stripeSubscriptionId: text('stripe_subscription_id').unique().notNull(),
   stripePriceId: text('stripe_price_id').notNull(),
   plan: text('plan').notNull(),
@@ -173,7 +193,9 @@ export const subscriptions = sqliteTable('subscriptions', {
 
 export const invoices = sqliteTable('invoices', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   stripeInvoiceId: text('stripe_invoice_id').unique().notNull(),
   amount: integer('amount').notNull(),
   currency: text('currency').notNull().default('eur'),
@@ -320,7 +342,9 @@ export const contentIdeas = sqliteTable(
     id: text('id').primaryKey(),
     userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
     workspaceId: text('workspace_id').references(() => workspaces.id, { onDelete: 'cascade' }),
-    pillarId: text('pillar_id').notNull().references(() => contentPillars.id, { onDelete: 'cascade' }),
+    pillarId: text('pillar_id')
+      .notNull()
+      .references(() => contentPillars.id, { onDelete: 'cascade' }),
     title: text('title').notNull(),
     description: text('description'),
     status: text('status').notNull().default('idea'),
@@ -335,8 +359,39 @@ export const contentIdeas = sqliteTable(
 
 export const passwordResetTokens = sqliteTable('password_reset_tokens', {
   id: text('id').primaryKey(),
-  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   token: text('token').notNull().unique(),
   expiresAt: text('expires_at').notNull(),
   createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });
+
+export const autoBlogConfigs = sqliteTable(
+  'auto_blog_configs',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    topic: text('topic').notNull(),
+    articleType: text('article_type').notNull().default('fond-technique'),
+    frequency: text('frequency').notNull().default('daily'),
+    provider: text('provider').notNull().default('openai'),
+    model: text('model').notNull().default('gpt-4o'),
+    authorName: text('author_name'),
+    authorRole: text('author_role'),
+    authorReferences: text('author_references'),
+    status: text('status').notNull().default('active'),
+    lastGeneratedAt: text('last_generated_at'),
+    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+  },
+  (table) => ({
+    userIdx: index('idx_auto_blog_configs_user').on(table.userId),
+    statusIdx: index('idx_auto_blog_configs_status').on(table.status),
+  }),
+);

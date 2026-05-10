@@ -3,7 +3,10 @@ import { z } from 'zod';
 export const createPillarSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   description: z.string().max(1000).optional(),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Invalid color format').optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Invalid color format')
+    .optional(),
   topics: z.array(z.string()).optional(),
   postingFrequency: z.enum(['daily', 'weekly', 'biweekly', 'monthly']).optional(),
   targetPlatforms: z.array(z.string()).optional(),
@@ -12,7 +15,10 @@ export const createPillarSchema = z.object({
 export const updatePillarSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   description: z.string().max(1000).optional(),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Invalid color format').optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Invalid color format')
+    .optional(),
   topics: z.array(z.string()).optional(),
   postingFrequency: z.enum(['daily', 'weekly', 'biweekly', 'monthly']).optional(),
   targetPlatforms: z.array(z.string()).optional(),

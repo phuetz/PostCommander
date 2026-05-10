@@ -21,7 +21,9 @@ const mockDrizzle = {
   },
 };
 
-(getDrizzle as unknown as { mockReturnValue: (value: typeof mockDrizzle) => void }).mockReturnValue(mockDrizzle);
+(getDrizzle as unknown as { mockReturnValue: (value: typeof mockDrizzle) => void }).mockReturnValue(
+  mockDrizzle,
+);
 
 const app = createApp();
 
@@ -32,13 +34,13 @@ const generateAuthToken = () => {
 describe('Analytics Routes Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock user authentication lookup inside auth middleware
-    mockDrizzle.query.users.findFirst.mockResolvedValue({ 
-      id: 'test-user-123', 
-      email: 'test@example.com', 
-      plan: 'business', 
-      planStatus: 'active' 
+    mockDrizzle.query.users.findFirst.mockResolvedValue({
+      id: 'test-user-123',
+      email: 'test@example.com',
+      plan: 'business',
+      planStatus: 'active',
     });
 
     // Reset mockDrizzle.select before each test
@@ -61,7 +63,7 @@ describe('Analytics Routes Integration', () => {
       // 4. By tone
       // 5. Posts per week
       // 6. Recent activity
-      
+
       const mockResult = (data: unknown[]) => ({
         from: vi.fn().mockReturnThis(),
         groupBy: vi.fn().mockReturnThis(),
@@ -69,7 +71,9 @@ describe('Analytics Routes Integration', () => {
         orderBy: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
         then: (resolve: (value: unknown[]) => unknown) => resolve(data),
-        [Symbol.iterator]: function* () { yield* data; }
+        [Symbol.iterator]: function* () {
+          yield* data;
+        },
       });
 
       mockDrizzle.select

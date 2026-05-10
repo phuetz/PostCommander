@@ -14,6 +14,10 @@ export const agentQueue = new Queue('agent-workflow', {
   connection: connection as QueueOptions['connection'],
 });
 
+export const autoBlogQueue = new Queue('auto-blog', {
+  connection: connection as any,
+});
+
 export interface QueueHealth {
   redis: 'ok' | 'error';
   queue: 'ok' | 'error';

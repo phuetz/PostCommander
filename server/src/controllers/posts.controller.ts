@@ -9,7 +9,11 @@ import type {
   PlatformId,
 } from '@postcommander/shared';
 import { getDrizzle } from '../db/connection.js';
-import { posts as postsTable, postComments as postCommentsTable, users as usersTable } from '../db/schema.js';
+import {
+  posts as postsTable,
+  postComments as postCommentsTable,
+  users as usersTable,
+} from '../db/schema.js';
 import { AppError } from '../middleware/error-handler.js';
 import { postQueue } from '../services/jobs/queue.js';
 import { publishPost as publishPostService } from '../services/posts/index.js';
@@ -67,7 +71,7 @@ async function schedulePostJob(postId: string, scheduledAt: string | null) {
   await postQueue.add(
     'post-publishing',
     { postId },
-    { delay, jobId: postId, removeOnComplete: true }
+    { delay, jobId: postId, removeOnComplete: true },
   );
 }
 
@@ -114,7 +118,7 @@ export const listPosts = catchAsync(async (req: Request, res: Response) => {
   const offset = (page - 1) * pageSize;
 
   const db = getDrizzle();
-  
+
   const filters = [eq(postsTable.userId, requestUser.id)];
   if (status) {
     filters.push(eq(postsTable.status, status));
@@ -122,7 +126,7 @@ export const listPosts = catchAsync(async (req: Request, res: Response) => {
   if (search) {
     const searchFilter = or(
       like(postsTable.content, `%${search}%`),
-      like(postsTable.originalPrompt, `%${search}%`)
+      like(postsTable.originalPrompt, `%${search}%`),
     );
     if (searchFilter) {
       filters.push(searchFilter);
@@ -137,10 +141,7 @@ export const listPosts = catchAsync(async (req: Request, res: Response) => {
 
   const baseRowsQuery = db.select().from(postsTable);
   const rowsQuery = where ? baseRowsQuery.where(where) : baseRowsQuery;
-  const rows = await rowsQuery
-    .orderBy(desc(postsTable.createdAt))
-    .limit(pageSize)
-    .offset(offset);
+  const rows = await rowsQuery.orderBy(desc(postsTable.createdAt)).limit(pageSize).offset(offset);
 
   const posts = rows.map(mapRowToPost);
 
@@ -252,7 +253,8 @@ export const updatePost = catchAsync(async (req: Request, res: Response) => {
   if (body.originalPrompt !== undefined) updates.originalPrompt = body.originalPrompt;
   if (body.tone !== undefined) updates.tone = body.tone;
   if (body.platforms !== undefined) updates.platforms = JSON.stringify(body.platforms);
-  if (body.platformVariants !== undefined) updates.platformVariants = JSON.stringify(body.platformVariants);
+  if (body.platformVariants !== undefined)
+    updates.platformVariants = JSON.stringify(body.platformVariants);
   if (body.hashtags !== undefined) updates.hashtags = JSON.stringify(body.hashtags);
   if (body.autoPlugContent !== undefined) updates.autoPlugContent = body.autoPlugContent;
   if (body.autoPlugThreshold !== undefined) updates.autoPlugThreshold = body.autoPlugThreshold;
@@ -305,7 +307,9 @@ export const deletePost = catchAsync(async (req: Request, res: Response) => {
     await removeScheduledJob(id);
   }
 
-  await db.delete(postsTable).where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)));
+  await db
+    .delete(postsTable)
+    .where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)));
 
   const response: ApiResponse = { success: true };
   res.json(response);
@@ -355,11 +359,12 @@ export const schedulePost = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(400, 'Scheduled time must be in the future');
   }
 
-  await db.update(postsTable)
+  await db
+    .update(postsTable)
     .set({
       status: 'scheduled',
       scheduledAt: scheduledAt,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)));
 
@@ -414,7 +419,7 @@ export const getPostComments = catchAsync(async (req: Request, res: Response) =>
     .where(eq(postCommentsTable.postId, id))
     .orderBy(desc(postCommentsTable.createdAt));
 
-  const comments = commentsRows.map(row => ({
+  const comments = commentsRows.map((row) => ({
     id: row.id,
     postId: row.postId,
     userId: row.userId,
@@ -425,7 +430,7 @@ export const getPostComments = catchAsync(async (req: Request, res: Response) =>
       name: row.user_name,
       email: row.user_email,
       avatarUrl: row.user_avatarUrl,
-    }
+    },
   }));
 
   const response = { success: true, data: comments };
@@ -491,7 +496,7 @@ export const addPostComment = catchAsync(async (req: Request, res: Response) => 
       name: row.user_name,
       email: row.user_email,
       avatarUrl: row.user_avatarUrl,
-    }
+    },
   };
 
   res.status(201).json({ success: true, data: comment });
@@ -518,10 +523,11 @@ export const updatePostStatus = catchAsync(async (req: Request, res: Response) =
 
   if (!existing) throw new AppError(404, 'Post not found');
 
-  await db.update(postsTable)
+  await db
+    .update(postsTable)
     .set({
       status,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     })
     .where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)));
 

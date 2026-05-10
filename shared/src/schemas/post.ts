@@ -35,16 +35,7 @@ export const listPostsQuerySchema = z.object({
 
 export const publishPostSchema = z.object({
   platforms: z
-    .array(
-      z.enum([
-        'linkedin',
-        'twitter',
-        'facebook',
-        'instagram',
-        'tiktok',
-        'pinterest',
-      ]),
-    )
+    .array(z.enum(['linkedin', 'twitter', 'facebook', 'instagram', 'tiktok', 'pinterest']))
     .min(1, 'Au moins une plateforme est requise'),
 });
 

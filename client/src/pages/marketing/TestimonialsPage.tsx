@@ -56,8 +56,14 @@ function TestimonialsHero() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="orb w-72 h-72 top-[10%] left-[5%] bg-[var(--color-accent-violet)]/20" />
-      <div className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-magenta)]/15" style={{ animationDelay: '5s' }} />
-      <div className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-blue)]/10" style={{ animationDelay: '10s' }} />
+      <div
+        className="orb w-96 h-96 top-[60%] right-[5%] bg-[var(--color-accent-magenta)]/15"
+        style={{ animationDelay: '5s' }}
+      />
+      <div
+        className="orb w-56 h-56 top-[30%] right-[30%] bg-[var(--color-accent-blue)]/10"
+        style={{ animationDelay: '10s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass animate-fade-in-up animate-glow-pulse mb-8">
@@ -67,7 +73,10 @@ function TestimonialsHero() {
           </span>
         </div>
 
-        <h1 className="heading-lg text-white mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <h1
+          className="heading-lg text-white mb-6 animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
           {t('marketing.testimonials.heroTitle', 'Creators')}{' '}
           <span className="gradient-text-brand">
             {t('marketing.testimonials.heroTitleHighlight', 'Love')}
@@ -75,14 +84,20 @@ function TestimonialsHero() {
           {t('marketing.testimonials.heroTitleEnd', 'PostCommander')}
         </h1>
 
-        <p className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <p
+          className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up"
+          style={{ animationDelay: '0.2s' }}
+        >
           {t(
             'marketing.testimonials.heroSubtitle',
             'See how thousands of creators transformed their social media presence',
           )}
         </p>
 
-        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <div
+          className="flex flex-wrap justify-center gap-4 sm:gap-6 animate-fade-in-up"
+          style={{ animationDelay: '0.3s' }}
+        >
           {heroStats.map((stat) => (
             <div key={stat.label} className="glass-card px-6 py-4 min-w-[130px]">
               <div className="heading-md gradient-text-brand">{stat.value}</div>
@@ -120,11 +135,14 @@ function FeaturedTestimonial() {
             </div>
 
             <div className="relative">
-              <blockquote className="font-display text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed mb-8" style={{ fontStyle: 'italic' }}>
+              <blockquote
+                className="font-display text-xl sm:text-2xl lg:text-3xl font-medium leading-relaxed mb-8"
+                style={{ fontStyle: 'italic' }}
+              >
                 <span className="gradient-text-cool">
                   {t(
                     'marketing.testimonials.featured.quote',
-                    'PostCommander didn\'t just save me time \u2014 it transformed my entire content strategy. I went from posting once a week to dominating all 6 platforms with consistent, high-quality content.',
+                    "PostCommander didn't just save me time \u2014 it transformed my entire content strategy. I went from posting once a week to dominating all 6 platforms with consistent, high-quality content.",
                   )}
                 </span>
               </blockquote>
@@ -150,9 +168,18 @@ function FeaturedTestimonial() {
               {/* Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  { value: '300%', label: t('marketing.testimonials.featured.stat1', 'Engagement increase') },
-                  { value: '15 hrs', label: t('marketing.testimonials.featured.stat2', 'Saved per week') },
-                  { value: '50K', label: t('marketing.testimonials.featured.stat3', 'New followers in 6 months') },
+                  {
+                    value: '300%',
+                    label: t('marketing.testimonials.featured.stat1', 'Engagement increase'),
+                  },
+                  {
+                    value: '15 hrs',
+                    label: t('marketing.testimonials.featured.stat2', 'Saved per week'),
+                  },
+                  {
+                    value: '50K',
+                    label: t('marketing.testimonials.featured.stat3', 'New followers in 6 months'),
+                  },
                 ].map((stat) => (
                   <div key={stat.label} className="glass px-4 py-3 rounded-xl text-center">
                     <div className="font-display font-bold text-white text-lg">{stat.value}</div>
@@ -200,7 +227,10 @@ function TestimonialCard({ testimonial, index }: { testimonial: TestimonialData;
       </div>
 
       {/* Quote */}
-      <blockquote className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed mb-6" style={{ fontStyle: 'italic' }}>
+      <blockquote
+        className="text-sm sm:text-base text-[var(--color-text-secondary)] leading-relaxed mb-6"
+        style={{ fontStyle: 'italic' }}
+      >
         &ldquo;{testimonial.quote}&rdquo;
       </blockquote>
 
@@ -213,7 +243,9 @@ function TestimonialCard({ testimonial, index }: { testimonial: TestimonialData;
           <span className="font-display font-bold text-white text-sm">{testimonial.initials}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-display font-bold text-white text-sm truncate">{testimonial.name}</div>
+          <div className="font-display font-bold text-white text-sm truncate">
+            {testimonial.name}
+          </div>
           <div className="text-xs text-[var(--color-text-muted)] truncate">{testimonial.role}</div>
         </div>
         <StarRating rating={testimonial.rating} size={12} />
@@ -267,7 +299,7 @@ function SuccessStoriesGrid() {
       initials: 'MD',
       quote: t(
         'marketing.testimonials.t1.quote',
-        'Managing 6 social accounts for 3 clients used to take my entire day. Now I generate a week\'s content in an hour. The style cloning feature matches each client\'s voice perfectly.',
+        "Managing 6 social accounts for 3 clients used to take my entire day. Now I generate a week's content in an hour. The style cloning feature matches each client's voice perfectly.",
       ),
       stats: [
         { value: '6x', label: t('marketing.testimonials.t1.s1', 'content output') },
@@ -321,7 +353,7 @@ function SuccessStoriesGrid() {
       initials: 'JW',
       quote: t(
         'marketing.testimonials.t4.quote',
-        'Our employer branding posts went viral on LinkedIn. PostCommander\'s recruiting templates and professional tone generate job posts that actually attract top talent.',
+        "Our employer branding posts went viral on LinkedIn. PostCommander's recruiting templates and professional tone generate job posts that actually attract top talent.",
       ),
       stats: [
         { value: '200%', label: t('marketing.testimonials.t4.s1', 'more applications') },
@@ -375,8 +407,14 @@ function SuccessStoriesGrid() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-void)]" />
       <div className="absolute inset-0 grid-pattern" />
-      <div className="orb w-72 h-72 top-[15%] left-[5%] bg-[var(--color-accent-blue)]/10" style={{ animationDelay: '3s' }} />
-      <div className="orb w-64 h-64 bottom-[10%] right-[10%] bg-[var(--color-accent-violet)]/10" style={{ animationDelay: '8s' }} />
+      <div
+        className="orb w-72 h-72 top-[15%] left-[5%] bg-[var(--color-accent-blue)]/10"
+        style={{ animationDelay: '3s' }}
+      />
+      <div
+        className="orb w-64 h-64 bottom-[10%] right-[10%] bg-[var(--color-accent-violet)]/10"
+        style={{ animationDelay: '8s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -491,7 +529,10 @@ function PlatformResults() {
       color: '#0A66C2',
       increase: '+285%',
       barWidth: 85,
-      topResult: t('marketing.testimonials.pr.linkedin', 'Best case: 50K impressions on a single post'),
+      topResult: t(
+        'marketing.testimonials.pr.linkedin',
+        'Best case: 50K impressions on a single post',
+      ),
       icon: <Globe size={18} />,
     },
     {
@@ -515,7 +556,10 @@ function PlatformResults() {
       color: '#1877F2',
       increase: '+195%',
       barWidth: 65,
-      topResult: t('marketing.testimonials.pr.facebook', 'Best case: 25K shares on a community post'),
+      topResult: t(
+        'marketing.testimonials.pr.facebook',
+        'Best case: 25K shares on a community post',
+      ),
       icon: <Globe size={18} />,
     },
     {
@@ -523,7 +567,10 @@ function PlatformResults() {
       color: '#FF004F',
       increase: '+420%',
       barWidth: 100,
-      topResult: t('marketing.testimonials.pr.tiktok', 'Best case: 1M views on an optimized description'),
+      topResult: t(
+        'marketing.testimonials.pr.tiktok',
+        'Best case: 1M views on an optimized description',
+      ),
       icon: <Zap size={18} />,
     },
     {
@@ -531,7 +578,10 @@ function PlatformResults() {
       color: '#E60023',
       increase: '+260%',
       barWidth: 78,
-      topResult: t('marketing.testimonials.pr.pinterest', 'Best case: 100K monthly pin impressions'),
+      topResult: t(
+        'marketing.testimonials.pr.pinterest',
+        'Best case: 100K monthly pin impressions',
+      ),
       icon: <Eye size={18} />,
     },
   ];
@@ -540,7 +590,10 @@ function PlatformResults() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[var(--color-void)]" />
       <div className="absolute inset-0 grid-pattern" />
-      <div className="orb w-72 h-72 top-[20%] right-[5%] bg-[var(--color-accent-magenta)]/10" style={{ animationDelay: '4s' }} />
+      <div
+        className="orb w-72 h-72 top-[20%] right-[5%] bg-[var(--color-accent-magenta)]/10"
+        style={{ animationDelay: '4s' }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -600,7 +653,10 @@ function PlatformResults() {
 
               {/* Top result */}
               <div className="flex items-start gap-2">
-                <BarChart3 size={14} className="text-[var(--color-text-muted)] flex-shrink-0 mt-0.5" />
+                <BarChart3
+                  size={14}
+                  className="text-[var(--color-text-muted)] flex-shrink-0 mt-0.5"
+                />
                 <span className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
                   {platform.topResult}
                 </span>
@@ -657,7 +713,10 @@ function RatingSources() {
             {t('marketing.testimonials.ratingsTitle', 'What review platforms say')}
           </h3>
           <p className="text-sm text-[var(--color-text-secondary)]">
-            {t('marketing.testimonials.ratingsSubtitle', 'Consistently top-rated across every major review platform')}
+            {t(
+              'marketing.testimonials.ratingsSubtitle',
+              'Consistently top-rated across every major review platform',
+            )}
           </p>
         </div>
 
@@ -668,10 +727,7 @@ function RatingSources() {
               className="glass-card p-6 text-center group hover:-translate-y-1 transition-all duration-300 animate-fade-in-up"
               style={{ animationDelay: `${i * 0.1}s` }}
             >
-              <div
-                className="font-display font-bold text-lg mb-1"
-                style={{ color: source.color }}
-              >
+              <div className="font-display font-bold text-lg mb-1" style={{ color: source.color }}>
                 {source.name}
               </div>
 
@@ -703,7 +759,10 @@ function TestimonialsCTA() {
       <div className="absolute inset-0 grid-pattern" />
 
       <div className="orb w-80 h-80 top-[10%] left-[10%] bg-[var(--color-accent-violet)]/20" />
-      <div className="orb w-60 h-60 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/15" style={{ animationDelay: '7s' }} />
+      <div
+        className="orb w-60 h-60 bottom-[10%] right-[15%] bg-[var(--color-accent-magenta)]/15"
+        style={{ animationDelay: '7s' }}
+      />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="heading-md text-white mb-4 animate-fade-in-up">
@@ -713,7 +772,10 @@ function TestimonialsCTA() {
           </span>
         </h2>
 
-        <p className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <p
+          className="text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto animate-fade-in-up"
+          style={{ animationDelay: '0.1s' }}
+        >
           {t('marketing.testimonials.ctaSubtitle', 'Start your success story today')}
         </p>
 
@@ -724,7 +786,10 @@ function TestimonialsCTA() {
           </Link>
         </div>
 
-        <p className="mt-6 text-xs text-[var(--color-text-muted)] animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <p
+          className="mt-6 text-xs text-[var(--color-text-muted)] animate-fade-in-up"
+          style={{ animationDelay: '0.3s' }}
+        >
           {t('marketing.testimonials.ctaNote', 'No credit card required')}
         </p>
       </div>

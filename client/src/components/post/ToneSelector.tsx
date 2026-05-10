@@ -31,9 +31,7 @@ export function ToneSelector({ selected, onChange }: ToneSelectorProps) {
               )}
             >
               <span className="text-lg flex-shrink-0">{tone.emoji}</span>
-              <span className="truncate">
-                {t(tone.labelKey, tone.id)}
-              </span>
+              <span className="truncate">{t(tone.labelKey, tone.id)}</span>
             </button>
           );
         })}

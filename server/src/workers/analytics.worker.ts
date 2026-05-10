@@ -13,9 +13,12 @@ import { logger } from '../utils/logger.js';
 async function fetchRealPlatformAnalytics(publication: any, connection: any) {
   // Simulate network delay
   await new Promise((resolve) => setTimeout(resolve, 500));
-  
+
   // Return simulated realistic data based on time since published
-  const hoursSincePublished = Math.max(1, Math.floor((Date.now() - new Date(publication.publishedAt).getTime()) / (1000 * 60 * 60)));
+  const hoursSincePublished = Math.max(
+    1,
+    Math.floor((Date.now() - new Date(publication.publishedAt).getTime()) / (1000 * 60 * 60)),
+  );
   const baseMultiplier = hoursSincePublished * (Math.random() * 2 + 0.5);
 
   return {
@@ -52,17 +55,14 @@ export function startAnalyticsWorker() {
         .from(postPublications)
         .innerJoin(posts, eq(postPublications.postId, posts.id))
         .where(
-          and(
-            eq(postPublications.status, 'published'),
-            isNotNull(postPublications.connectionId)
-          )
+          and(eq(postPublications.status, 'published'), isNotNull(postPublications.connectionId)),
         );
 
       for (const { pub, post } of publications) {
         if (!pub.connectionId) continue;
 
         const connection = await db.query.platformConnections.findFirst({
-          where: eq(platformConnections.id, pub.connectionId)
+          where: eq(platformConnections.id, pub.connectionId),
         });
 
         if (!connection) continue;
@@ -70,7 +70,7 @@ export function startAnalyticsWorker() {
         try {
           // Fetch the real analytics from the platform
           const analytics = await fetchRealPlatformAnalytics(pub, connection);
-          
+
           let newLikes = pub.likes ? pub.likes + analytics.likes : analytics.likes;
           let hasAutoPlugged = pub.hasAutoPlugged;
 
@@ -81,7 +81,9 @@ export function startAnalyticsWorker() {
             newLikes >= post.autoPlugThreshold &&
             !hasAutoPlugged
           ) {
-            logger.info(`🔥 Auto-Plug threshold reached for post ${post.id}! Publishing comment: "${post.autoPlugContent}"`);
+            logger.info(
+              `🔥 Auto-Plug threshold reached for post ${post.id}! Publishing comment: "${post.autoPlugContent}"`,
+            );
             // In a real scenario, call platform API to post the comment here
             hasAutoPlugged = 1;
           }
@@ -93,7 +95,9 @@ export function startAnalyticsWorker() {
               views: pub.views ? pub.views + analytics.views : analytics.views,
               likes: newLikes,
               shares: pub.shares ? pub.shares + analytics.shares : analytics.shares,
-              commentsCount: pub.commentsCount ? pub.commentsCount + analytics.commentsCount : analytics.commentsCount,
+              commentsCount: pub.commentsCount
+                ? pub.commentsCount + analytics.commentsCount
+                : analytics.commentsCount,
               hasAutoPlugged,
               lastSyncedAt: new Date().toISOString(),
             })
@@ -113,7 +117,7 @@ export function startAnalyticsWorker() {
             }));
 
             await db.insert(socialComments).values(commentsToInsert);
-            
+
             // Enqueue each comment to the agent workflow
             const { agentQueue } = await import('../services/jobs/queue.js');
             for (const comment of commentsToInsert) {

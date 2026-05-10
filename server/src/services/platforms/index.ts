@@ -79,7 +79,7 @@ export interface ConnectionRow {
 export async function ensureFreshToken(connection: ConnectionRow): Promise<string> {
   const decrypted = decryptSecret(connection.accessToken) ?? connection.accessToken;
   const decryptedRefresh = connection.refreshToken
-    ? decryptSecret(connection.refreshToken) ?? connection.refreshToken
+    ? (decryptSecret(connection.refreshToken) ?? connection.refreshToken)
     : null;
 
   // No expiry info → nothing to do.

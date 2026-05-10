@@ -4,10 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../app.js';
 import { getDrizzle } from '../db/connection.js';
-import {
-  invoices as invoicesTable,
-  subscriptions as subscriptionsTable,
-} from '../db/schema.js';
+import { invoices as invoicesTable, subscriptions as subscriptionsTable } from '../db/schema.js';
 import {
   closeTestDatabase,
   createAuthCookie,
@@ -107,7 +104,9 @@ describe('Admin support routes', () => {
     expect(response.body.data.audits[0].snapshot.contentCounts.posts).toBe(0);
     expect(response.body.data.audits[0].billingRecords).toHaveLength(2);
     expect(
-      response.body.data.audits[0].billingRecords.map((row: { recordType: string }) => row.recordType).sort(),
+      response.body.data.audits[0].billingRecords
+        .map((row: { recordType: string }) => row.recordType)
+        .sort(),
     ).toEqual(['invoice', 'subscription']);
   });
 });

@@ -3,16 +3,7 @@ import { z } from 'zod';
 export const generateSchema = z.object({
   prompt: z.string().min(1, 'Prompt is required').max(5000),
   platforms: z
-    .array(
-      z.enum([
-        'linkedin',
-        'twitter',
-        'facebook',
-        'instagram',
-        'tiktok',
-        'pinterest',
-      ]),
-    )
+    .array(z.enum(['linkedin', 'twitter', 'facebook', 'instagram', 'tiktok', 'pinterest']))
     .min(1, 'At least one platform is required'),
   tone: z.enum([
     'professional',
@@ -50,9 +41,7 @@ export const carouselSchema = z.object({
 export const repurposeSchema = z.object({
   content: z.string().min(1, 'Content is required').max(10000),
   sourcePlatform: z.string().min(1, 'Source platform is required'),
-  targetPlatforms: z
-    .array(z.string())
-    .min(1, 'At least one target platform is required'),
+  targetPlatforms: z.array(z.string()).min(1, 'At least one target platform is required'),
   tone: z.string().min(1, 'Tone is required'),
   provider: z.enum(['openai', 'anthropic', 'google', 'mistral', 'ollama']),
   model: z.string().min(1, 'Model is required'),
@@ -73,4 +62,21 @@ export const abTestSchema = z.object({
   provider: z.enum(['openai', 'anthropic', 'google', 'mistral', 'ollama']),
   model: z.string().min(1, 'Model is required'),
   variantCount: z.coerce.number().int().min(2).max(5).optional().default(3),
+});
+
+export const blogArticleSchema = z.object({
+  topic: z.string().min(1, 'Topic is required').max(5000),
+  articleType: z.enum(['fond-technique', 'news-comment', 'opinion-perso']),
+  provider: z.enum(['openai', 'anthropic', 'google', 'mistral', 'ollama']),
+  model: z.string().min(1, 'Model is required'),
+  language: z.string().default('French'),
+
+  // Configurable author variables
+  authorName: z.string().optional().default('un expert du domaine'),
+  authorRole: z.string().optional().default('professionnel expérimenté'),
+  authorContext: z.string().optional(),
+  authorReferences: z.array(z.string()).optional(),
+
+  catalogMatched: z.array(z.string()).optional(),
+  similarSources: z.array(z.object({ source: z.string(), url: z.string() })).optional(),
 });

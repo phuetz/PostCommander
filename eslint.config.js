@@ -45,7 +45,11 @@ export default [
     },
   },
   {
-    files: ['server/src/services/**/*.ts', 'server/src/routes/**/*.test.ts', 'server/src/db/migrate.ts'],
+    files: [
+      'server/src/services/**/*.ts',
+      'server/src/routes/**/*.test.ts',
+      'server/src/db/migrate.ts',
+    ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
     },

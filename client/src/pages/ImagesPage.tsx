@@ -77,9 +77,7 @@ function ImageCard({
       </div>
 
       {/* Hover overlay */}
-      <div
-        className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end p-2 pointer-events-none"
-      >
+      <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex justify-end p-2 pointer-events-none">
         <button
           onClick={onExpand}
           className="p-1.5 rounded-lg bg-black/30 text-white hover:bg-black/50 pointer-events-auto"
@@ -106,9 +104,7 @@ export function ImagesPage() {
   const [prompt, setPrompt] = useState('');
   const [style, setStyle] = useState('photorealistic');
   const [size, setSize] = useState('1:1');
-  const [expandedImage, setExpandedImage] = useState<GeneratedImage | null>(
-    null,
-  );
+  const [expandedImage, setExpandedImage] = useState<GeneratedImage | null>(null);
 
   const imagesQuery = useImages();
   const generateMutation = useGenerateImage();
@@ -162,10 +158,7 @@ export function ImagesPage() {
           {t('images.title', 'AI Image Generator')}
         </h2>
         <p className="text-gray-500 dark:text-gray-400 mt-2">
-          {t(
-            'images.subtitle',
-            'Generate stunning images for your social media posts',
-          )}
+          {t('images.subtitle', 'Generate stunning images for your social media posts')}
         </p>
       </div>
 
@@ -257,9 +250,7 @@ export function ImagesPage() {
                 image={image}
                 postOptions={postOptions}
                 onExpand={() => setExpandedImage(image)}
-                onAttach={(postId) =>
-                  attachMutation.mutate({ imageId: image.id, postId })
-                }
+                onAttach={(postId) => attachMutation.mutate({ imageId: image.id, postId })}
               />
             ))}
           </div>
