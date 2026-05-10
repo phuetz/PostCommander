@@ -8,6 +8,13 @@ An intelligent social media content generation and publishing platform powered b
 - **Multi-Platform Publishing** — Publish directly to Twitter, LinkedIn, Facebook, Instagram, TikTok, and Pinterest
 - **Content Calendar** — Schedule posts and manage your publishing strategy
 - **Analytics & Insights** — Track engagement, trending topics, and viral patterns
+- **Autonomous SDR Agent** — Automatically scrape, qualify, and engage with leads based on their comments
+- **Dynamic Auto-Plug** — Automatically append promotional content or CTAs to posts when they hit virality thresholds
+- **Chrome Extension (Growth Hacker Suite)**
+  - **Web Clipper (Repurposing):** Draft LinkedIn posts directly from any article or YouTube video
+  - **Ghostwriter (/ai):** Type `/ai` in native social media comment boxes to auto-generate context-aware replies
+  - **Shadow Profiling:** Silently extract CRM data from visited LinkedIn profiles
+  - **Virality Checker:** Real-time post quality scoring overlay on LinkedIn
 - **Image Generation** — Generate and attach images to posts
 - **A/B Testing** — Test different post variations to optimize engagement
 - **Hooks & Templates** — Pre-built templates for different content types
@@ -18,6 +25,7 @@ An intelligent social media content generation and publishing platform powered b
 
 - **Frontend**: React 19 + Vite, TanStack Query, Tailwind CSS
 - **Backend**: Express.js + TypeScript, SQLite (with Drizzle ORM)
+- **Chrome Extension**: Manifest V3, React, CRXJS Vite Plugin
 - **Job Queue**: BullMQ (Redis-backed)
 - **LLM Integration**: Vercel AI SDK
 - **Testing**: Playwright (e2e), Vitest (unit/integration)

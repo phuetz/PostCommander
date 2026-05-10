@@ -15,6 +15,8 @@ export interface Post {
   platforms: PlatformId[];
   platformVariants: Record<string, string>;
   hashtags: string[];
+  autoPlugContent?: string | null;
+  autoPlugThreshold?: number | null;
   status: PostStatus;
   scheduledAt: string | null;
   publishedAt: string | null;

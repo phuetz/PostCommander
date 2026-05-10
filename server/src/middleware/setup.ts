@@ -138,14 +138,24 @@ export function setupMiddlewares(app: express.Application) {
   );
 
   // ── Rate limiting ───────────────────────────────────────────
-  const limiter = rateLimit({
+  const apiLimiter = rateLimit({
     windowMs: 1 * 60 * 1000, // 1 minute
-    max: 60, // 60 requests per minute
+    max: 200, // 200 requests per minute for normal API usage
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, error: 'Too many requests. Please try again later.' },
   });
-  app.use('/api', limiter);
+  
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 15, // 15 requests per 15 minutes for auth endpoints
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'Too many login attempts. Please try again later.' },
+  });
+
+  app.use('/api', apiLimiter);
+  app.use('/api/auth', authLimiter);
 
   // Note: Body parsers are added after Stripe webhook route in app.ts
 }

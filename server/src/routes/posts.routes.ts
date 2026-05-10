@@ -12,6 +12,7 @@ import {
   getPostComments,
   addPostComment,
   updatePostStatus,
+  repurposeUrl,
 } from '../controllers/posts.controller.js';
 import {
   createPostSchema,
@@ -36,5 +37,6 @@ router.post('/:id/schedule', validate(schedulePostSchema), schedulePost);
 router.get('/:id/comments', getPostComments);
 router.post('/:id/comments', addPostComment);
 router.patch('/:id/status', updatePostStatus);
+router.post('/repurpose-url', repurposeUrl);
 
 export default router;

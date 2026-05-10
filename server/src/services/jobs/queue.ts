@@ -10,6 +10,10 @@ export const postQueue = new Queue('post-publishing', {
   connection: connection as QueueOptions['connection'],
 });
 
+export const agentQueue = new Queue('agent-workflow', {
+  connection: connection as QueueOptions['connection'],
+});
+
 export interface QueueHealth {
   redis: 'ok' | 'error';
   queue: 'ok' | 'error';

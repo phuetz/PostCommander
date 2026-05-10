@@ -5,6 +5,7 @@ import { seedViralPosts } from './services/viral/index.js';
 import { seedTemplates } from './services/templates/index.js';
 import { logger } from './utils/logger.js';
 import './services/jobs/worker.js';
+import './services/jobs/agent.worker.js';
 import { startAnalyticsWorker } from './workers/analytics.worker.js';
 
 async function main(): Promise<void> {

@@ -6,11 +6,14 @@
   "workspaces": [
     "shared",
     "server",
-    "client"
+    "client",
+    "extension"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
+    "dev:ext": "npm run dev -w extension",
     "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
+    "build:ext": "npm run build -w extension",
     "start": "npm run start -w server",
     "test": "npm run test:shared && npm run test:server",
     "test:shared": "npm test -w @postcommander/shared",

@@ -79,6 +79,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       to={item.to}
       end={item.to === '/app'}
       onClick={onClose}
+      onMouseEnter={() => {
+        import('@/utils/routePrefetch').then(({ prefetchRoute }) => {
+          prefetchRoute(item.to);
+        });
+      }}
       className={({ isActive }) =>
         clsx('sidebar-link', isActive && 'active')
       }

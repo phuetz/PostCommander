@@ -18,6 +18,7 @@ import adminRoutes from './admin.routes.js';
 import workspacesRoutes from './workspaces.routes.js';
 import { setupBullBoard } from '../middleware/bull-board.js';
 import { getQueueHealth } from '../services/jobs/queue.js';
+import agentRoutes from './agent.routes.js';
 
 const router = Router();
 
@@ -40,6 +41,7 @@ router.use('/pillars', pillarsRoutes);
 router.use('/stripe', stripeRoutes);
 router.use('/admin', adminRoutes);
 router.use('/workspaces', workspacesRoutes);
+router.use('/agent', agentRoutes);
 
 router.get('/live', (_req, res) => {
   res.json({

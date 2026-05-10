@@ -89,6 +89,8 @@ export const posts = sqliteTable(
     platforms: text('platforms').notNull(), // JSON string array
     platformVariants: text('platform_variants'), // JSON object
     hashtags: text('hashtags'), // JSON string array
+    autoPlugContent: text('auto_plug_content'),
+    autoPlugThreshold: integer('auto_plug_threshold'),
     status: text('status').notNull().default('draft'),
     scheduledAt: text('scheduled_at'),
     publishedAt: text('published_at'),
@@ -128,6 +130,7 @@ export const postPublications = sqliteTable('post_publications', {
   likes: integer('likes').default(0),
   commentsCount: integer('comments_count').default(0),
   shares: integer('shares').default(0),
+  hasAutoPlugged: integer('has_auto_plugged').default(0),
   lastSyncedAt: text('last_synced_at'),
   publishedAt: text('published_at'),
   createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),

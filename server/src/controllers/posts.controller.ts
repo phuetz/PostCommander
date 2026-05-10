@@ -28,6 +28,8 @@ interface PostRowShape {
   platforms: string;
   platformVariants: string | null;
   hashtags: string | null;
+  autoPlugContent: string | null;
+  autoPlugThreshold: number | null;
   status: string;
   scheduledAt: string | null;
   publishedAt: string | null;
@@ -49,6 +51,8 @@ type PostUpdatableFields = Partial<{
   platforms: string;
   platformVariants: string;
   hashtags: string;
+  autoPlugContent: string | null;
+  autoPlugThreshold: number | null;
   status: Post['status'];
   scheduledAt: string | null;
   updatedAt: string;
@@ -85,6 +89,8 @@ function mapRowToPost(row: PostRowShape): Post {
     platforms: row.platforms ? JSON.parse(row.platforms) : [],
     platformVariants: row.platformVariants ? JSON.parse(row.platformVariants) : {},
     hashtags: row.hashtags ? JSON.parse(row.hashtags) : [],
+    autoPlugContent: row.autoPlugContent,
+    autoPlugThreshold: row.autoPlugThreshold,
     status: row.status as Post['status'],
     scheduledAt: row.scheduledAt ?? null,
     publishedAt: row.publishedAt ?? null,
@@ -195,6 +201,8 @@ export const createPost = catchAsync(async (req: Request, res: Response) => {
     platforms: JSON.stringify(body.platforms),
     platformVariants: JSON.stringify(body.platformVariants ?? {}),
     hashtags: JSON.stringify(body.hashtags ?? []),
+    autoPlugContent: body.autoPlugContent ?? null,
+    autoPlugThreshold: body.autoPlugThreshold ?? null,
     status: body.status ?? 'draft',
     scheduledAt: body.scheduledAt ?? null,
     createdAt: now,
@@ -246,6 +254,8 @@ export const updatePost = catchAsync(async (req: Request, res: Response) => {
   if (body.platforms !== undefined) updates.platforms = JSON.stringify(body.platforms);
   if (body.platformVariants !== undefined) updates.platformVariants = JSON.stringify(body.platformVariants);
   if (body.hashtags !== undefined) updates.hashtags = JSON.stringify(body.hashtags);
+  if (body.autoPlugContent !== undefined) updates.autoPlugContent = body.autoPlugContent;
+  if (body.autoPlugThreshold !== undefined) updates.autoPlugThreshold = body.autoPlugThreshold;
   if (body.status !== undefined) updates.status = body.status;
   if (body.scheduledAt !== undefined) updates.scheduledAt = body.scheduledAt;
 
@@ -522,4 +532,54 @@ export const updatePostStatus = catchAsync(async (req: Request, res: Response) =
     .limit(1);
 
   res.json({ success: true, data: mapRowToPost(row as any) });
+});
+
+/**
+ * POST /api/posts/repurpose-url
+ */
+export const repurposeUrl = catchAsync(async (req: Request, res: Response) => {
+  const requestUser = requireRequestUser(req);
+  const db = getDrizzle();
+  const id = uuidv4();
+  const { url, title, content } = req.body;
+
+  if (!url || !content) {
+    throw new AppError(400, 'URL and content are required');
+  }
+
+  // Generate a draft post using LLM here in a real scenario
+  // For MVP, we'll just create a draft post with the content
+  const draftContent = `Just read an interesting article: ${title}\n\nHere are the key takeaways:\n\n${content.substring(0, 200)}...\n\nRead more: ${url}`;
+
+  const now = new Date().toISOString();
+
+  await db.insert(postsTable).values({
+    id,
+    userId: requestUser.id,
+    content: draftContent,
+    originalPrompt: `Repurposed from: ${url}`,
+    tone: 'professional',
+    llmProvider: 'openai',
+    llmModel: 'gpt-4o',
+    platforms: JSON.stringify(['linkedin']),
+    platformVariants: JSON.stringify({}),
+    hashtags: JSON.stringify(['repurposed']),
+    status: 'draft',
+    scheduledAt: null,
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  const [row] = await db
+    .select()
+    .from(postsTable)
+    .where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)))
+    .limit(1);
+
+  const response: ApiResponse<Post> = {
+    success: true,
+    data: mapRowToPost(row as any),
+  };
+
+  res.status(201).json(response);
 });

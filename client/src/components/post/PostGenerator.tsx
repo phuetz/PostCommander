@@ -12,6 +12,7 @@ import { useGenerate } from '@/hooks/useGenerate';
 import { createPost } from '@/services/api';
 import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
+import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { PlatformSelector } from './PlatformSelector';
 import { ToneSelector } from './ToneSelector';
@@ -37,6 +38,10 @@ export function PostGenerator() {
   const [model, setModel] = useState('gpt-4o');
   const [variants, setVariants] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
+
+  const [enableAutoPlug, setEnableAutoPlug] = useState(false);
+  const [autoPlugContent, setAutoPlugContent] = useState('');
+  const [autoPlugThreshold, setAutoPlugThreshold] = useState('50');
 
   const handleGenerate = () => {
     if (!prompt.trim()) {
@@ -76,6 +81,8 @@ export function PostGenerator() {
         platformVariants:
           Object.keys(variants).length > 0 ? variants : result.platformVariants,
         hashtags: result.hashtags,
+        autoPlugContent: enableAutoPlug && autoPlugContent ? autoPlugContent : undefined,
+        autoPlugThreshold: enableAutoPlug && autoPlugThreshold ? parseInt(autoPlugThreshold, 10) : undefined,
         status: 'draft',
         scheduledAt: null,
         publishedAt: null,
@@ -133,6 +140,40 @@ export function PostGenerator() {
             onProviderChange={setProvider}
             onModelChange={setModel}
           />
+
+          {/* Auto-Plug Configuration */}
+          <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enableAutoPlug}
+                onChange={(e) => setEnableAutoPlug(e.target.checked)}
+                className="rounded border-gray-300 text-brand-600 focus:ring-brand-600"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('generate.enableAutoPlug', 'Enable Dynamic Auto-Plug (Growth Feature)')}
+              </span>
+            </label>
+
+            {enableAutoPlug && (
+              <div className="pl-6 space-y-3">
+                <TextArea
+                  label={t('generate.autoPlugContent', 'Auto-Plug Comment Content')}
+                  value={autoPlugContent}
+                  onChange={(e) => setAutoPlugContent(e.target.value)}
+                  placeholder={t('generate.autoPlugContentPlaceholder', 'e.g. Thanks for reading! Subscribe to my newsletter here: https://...')}
+                  rows={2}
+                />
+                <Input
+                  label={t('generate.autoPlugThreshold', 'Viral Threshold (Likes)')}
+                  type="number"
+                  min="1"
+                  value={autoPlugThreshold}
+                  onChange={(e) => setAutoPlugThreshold(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Action buttons */}
           <div className="flex items-center gap-3 pt-2">
