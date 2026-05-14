@@ -37,7 +37,9 @@
     "pillars": "Piliers de contenu",
     "simulator": "Simulateur",
     "billing": "Facturation",
-    "strategy": "Stratégie"
+    "strategy": "Stratégie",
+    "modeSimple": "Mode Simple",
+    "modeExpert": "Mode Expert"
   },
   "hub": {
     "tag": "Hub guidé",

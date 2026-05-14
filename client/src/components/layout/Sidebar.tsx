@@ -36,6 +36,8 @@ import {
 import clsx from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
 import { useWorkspace } from '@/contexts/WorkspaceContext';
+import { useUIMode } from '@/hooks/useUIMode';
+import { ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface SidebarProps {
   open: boolean;
@@ -93,6 +95,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const { isAdmin } = useAuth();
   const { workspaces, activeWorkspaceId, setActiveWorkspaceId } = useWorkspace();
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
+  const { mode, toggle, isSimple } = useUIMode();
 
   const renderNavLink = (item: { to: string; icon: React.ElementType; labelKey: string }) => (
     <NavLink
@@ -173,43 +176,64 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto">
-        {/* Workflows section (Hub + wizards) */}
+        {/* Workflows section (Hub + wizards) — always visible */}
         <div className="space-y-1">{workflowNavItems.map(renderNavLink)}</div>
 
-        {/* Main section */}
-        <div className="mt-6">
-          <div className="px-3 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-              {t('nav.advanced', 'Pages avancées')}
-            </span>
-          </div>
-          <div className="space-y-1">{mainNavItems.map(renderNavLink)}</div>
-        </div>
+        {/* Expert-only sections */}
+        {!isSimple && (
+          <>
+            <div className="mt-6">
+              <div className="px-3 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  {t('nav.advanced', 'Pages avancées')}
+                </span>
+              </div>
+              <div className="space-y-1">{mainNavItems.map(renderNavLink)}</div>
+            </div>
 
-        {/* Tools section */}
-        <div className="mt-6">
-          <div className="px-3 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-              {t('nav.tools', 'Tools')}
-            </span>
-          </div>
-          <div className="space-y-1">{toolNavItems.map(renderNavLink)}</div>
-        </div>
+            <div className="mt-6">
+              <div className="px-3 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  {t('nav.tools', 'Tools')}
+                </span>
+              </div>
+              <div className="space-y-1">{toolNavItems.map(renderNavLink)}</div>
+            </div>
 
-        {/* Strategy section */}
-        <div className="mt-6">
-          <div className="px-3 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-              {t('nav.strategy', 'Strategy')}
-            </span>
-          </div>
-          <div className="space-y-1">{strategyNavItems.map(renderNavLink)}</div>
-        </div>
+            <div className="mt-6">
+              <div className="px-3 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  {t('nav.strategy', 'Strategy')}
+                </span>
+              </div>
+              <div className="space-y-1">{strategyNavItems.map(renderNavLink)}</div>
+            </div>
+          </>
+        )}
 
-        {/* Bottom section */}
+        {/* Bottom section — always visible (Settings, Billing) */}
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-800 space-y-1">
           {bottomNavItems.map(renderNavLink)}
         </div>
+
+        {/* Mode toggle */}
+        <button
+          type="button"
+          onClick={toggle}
+          className="mt-4 w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors"
+          aria-label={isSimple ? 'Activer le mode Expert' : 'Activer le mode Simple'}
+          title={isSimple ? 'Afficher toutes les pages avancées' : 'Masquer les pages avancées'}
+        >
+          <span className="flex items-center gap-2">
+            {isSimple ? <ToggleLeft size={18} /> : <ToggleRight size={18} className="text-violet-500" />}
+            <span className="text-xs font-medium uppercase tracking-wider">
+              {isSimple ? t('nav.modeSimple', 'Mode Simple') : t('nav.modeExpert', 'Mode Expert')}
+            </span>
+          </span>
+          <span className="text-[10px] text-gray-400 dark:text-gray-500">
+            {isSimple ? '→ Expert' : '→ Simple'}
+          </span>
+        </button>
 
         {isAdmin && (
           <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-800">
