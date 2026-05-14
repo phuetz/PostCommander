@@ -20,6 +20,8 @@ import { setupBullBoard } from '../middleware/bull-board.js';
 import { getQueueHealth } from '../services/jobs/queue.js';
 import agentRoutes from './agent.routes.js';
 import autoBlogRoutes from './autoblog.routes.js';
+import inboxRoutes from './inbox.routes.js';
+import assistRoutes from './assist.routes.js';
 
 const router = Router();
 
@@ -44,6 +46,11 @@ router.use('/admin', adminRoutes);
 router.use('/workspaces', workspacesRoutes);
 router.use('/agent', agentRoutes);
 router.use('/autoblog', autoBlogRoutes);
+router.use('/inbox', inboxRoutes);
+router.use('/assist', assistRoutes);
+import { outreachRoutes } from './outreach.routes.js';
+
+router.use('/outreach', outreachRoutes);
 
 router.get('/live', (_req, res) => {
   res.json({
