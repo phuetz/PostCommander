@@ -21,7 +21,33 @@
     "hashtags": "Hashtags",
     "styles": "Writing Styles",
     "images": "AI Images",
-    "autoblog": "Autopilot (Blog)"
+    "autoblog": "Autopilot (Blog)",
+    "outreach": "Outreach",
+    "hub": "Home",
+    "wizardPost": "Create post",
+    "wizardAutoblog": "Auto blog",
+    "wizardOutreach": "Outreach",
+    "wizardAnalytics": "Analytics",
+    "advanced": "Advanced pages",
+    "inbox": "Inbox",
+    "approvals": "Approvals",
+    "abTest": "A/B Test",
+    "engagement": "Engagement",
+    "trending": "Trending",
+    "pillars": "Content Pillars",
+    "simulator": "Simulator",
+    "billing": "Billing",
+    "strategy": "Strategy",
+    "modeSimple": "Simple Mode",
+    "modeExpert": "Expert Mode"
+  },
+  "hub": {
+    "tag": "Guided Hub",
+    "title": "What do you want to do today?",
+    "subtitle": "Pick a guided workflow. Each assistant asks the right questions and uses AI to help you fill the fields."
+  },
+  "wizard": {
+    "savedDraft": "Draft saved"
   },
   "dashboard": {
     "welcome": "Welcome to PostCommander",

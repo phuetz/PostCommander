@@ -2,25 +2,62 @@
 
 An intelligent social media content generation and publishing platform powered by AI. Generate, optimize, and publish posts across multiple platforms (Twitter, LinkedIn, Facebook, Instagram, TikTok, Pinterest) with data-driven insights and A/B testing capabilities.
 
+## Quickstart (3 minutes)
+
+```bash
+npm install
+npm run dev
+# → http://localhost:5173/app
+```
+
+1. The dev environment auto-logs you in (`DEV_AUTO_LOGIN_EMAIL` in `.env`).
+2. Land on the **Hub** at `/app` — four guided workflows.
+3. *(Optional)* Open **Réglages → Compte ChatGPT Pro** and click **Se connecter**. The server opens an OAuth flow on `localhost:1455`; complete it in your browser to use your ChatGPT Pro subscription instead of an API key.
+4. From the Hub, launch **Créer un post**, **Lancer un blog auto**, **Lancer une campagne outreach** or **Analyser ma performance**. Each is a guided wizard with a side help panel and an **✨ IA** button next to each field for AI-suggested values.
+5. Need every page? Toggle **Mode Expert** at the bottom of the sidebar to reveal the 25+ advanced screens.
+
+### ChatGPT Pro CLI fallback
+
+If port 1455 is occupied or you're running on a remote server, use the standalone login:
+
+```bash
+node scripts/pc-login-chatgpt.mjs
+# (or pc-login-chatgpt.cmd on Windows, pc-login-chatgpt.sh on Unix)
+```
+
+The script writes the encrypted tokens to `~/.postcommander/auth/openai.json`. The server imports them into the DB on the next `getChatGptAuth()` call.
+
+
+
 ## Features
 
-- **AI-Powered Content Generation** — Generate posts using multiple LLM providers (OpenAI, Anthropic, Google, Mistral, Ollama)
-- **Multi-Platform Publishing** — Publish directly to Twitter, LinkedIn, Facebook, Instagram, TikTok, and Pinterest
-- **Content Calendar** — Schedule posts and manage your publishing strategy
-- **Analytics & Insights** — Track engagement, trending topics, and viral patterns
-- **Autonomous SDR Agent** — Automatically scrape, qualify, and engage with leads based on their comments
-- **Dynamic Auto-Plug** — Automatically append promotional content or CTAs to posts when they hit virality thresholds
-- **Chrome Extension (Growth Hacker Suite)**
-  - **Web Clipper (Repurposing):** Draft LinkedIn posts directly from any article or YouTube video
-  - **Ghostwriter (/ai):** Type `/ai` in native social media comment boxes to auto-generate context-aware replies
-  - **Shadow Profiling:** Silently extract CRM data from visited LinkedIn profiles
-  - **Virality Checker:** Real-time post quality scoring overlay on LinkedIn
-- **Autopilot (Blog Generation)** — Set up customizable recurring background jobs to automatically draft expert-level blog articles based on your tone and preferred references.
-- **Image Generation** — Generate and attach images to posts
-- **A/B Testing** — Test different post variations to optimize engagement
-- **Hooks & Templates** — Pre-built templates for different content types
-- **Workspace Collaboration** — Work with teams on shared content
-- **Evergreen Content Recycling** — Automatically recycle and republish top-performing content
+**🚀 Core Platform & Multi-Channel Publishing**
+- **Multi-Platform Integrations** — Connect and publish natively to Twitter/X, LinkedIn, Facebook, Instagram, TikTok, and Pinterest.
+- **Visual Content Calendar** — Schedule posts, manage queues, and orchestrate your entire publishing strategy.
+- **Analytics & Insights** — Track engagement metrics, trending topics, and viral patterns across all accounts.
+- **Team Workspaces** — Collaborate with team members using role-based access control.
+- **Integrated Billing** — Full SaaS subscription management powered by Stripe.
+
+**🧠 AI-Powered Content Engine**
+- **Multi-LLM Architecture** — Generate content using OpenAI, Anthropic, Google, Mistral, or local Ollama models.
+- **Custom Writing Styles** — Train the AI to mimic your unique voice by analyzing your past successful posts.
+- **Content Pillars & Ideas Board** — Organize your strategy with color-coded pillars and manage an idea backlog.
+- **Rich Media Generation** — Generate and attach AI images directly within the post composer.
+- **A/B Testing Simulator** — Test different hooks and post variations to predict and optimize engagement.
+- **Hooks, Carousels & Templates** — Access pre-built generators for high-converting formats.
+
+**⚙️ Autopilot & Advanced Automation**
+- **Autoblog Engine** — Configure recurring background jobs that autonomously research and draft expert-level blog articles based on your chosen frequency and topic.
+- **Automated Outreach Campaigns** — Discover prospects via targeted keywords, score profiles, and automatically dispatch personalized DM campaigns.
+- **Autonomous SDR Agent** — Automatically scrape, qualify, and converse with leads in the comments section using stateful, multi-turn ReAct dialogue.
+- **Dynamic Auto-Plug** — Automatically append promotional CTAs or links to your posts the exact moment they hit virality thresholds.
+- **Evergreen Recycling** — Automatically identify, recycle, and republish your top-performing historical content.
+
+**🧩 Chrome Extension (Growth Hacker Suite)**
+- **Ghostwriter (`/ai`)** — Type `/ai` directly into native social media comment boxes to auto-generate context-aware replies on the fly.
+- **Web Clipper (Repurposing)** — Draft social posts instantly from any active article or YouTube video tab.
+- **Shadow Profiling** — Silently extract CRM data and lead insights from visited LinkedIn profiles.
+- **Virality Checker** — Real-time post quality scoring overlay displayed directly on LinkedIn and Twitter.
 
 ## Tech Stack
 
