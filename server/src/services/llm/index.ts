@@ -176,8 +176,8 @@ export async function generateBlogArticle(
 ): Promise<{ content: string }> {
   const { buildBlogArticlePrompt } = await import('../ai/blog-prompts.js');
 
-  const model = createModel(request.provider, request.model, userId);
-
+  const system =
+    'You are an expert technical blog writer following specific stylistic constraints.';
   const prompt = buildBlogArticlePrompt({
     topic: request.topic,
     articleType: request.articleType,
@@ -190,9 +190,21 @@ export async function generateBlogArticle(
     language: request.language,
   });
 
+  if (request.provider === 'chatgpt-pro') {
+    if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
+    const content = await chatgptProGenerate({
+      userId,
+      model: request.model,
+      system,
+      prompt,
+    });
+    return { content };
+  }
+
+  const model = createModel(request.provider, request.model, userId);
   const result = await generateText({
     model,
-    system: 'You are an expert technical blog writer following specific stylistic constraints.',
+    system,
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.7,
     maxTokens: 4000, // Blog articles are longer
