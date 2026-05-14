@@ -42,7 +42,12 @@ export async function chatgptProGenerate(input: ChatGptProGenerateInput): Promis
   return result.text;
 }
 
-/** True when the user has a usable ChatGPT Pro auth on file. */
+/** True when the user has a usable ChatGPT Pro auth on file.
+ *  Never throws — DB or refresh errors are swallowed and reported as "not available". */
 export async function chatgptProAvailable(userId: string): Promise<boolean> {
-  return (await getChatGptAuth(userId)) !== null;
+  try {
+    return (await getChatGptAuth(userId)) !== null;
+  } catch {
+    return false;
+  }
 }
