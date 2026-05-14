@@ -27,6 +27,11 @@ import {
   Check,
   ChevronsUpDown,
   Bot,
+  ClipboardCheck,
+  Inbox,
+  Home,
+  Wand2,
+  BarChart3,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
@@ -37,12 +42,24 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+const workflowNavItems = [
+  { to: '/app', icon: Home, labelKey: 'nav.hub' },
+  { to: '/app/w/post', icon: Wand2, labelKey: 'nav.wizardPost' },
+  { to: '/app/w/autoblog', icon: Bot, labelKey: 'nav.wizardAutoblog' },
+  { to: '/app/w/outreach', icon: Target, labelKey: 'nav.wizardOutreach' },
+  { to: '/app/w/analytics', icon: BarChart3, labelKey: 'nav.wizardAnalytics' },
+] as const;
+
 const mainNavItems = [
-  { to: '/app', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
+  { to: '/app/dashboard', icon: LayoutDashboard, labelKey: 'nav.dashboard' },
+  { to: '/app/inbox', icon: Inbox, labelKey: 'nav.inbox' },
+  { to: '/app/approvals', icon: ClipboardCheck, labelKey: 'nav.approvals' },
   { to: '/app/generate', icon: Sparkles, labelKey: 'nav.generate' },
   { to: '/app/history', icon: Clock, labelKey: 'nav.history' },
   { to: '/app/calendar', icon: CalendarDays, labelKey: 'nav.calendar' },
 ] as const;
+
+import { Target } from 'lucide-react';
 
 const toolNavItems = [
   { to: '/app/viral', icon: Flame, labelKey: 'nav.viral' },
@@ -54,7 +71,9 @@ const toolNavItems = [
   { to: '/app/styles', icon: Palette, labelKey: 'nav.styles' },
   { to: '/app/images', icon: Image, labelKey: 'nav.images' },
   { to: '/app/autoblog', icon: Bot, labelKey: 'nav.autoblog' },
+  { to: '/app/outreach', icon: Target, labelKey: 'nav.outreach' },
 ] as const;
+
 
 const strategyNavItems = [
   { to: '/app/ab-test', icon: FlaskConical, labelKey: 'nav.abTest' },
@@ -154,8 +173,18 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        {/* Workflows section (Hub + wizards) */}
+        <div className="space-y-1">{workflowNavItems.map(renderNavLink)}</div>
+
         {/* Main section */}
-        <div className="space-y-1">{mainNavItems.map(renderNavLink)}</div>
+        <div className="mt-6">
+          <div className="px-3 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+              {t('nav.advanced', 'Pages avancées')}
+            </span>
+          </div>
+          <div className="space-y-1">{mainNavItems.map(renderNavLink)}</div>
+        </div>
 
         {/* Tools section */}
         <div className="mt-6">

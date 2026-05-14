@@ -21,7 +21,31 @@
     "hashtags": "Hashtags",
     "styles": "Styles d'écriture",
     "images": "Images IA",
-    "autoblog": "Autopilot (Blog)"
+    "autoblog": "Autopilot (Blog)",
+    "outreach": "Prospection",
+    "hub": "Accueil",
+    "wizardPost": "Créer un post",
+    "wizardAutoblog": "Blog auto",
+    "wizardOutreach": "Outreach",
+    "wizardAnalytics": "Analyse",
+    "advanced": "Pages avancées",
+    "inbox": "Boîte de réception",
+    "approvals": "Approbations",
+    "abTest": "Test A/B",
+    "engagement": "Engagement",
+    "trending": "Tendances",
+    "pillars": "Piliers de contenu",
+    "simulator": "Simulateur",
+    "billing": "Facturation",
+    "strategy": "Stratégie"
+  },
+  "hub": {
+    "tag": "Hub guidé",
+    "title": "Quoi faire aujourd'hui ?",
+    "subtitle": "Choisis un workflow guidé. Chaque assistant te pose les bonnes questions et utilise l'IA pour t'aider à remplir."
+  },
+  "wizard": {
+    "savedDraft": "Brouillon sauvegardé"
   },
   "dashboard": {
     "welcome": "Bienvenue sur PostCommander",

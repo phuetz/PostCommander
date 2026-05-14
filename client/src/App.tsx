@@ -43,6 +43,9 @@ const VideoScriptPage = lazy(() =>
 const AutoBlogPage = lazy(() =>
   import('@/pages/AutoBlogPage').then((m) => ({ default: m.AutoBlogPage })),
 );
+const OutreachPage = lazy(() =>
+  import('@/pages/OutreachPage').then((m) => ({ default: m.default })),
+);
 const TemplatesPage = lazy(() =>
   import('@/pages/TemplatesPage').then((m) => ({ default: m.TemplatesPage })),
 );
@@ -78,6 +81,18 @@ const BillingPage = lazy(() =>
 );
 const DeletedAccountsPage = lazy(() =>
   import('@/pages/DeletedAccountsPage').then((m) => ({ default: m.DeletedAccountsPage })),
+);
+const ApprovalsPage = lazy(() =>
+  import('@/pages/ApprovalsPage').then((m) => ({ default: m.ApprovalsPage })),
+);
+const InboxPage = lazy(() =>
+  import('@/pages/InboxPage').then((m) => ({ default: m.InboxPage })),
+);
+
+// Hub + Wizards
+const HubPage = lazy(() => import('@/pages/HubPage').then((m) => ({ default: m.HubPage })));
+const CreatePostWizard = lazy(() =>
+  import('@/pages/wizards/CreatePostWizard').then((m) => ({ default: m.CreatePostWizard })),
 );
 
 // Marketing pages
@@ -223,8 +238,9 @@ export default function App() {
           {/* App routes */}
           <Route path="/app" element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
-              <Route index element={<DashboardPage />} />
+              <Route index element={<HubPage />} />
               <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="w/post" element={<CreatePostWizard />} />
               <Route path="generate" element={<GeneratePage />} />
               <Route path="history" element={<HistoryPage />} />
               <Route path="calendar" element={<CalendarPage />} />
@@ -233,6 +249,7 @@ export default function App() {
               <Route path="carousel" element={<CarouselPage />} />
               <Route path="video-script" element={<VideoScriptPage />} />
               <Route path="autoblog" element={<AutoBlogPage />} />
+              <Route path="outreach" element={<OutreachPage />} />
               <Route path="templates" element={<TemplatesPage />} />
               <Route path="repurpose" element={<RepurposePage />} />
               <Route path="hashtags" element={<HashtagsPage />} />
@@ -245,6 +262,8 @@ export default function App() {
               <Route path="simulator" element={<SimulatorPage />} />
               <Route path="billing" element={<BillingPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="approvals" element={<ApprovalsPage />} />
+              <Route path="inbox" element={<InboxPage />} />
               <Route
                 path="admin/deleted-accounts"
                 element={
