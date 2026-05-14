@@ -38,6 +38,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Spinner } from '@/components/ui/Spinner';
+import { ChatGPTProSection } from '@/components/settings/ChatGPTProSection';
 
 const platformIcons: Record<PlatformId, React.ElementType> = {
   linkedin: Linkedin,
@@ -179,6 +180,9 @@ export function SettingsPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+      {/* ChatGPT Pro OAuth — no API key needed */}
+      <ChatGPTProSection />
+
       {/* API Keys */}
       <Card>
         <div className="flex items-center gap-3 mb-5">

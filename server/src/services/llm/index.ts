@@ -1,7 +1,8 @@
 import { generateText, streamText } from 'ai';
 import { createModel } from './provider-factory.js';
 import { buildPrompts, buildStreamingPrompts, buildVariantsPrompt } from './prompts.js';
-import type { LLMGenerateRequest, LLMGenerateResult, LLMStreamChunk } from './types.js';
+import type { LLMGenerateRequest, LLMGenerateResult, LLMStreamChunk, LLMBlogGenerateRequest } from './types.js';
+import { chatgptProGenerate } from './chatgpt-pro/sdk-wrapper.js';
 
 /**
  * Parse a JSON string that may contain markdown code fences.
@@ -27,7 +28,6 @@ export async function generatePost(
   request: LLMGenerateRequest,
   userId?: string,
 ): Promise<LLMGenerateResult> {
-  const model = createModel(request.provider, request.model, userId);
   const { system, user } = buildPrompts({
     prompt: request.prompt,
     platforms: request.platforms,
@@ -35,15 +35,23 @@ export async function generatePost(
     language: request.language,
   });
 
-  const result = await generateText({
-    model,
-    system,
-    messages: [{ role: 'user', content: user }],
-    temperature: 0.7,
-    maxTokens: 2048,
-  });
+  let rawText: string;
+  if (request.provider === 'chatgpt-pro') {
+    if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
+    rawText = await chatgptProGenerate({ userId, model: request.model, system, prompt: user });
+  } else {
+    const model = createModel(request.provider, request.model, userId);
+    const result = await generateText({
+      model,
+      system,
+      messages: [{ role: 'user', content: user }],
+      temperature: 0.7,
+      maxTokens: 2048,
+    });
+    rawText = result.text;
+  }
 
-  const parsed = parseJsonResponse(result.text);
+  const parsed = parseJsonResponse(rawText);
 
   return {
     content: parsed.content ?? '',
@@ -61,8 +69,6 @@ export async function streamPost(
   userId: string | undefined,
   onChunk: (chunk: LLMStreamChunk) => void,
 ): Promise<LLMGenerateResult> {
-  const model = createModel(request.provider, request.model, userId);
-
   // Phase 1: Stream the main content
   const { system, user } = buildStreamingPrompts({
     prompt: request.prompt,
@@ -73,17 +79,30 @@ export async function streamPost(
 
   let mainContent = '';
 
-  const streamResult = streamText({
-    model,
-    system,
-    messages: [{ role: 'user', content: user }],
-    temperature: 0.7,
-    maxTokens: 1024,
-  });
-
-  for await (const chunk of (await streamResult).textStream) {
-    mainContent += chunk;
-    onChunk({ type: 'text-delta', content: chunk });
+  if (request.provider === 'chatgpt-pro') {
+    if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
+    mainContent = await chatgptProGenerate({
+      userId,
+      model: request.model,
+      system,
+      prompt: user,
+      onTextDelta: (delta) => {
+        onChunk({ type: 'text-delta', content: delta });
+      },
+    });
+  } else {
+    const model = createModel(request.provider, request.model, userId);
+    const streamResult = streamText({
+      model,
+      system,
+      messages: [{ role: 'user', content: user }],
+      temperature: 0.7,
+      maxTokens: 1024,
+    });
+    for await (const chunk of (await streamResult).textStream) {
+      mainContent += chunk;
+      onChunk({ type: 'text-delta', content: chunk });
+    }
   }
 
   // Phase 2: Generate platform variants (non-streaming)
@@ -93,13 +112,28 @@ export async function streamPost(
     tone: request.tone,
   });
 
-  const variantsResult = await generateText({
-    model,
-    system: variantsPrompts.system,
-    messages: [{ role: 'user', content: variantsPrompts.user }],
-    temperature: 0.5,
-    maxTokens: 2048,
-  });
+  let variantsText: string;
+  if (request.provider === 'chatgpt-pro') {
+    if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
+    variantsText = await chatgptProGenerate({
+      userId,
+      model: request.model,
+      system: variantsPrompts.system,
+      prompt: variantsPrompts.user,
+    });
+  } else {
+    const model = createModel(request.provider, request.model, userId);
+    const variantsResult = await generateText({
+      model,
+      system: variantsPrompts.system,
+      messages: [{ role: 'user', content: variantsPrompts.user }],
+      temperature: 0.5,
+      maxTokens: 2048,
+    });
+    variantsText = variantsResult.text;
+  }
+  // Synthesize a result object compatible with the existing variants parser below.
+  const variantsResult = { text: variantsText };
 
   let platformVariants: Record<string, string> = {};
   let hashtags: string[] = [];
@@ -137,7 +171,7 @@ export async function streamPost(
  * Generate a long-form blog article based on the custom prompt strategy.
  */
 export async function generateBlogArticle(
-  request: any, // using any for now to avoid strict typing issues with the newly added schema fields
+  request: LLMBlogGenerateRequest,
   userId?: string,
 ): Promise<{ content: string }> {
   const { buildBlogArticlePrompt } = await import('../ai/blog-prompts.js');

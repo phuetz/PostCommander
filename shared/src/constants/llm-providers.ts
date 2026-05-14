@@ -46,6 +46,16 @@ export const LLM_PROVIDERS = [
     ],
     requiresApiKey: false,
   },
+  {
+    id: 'chatgpt-pro',
+    name: 'ChatGPT Pro (compte connecté)',
+    models: [
+      { id: 'gpt-5', name: 'GPT-5', description: 'Codex Responses' },
+      { id: 'gpt-5-codex', name: 'GPT-5 Codex', description: 'Pour code/raisonnement' },
+      { id: 'gpt-4o', name: 'GPT-4o', description: 'Multimodal' },
+    ],
+    requiresApiKey: false,
+  },
 ] as const;
 
 export type LLMProviderId = (typeof LLM_PROVIDERS)[number]['id'];

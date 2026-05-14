@@ -22,6 +22,7 @@ import agentRoutes from './agent.routes.js';
 import autoBlogRoutes from './autoblog.routes.js';
 import inboxRoutes from './inbox.routes.js';
 import assistRoutes from './assist.routes.js';
+import codexAuthRoutes from './codex-auth.routes.js';
 
 const router = Router();
 
@@ -48,6 +49,7 @@ router.use('/agent', agentRoutes);
 router.use('/autoblog', autoBlogRoutes);
 router.use('/inbox', inboxRoutes);
 router.use('/assist', assistRoutes);
+router.use('/auth/chatgpt-pro', codexAuthRoutes);
 import { outreachRoutes } from './outreach.routes.js';
 
 router.use('/outreach', outreachRoutes);

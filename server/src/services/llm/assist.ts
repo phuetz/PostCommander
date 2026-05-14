@@ -2,6 +2,7 @@ import { generateText } from 'ai';
 import type { LLMProviderId } from '@postcommander/shared';
 import type { AssistFieldKey, AssistFieldResponse } from '@postcommander/shared';
 import { createModel } from './provider-factory.js';
+import { chatgptProGenerate, chatgptProAvailable } from './chatgpt-pro/sdk-wrapper.js';
 import { config } from '../../config/env.js';
 
 interface FieldPrompt {
@@ -152,9 +153,12 @@ interface SuggestParams {
 
 /**
  * Pick a usable LLM provider+model when the client did not specify one.
- * Strategy: env-configured key first (cheap & fast model), then any DB-stored key.
+ * Priority: connected ChatGPT Pro → env-configured key (cheap fast model) → ollama.
  */
-function pickDefaultProviderModel(): { provider: LLMProviderId; model: string } {
+async function pickDefaultProviderModel(
+  userId: string,
+): Promise<{ provider: LLMProviderId; model: string }> {
+  if (await chatgptProAvailable(userId)) return { provider: 'chatgpt-pro', model: 'gpt-5' };
   if (config.OPENAI_API_KEY) return { provider: 'openai', model: 'gpt-4o-mini' };
   if (config.ANTHROPIC_API_KEY)
     return { provider: 'anthropic', model: 'claude-haiku-4-5-20251001' };
@@ -170,8 +174,8 @@ export async function suggestFieldValue(params: SuggestParams): Promise<AssistFi
     throw new Error(`Unknown assist field: ${params.field}`);
   }
 
-  const fallback = pickDefaultProviderModel();
-  const provider = params.provider || fallback.provider;
+  const fallback = await pickDefaultProviderModel(params.userId);
+  const provider = (params.provider || fallback.provider) as LLMProviderId;
   const model = params.model || fallback.model;
 
   const altCount = prompt.alternativesCount ?? 0;
@@ -181,16 +185,27 @@ export async function suggestFieldValue(params: SuggestParams): Promise<AssistFi
       ? prompt.buildUser(params.context, params.locale)
       : `${prompt.buildUser(params.context, params.locale)}\n\nDonne ${totalToGenerate} variantes, une par ligne, numérotées 1) 2) 3).`;
 
-  const llm = createModel(provider as LLMProviderId, model, params.userId);
-  const result = await generateText({
-    model: llm,
-    system: prompt.system,
-    messages: [{ role: 'user', content: userMessage }],
-    temperature: 0.85,
-    maxTokens: 250,
-  });
-
-  const text = result.text.trim();
+  let text: string;
+  if (provider === 'chatgpt-pro') {
+    text = (
+      await chatgptProGenerate({
+        userId: params.userId,
+        model,
+        system: prompt.system,
+        prompt: userMessage,
+      })
+    ).trim();
+  } else {
+    const llm = createModel(provider, model, params.userId);
+    const result = await generateText({
+      model: llm,
+      system: prompt.system,
+      messages: [{ role: 'user', content: userMessage }],
+      temperature: 0.85,
+      maxTokens: 250,
+    });
+    text = result.text.trim();
+  }
 
   if (totalToGenerate === 1) {
     return { suggestion: cleanSuggestion(text) };

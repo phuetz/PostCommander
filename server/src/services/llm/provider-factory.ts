@@ -67,6 +67,10 @@ function getProviderConfig(providerId: LLMProviderId, userId?: string): Provider
       return {
         baseUrl: getSettingValue('ollamaBaseUrl', userId) || config.OLLAMA_BASE_URL,
       };
+    case 'chatgpt-pro':
+      // ChatGPT Pro uses a direct Codex Responses client, not the AI SDK provider.
+      // See services/llm/chatgpt-pro/sdk-wrapper.ts.
+      return {};
     default:
       throw new Error(`Unknown provider: ${providerId}`);
   }
@@ -127,6 +131,12 @@ export function createModel(
       });
       return ollama(modelId);
     }
+    case 'chatgpt-pro':
+      // ChatGPT Pro does not flow through the Vercel AI SDK — call chatgptProGenerate
+      // directly from `services/llm/chatgpt-pro/sdk-wrapper.ts` instead.
+      throw new Error(
+        'ChatGPT Pro provider uses its own client. Call chatgptProGenerate() directly instead of createModel().',
+      );
     default:
       throw new Error(`Unsupported LLM provider: ${providerId}`);
   }
