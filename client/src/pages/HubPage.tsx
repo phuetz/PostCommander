@@ -36,7 +36,6 @@ const WORKFLOWS: WorkflowCard[] = [
     title: 'Lancer un blog auto',
     description:
       'Planifie une génération automatique d\'articles à intervalle régulier. Idéal pour SEO ou présence régulière.',
-    comingSoon: true,
     gradient: 'from-emerald-500 to-teal-500',
   },
   {
@@ -45,7 +44,6 @@ const WORKFLOWS: WorkflowCard[] = [
     title: 'Lancer une campagne outreach',
     description:
       'SDR autonome : définis ton ICP, importe ou cherche des prospects, génère un message, planifie les relances.',
-    comingSoon: true,
     gradient: 'from-orange-500 to-pink-500',
   },
   {
@@ -54,7 +52,6 @@ const WORKFLOWS: WorkflowCard[] = [
     title: 'Analyser ma performance',
     description:
       'Rapport sur tes posts (impressions, engagement) + recommandations IA pour t\'améliorer.',
-    comingSoon: true,
     gradient: 'from-blue-500 to-cyan-500',
   },
 ];

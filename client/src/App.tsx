@@ -94,6 +94,15 @@ const HubPage = lazy(() => import('@/pages/HubPage').then((m) => ({ default: m.H
 const CreatePostWizard = lazy(() =>
   import('@/pages/wizards/CreatePostWizard').then((m) => ({ default: m.CreatePostWizard })),
 );
+const AutoBlogWizard = lazy(() =>
+  import('@/pages/wizards/AutoBlogWizard').then((m) => ({ default: m.AutoBlogWizard })),
+);
+const OutreachWizard = lazy(() =>
+  import('@/pages/wizards/OutreachWizard').then((m) => ({ default: m.OutreachWizard })),
+);
+const AnalyticsWizard = lazy(() =>
+  import('@/pages/wizards/AnalyticsWizard').then((m) => ({ default: m.AnalyticsWizard })),
+);
 
 // Marketing pages
 const LandingPage = lazy(() =>
@@ -241,6 +250,9 @@ export default function App() {
               <Route index element={<HubPage />} />
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="w/post" element={<CreatePostWizard />} />
+              <Route path="w/autoblog" element={<AutoBlogWizard />} />
+              <Route path="w/outreach" element={<OutreachWizard />} />
+              <Route path="w/analytics" element={<AnalyticsWizard />} />
               <Route path="generate" element={<GeneratePage />} />
               <Route path="history" element={<HistoryPage />} />
               <Route path="calendar" element={<CalendarPage />} />
