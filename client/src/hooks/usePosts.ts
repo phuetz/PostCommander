@@ -121,3 +121,73 @@ export function useUpdatePostStatus() {
     },
   });
 }
+
+export function useApprovePost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.approvePost(id),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['posts'] });
+      const previousPosts = queryClient.getQueryData(['posts']);
+      
+      queryClient.setQueryData(['posts'], (old: any) => {
+        if (!old || !old.data) return old;
+        return {
+          ...old,
+          data: old.data.map((post: any) => 
+            post.id === id ? { ...post, status: 'approved' } : post
+          )
+        };
+      });
+      return { previousPosts };
+    },
+    onError: (error: Error, _, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['posts'], context.previousPosts);
+      }
+      toast.error(`Erreur: ${error.message}`);
+    },
+    onSettled: (_, __, id) => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post', id] });
+    },
+    onSuccess: () => {
+      toast.success('Post approuvé');
+    },
+  });
+}
+
+export function useRejectPost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, feedback }: { id: string; feedback: string }) => api.rejectPost(id, feedback),
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: ['posts'] });
+      const previousPosts = queryClient.getQueryData(['posts']);
+      
+      queryClient.setQueryData(['posts'], (old: any) => {
+        if (!old || !old.data) return old;
+        return {
+          ...old,
+          data: old.data.map((post: any) => 
+            post.id === id ? { ...post, status: 'rejected' } : post
+          )
+        };
+      });
+      return { previousPosts };
+    },
+    onError: (error: Error, _, context) => {
+      if (context?.previousPosts) {
+        queryClient.setQueryData(['posts'], context.previousPosts);
+      }
+      toast.error(`Erreur: ${error.message}`);
+    },
+    onSettled: (_, __, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post', id] });
+    },
+    onSuccess: () => {
+      toast.success('Post rejeté');
+    },
+  });
+}

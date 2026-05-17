@@ -11,6 +11,20 @@ export interface LLMGenerateRequest {
   language: string;
 }
 
+export interface LLMBlogGenerateRequest {
+  provider: LLMProviderId;
+  model: string;
+  topic: string;
+  articleType: 'fond-technique' | 'news-comment' | 'opinion-perso';
+  authorName?: string;
+  authorRole?: string;
+  authorContext?: string;
+  authorReferences?: string[];
+  catalogMatched?: string[];
+  similarSources?: Array<{ source: string; url: string }>;
+  language?: string;
+}
+
 export interface LLMGenerateResult {
   content: string;
   platformVariants: Record<string, string>;
@@ -18,7 +32,7 @@ export interface LLMGenerateResult {
 }
 
 export interface LLMStreamChunk {
-  type: 'text-delta' | 'platform-variant' | 'hashtags' | 'done' | 'error';
+  type: 'text-delta' | 'platform-variant' | 'hashtags' | 'done' | 'error' | 'agent-status';
   content?: string;
   platform?: string;
   hashtags?: string[];

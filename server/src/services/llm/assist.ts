@@ -213,7 +213,7 @@ export async function suggestFieldValue(params: SuggestParams): Promise<AssistFi
 
   const lines = text
     .split(/\n+/)
-    .map((l) => l.replace(/^\s*\d+[\.\)]\s*/, '').trim())
+    .map((l) => l.replace(/^\s*\d+[.)]\s*/, '').trim())
     .map(cleanSuggestion)
     .filter((l) => l.length > 0);
 

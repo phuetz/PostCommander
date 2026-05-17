@@ -8,9 +8,9 @@ interface AgentJobData {
   commentId: string;
 }
 
-const connection = new Redis(config.REDIS_URL, {
-  maxRetriesPerRequest: null,
-});
+import { sharedRedisConnection } from '../../utils/redis.js';
+
+const connection = sharedRedisConnection;
 
 export const agentWorker = new Worker<AgentJobData>(
   'agent-workflow',

@@ -32,6 +32,7 @@ import {
   Home,
   Wand2,
   BarChart3,
+  Mic,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '@/hooks/useAuth';
@@ -72,12 +73,15 @@ const toolNavItems = [
   { to: '/app/hashtags', icon: Hash, labelKey: 'nav.hashtags' },
   { to: '/app/styles', icon: Palette, labelKey: 'nav.styles' },
   { to: '/app/images', icon: Image, labelKey: 'nav.images' },
+  { to: '/app/voice-studio', icon: Mic, labelKey: 'Studio Vocal' },
   { to: '/app/autoblog', icon: Bot, labelKey: 'nav.autoblog' },
   { to: '/app/outreach', icon: Target, labelKey: 'nav.outreach' },
 ] as const;
 
 
 const strategyNavItems = [
+  { to: '/app/analytics', icon: TrendingUp, labelKey: 'nav.analytics' },
+  { to: '/app/automations', icon: GitFork, labelKey: 'Automations (Beta)' },
   { to: '/app/ab-test', icon: FlaskConical, labelKey: 'nav.abTest' },
   { to: '/app/engagement', icon: Gauge, labelKey: 'nav.engagement' },
   { to: '/app/trending', icon: TrendingUp, labelKey: 'nav.trending' },

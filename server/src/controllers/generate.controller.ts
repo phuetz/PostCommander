@@ -58,6 +58,9 @@ export const handleStreamGenerate = catchAsync(async (req: Request, res: Respons
         case 'hashtags':
           sendEvent('hashtags', { hashtags: chunk.hashtags });
           break;
+        case 'agent-status':
+          sendEvent('agent-status', { content: chunk.content });
+          break;
         case 'error':
           sendEvent('error', { error: chunk.error });
           break;

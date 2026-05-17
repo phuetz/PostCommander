@@ -7,8 +7,10 @@ import { logger } from './utils/logger.js';
 import './services/jobs/worker.js';
 import './services/jobs/agent.worker.js';
 import './workers/autoblog.worker.js';
+import './workers/outreach.worker.js';
 import { startAnalyticsWorker } from './workers/analytics.worker.js';
 import { startAutoBlogWorker } from './workers/autoblog.worker.js';
+import { startOutreachWorker } from './workers/outreach.worker.js';
 
 async function main(): Promise<void> {
   // Initialize the database (runs migrations on startup)
@@ -24,6 +26,7 @@ async function main(): Promise<void> {
   logger.info('Starting scheduled workers...');
   startAnalyticsWorker();
   startAutoBlogWorker();
+  startOutreachWorker();
 
   // Create the Express app
   const app = createApp();

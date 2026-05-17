@@ -1,9 +1,15 @@
-import cron from 'node-cron';
+import { Worker, type Job } from 'bullmq';
 import { v4 as uuidv4 } from 'uuid';
 import { getDrizzle } from '../db/connection.js';
 import { postPublications, socialComments, platformConnections, posts } from '../db/schema.js';
 import { eq, and, isNotNull } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
+import { config } from '../config/env.js';
+import { Redis } from 'ioredis';
+
+import { sharedRedisConnection } from '../utils/redis.js';
+
+const connection = sharedRedisConnection;
 
 /**
  * Simulates fetching actual analytics from a social network API.
@@ -36,11 +42,9 @@ async function fetchRealPlatformAnalytics(publication: any, connection: any) {
   };
 }
 
-export function startAnalyticsWorker() {
-  logger.info('Starting Analytics Tracking Worker...');
-
-  // Run every hour at minute 0
-  cron.schedule('0 * * * *', async () => {
+export const analyticsWorker = new Worker(
+  'analytics-sync',
+  async (job: Job) => {
     logger.info('Running scheduled analytics sync...');
     const db = getDrizzle();
 
@@ -132,6 +136,31 @@ export function startAnalyticsWorker() {
       logger.info(`Successfully synced analytics for ${publications.length} publications.`);
     } catch (error) {
       logger.error({ error }, 'Analytics worker encountered a fatal error');
+      throw error;
     }
-  });
+  },
+  { connection: connection as any },
+);
+
+export async function startAnalyticsWorker() {
+  logger.info('Starting Analytics Tracking Worker...');
+  const { analyticsQueue } = await import('../services/jobs/queue.js');
+  
+  // Clean up existing repeatable jobs
+  const repeatableJobs = await analyticsQueue.getRepeatableJobs();
+  for (const job of repeatableJobs) {
+    await analyticsQueue.removeRepeatableByKey(job.key);
+  }
+
+  // Run every hour at minute 0
+  await analyticsQueue.add(
+    'analytics-sync-job',
+    {},
+    {
+      repeat: {
+        pattern: '0 * * * *',
+      },
+    },
+  );
+  logger.info('Scheduled repeatable analytics sync job');
 }

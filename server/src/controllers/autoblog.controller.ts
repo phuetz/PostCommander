@@ -6,6 +6,7 @@ import { catchAsync } from '../utils/catch-async.js';
 import { AppError } from '../middleware/error-handler.js';
 import { requireRequestUser } from '../utils/request-user.js';
 import crypto from 'crypto';
+import { autoBlogConfigSchema, updateAutoBlogConfigSchema } from '@postcommander/shared';
 
 export const handleGetConfigs = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
@@ -20,7 +21,7 @@ export const handleGetConfigs = catchAsync(async (req: Request, res: Response) =
 
 export const handleCreateConfig = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
-  const data = req.body;
+  const data = autoBlogConfigSchema.parse(req.body);
 
   const newConfig = {
     id: crypto.randomUUID(),
@@ -34,7 +35,7 @@ export const handleCreateConfig = catchAsync(async (req: Request, res: Response)
     authorName: data.authorName,
     authorRole: data.authorRole,
     authorReferences: data.authorReferences,
-    status: data.status || 'active',
+    status: data.status,
   };
 
   const db = getDrizzle();
@@ -46,7 +47,7 @@ export const handleCreateConfig = catchAsync(async (req: Request, res: Response)
 export const handleUpdateConfig = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
   const { id } = req.params;
-  const updates = req.body;
+  const updates = updateAutoBlogConfigSchema.parse(req.body);
 
   const db = getDrizzle();
   const [existing] = await db

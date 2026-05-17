@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Target, Calendar, UserCheck, CheckCircle, Bot } from 'lucide-react';
 import type { LLMProviderId } from '@postcommander/shared';
 import { Wizard, AIFillButton, type WizardStep } from '@/components/wizard';
 import { Input } from '@/components/ui/Input';
@@ -55,6 +56,8 @@ export function AutoBlogWizard() {
     {
       key: 'subject',
       title: 'Sujet & audience',
+      description: 'Définir la ligne éditoriale',
+      icon: Target,
       subtitle: 'Sur quoi écrire automatiquement ?',
       helpTitle: 'Aide : choisir un sujet pour l\'autopilot',
       helpContent: (
@@ -125,6 +128,8 @@ export function AutoBlogWizard() {
     {
       key: 'cadence',
       title: 'Format & cadence',
+      description: 'Format et rythme',
+      icon: Calendar,
       subtitle: 'À quelle fréquence et quel style ?',
       helpTitle: 'Aide : type d\'article et fréquence',
       helpContent: (
@@ -203,6 +208,8 @@ export function AutoBlogWizard() {
     {
       key: 'author',
       title: 'Signature',
+      description: 'Voix et références',
+      icon: UserCheck,
       subtitle: 'Qui signe les articles ?',
       helpTitle: 'Aide : signature et références',
       helpContent: (
@@ -246,6 +253,8 @@ export function AutoBlogWizard() {
     {
       key: 'review',
       title: 'Récap & lancement',
+      description: 'Vérifier et lancer',
+      icon: CheckCircle,
       subtitle: 'Vérifie et active l\'autopilot',
       render: (ctx) => (
         <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 space-y-1.5 text-sm">
@@ -293,6 +302,7 @@ export function AutoBlogWizard() {
     <Wizard
       title="Lancer un blog auto"
       subtitle="L'IA génère des articles régulièrement, selon ton sujet et ta voix"
+      icon={Bot}
       steps={steps}
       initialData={INITIAL}
       onComplete={handleComplete}

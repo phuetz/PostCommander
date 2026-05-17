@@ -12,6 +12,7 @@ import { generateCarousel } from '../services/llm/carousel.js';
 import { repurposePost } from '../services/llm/repurpose.js';
 import { researchHashtags } from '../services/llm/hashtags.js';
 import { requireRequestUser } from '../utils/request-user.js';
+import { generateCacheKey, getFromCache, setInCache } from '../utils/cache.js';
 
 // Re-export schemas for backward compatibility if needed,
 // though they should be imported from @postcommander/shared now.
@@ -22,7 +23,15 @@ export { hooksSchema, carouselSchema, repurposeSchema, hashtagsSchema };
  */
 export const handleGenerateHooks = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
-  const result = await generateHooks(req.body, requestUser.id);
+  
+  const cacheKey = generateCacheKey('hooks', req.body);
+  let result = await getFromCache<any>(cacheKey);
+
+  if (!result) {
+    result = await generateHooks(req.body, requestUser.id);
+    await setInCache(cacheKey, result, 86400 * 7); // Cache for 7 days
+  }
+
   const response: ApiResponse<typeof result> = {
     success: true,
     data: result,
@@ -35,7 +44,15 @@ export const handleGenerateHooks = catchAsync(async (req: Request, res: Response
  */
 export const handleGenerateCarousel = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
-  const result = await generateCarousel(req.body, requestUser.id);
+
+  const cacheKey = generateCacheKey('carousel', req.body);
+  let result = await getFromCache<any>(cacheKey);
+
+  if (!result) {
+    result = await generateCarousel(req.body, requestUser.id);
+    await setInCache(cacheKey, result, 86400 * 7); // Cache for 7 days
+  }
+
   const response: ApiResponse<typeof result> = {
     success: true,
     data: result,
@@ -48,7 +65,15 @@ export const handleGenerateCarousel = catchAsync(async (req: Request, res: Respo
  */
 export const handleRepurpose = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
-  const result = await repurposePost(req.body, requestUser.id);
+
+  const cacheKey = generateCacheKey('repurpose', req.body);
+  let result = await getFromCache<any>(cacheKey);
+
+  if (!result) {
+    result = await repurposePost(req.body, requestUser.id);
+    await setInCache(cacheKey, result, 86400 * 7);
+  }
+
   const response: ApiResponse<typeof result> = {
     success: true,
     data: result,
@@ -61,7 +86,15 @@ export const handleRepurpose = catchAsync(async (req: Request, res: Response) =>
  */
 export const handleResearchHashtags = catchAsync(async (req: Request, res: Response) => {
   const requestUser = requireRequestUser(req);
-  const result = await researchHashtags(req.body, requestUser.id);
+
+  const cacheKey = generateCacheKey('hashtags', req.body);
+  let result = await getFromCache<any>(cacheKey);
+
+  if (!result) {
+    result = await researchHashtags(req.body, requestUser.id);
+    await setInCache(cacheKey, result, 86400 * 7);
+  }
+
   const response: ApiResponse<typeof result> = {
     success: true,
     data: result,

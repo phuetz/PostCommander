@@ -13,6 +13,7 @@ import {
   posts as postsTable,
   postComments as postCommentsTable,
   users as usersTable,
+  postApprovals as postApprovalsTable,
 } from '../db/schema.js';
 import { AppError } from '../middleware/error-handler.js';
 import { postQueue } from '../services/jobs/queue.js';
@@ -511,7 +512,7 @@ export const updatePostStatus = catchAsync(async (req: Request, res: Response) =
   const id = req.params.id as string;
   const { status } = req.body;
 
-  if (!['draft', 'pending_approval', 'approved'].includes(status)) {
+  if (!['draft', 'needs_approval', 'scheduled'].includes(status)) {
     throw new AppError(400, 'Invalid status update via this endpoint');
   }
 
@@ -537,6 +538,84 @@ export const updatePostStatus = catchAsync(async (req: Request, res: Response) =
     .where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)))
     .limit(1);
 
+  res.json({ success: true, data: mapRowToPost(row as any) });
+});
+
+/**
+ * POST /api/posts/:id/approve
+ */
+export const approvePost = catchAsync(async (req: Request, res: Response) => {
+  const requestUser = requireRequestUser(req);
+  const db = getDrizzle();
+  const id = req.params.id as string;
+
+  const [existing] = await db
+    .select({ id: postsTable.id, status: postsTable.status })
+    .from(postsTable)
+    .where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)))
+    .limit(1);
+
+  if (!existing) throw new AppError(404, 'Post not found');
+  if (existing.status !== 'needs_approval') throw new AppError(400, 'Post is not awaiting approval');
+
+  const now = new Date().toISOString();
+  
+  await db.transaction(async (tx) => {
+    await tx
+      .update(postsTable)
+      .set({ status: 'approved', updatedAt: now })
+      .where(eq(postsTable.id, id));
+      
+    await tx.insert(postApprovalsTable).values({
+      id: uuidv4(),
+      postId: id,
+      userId: requestUser.id,
+      status: 'approved',
+      createdAt: now,
+    });
+  });
+
+  const [row] = await db.select().from(postsTable).where(eq(postsTable.id, id)).limit(1);
+  res.json({ success: true, data: mapRowToPost(row as any) });
+});
+
+/**
+ * POST /api/posts/:id/reject
+ */
+export const rejectPost = catchAsync(async (req: Request, res: Response) => {
+  const requestUser = requireRequestUser(req);
+  const db = getDrizzle();
+  const id = req.params.id as string;
+  const { feedback } = req.body;
+
+  const [existing] = await db
+    .select({ id: postsTable.id, status: postsTable.status })
+    .from(postsTable)
+    .where(and(eq(postsTable.userId, requestUser.id), eq(postsTable.id, id)))
+    .limit(1);
+
+  if (!existing) throw new AppError(404, 'Post not found');
+  if (existing.status !== 'needs_approval') throw new AppError(400, 'Post is not awaiting approval');
+
+  const now = new Date().toISOString();
+  
+  await db.transaction(async (tx) => {
+    await tx
+      .update(postsTable)
+      .set({ status: 'rejected', updatedAt: now })
+      .where(eq(postsTable.id, id));
+      
+    await tx.insert(postApprovalsTable).values({
+      id: uuidv4(),
+      postId: id,
+      userId: requestUser.id,
+      status: 'rejected',
+      feedback,
+      createdAt: now,
+    });
+  });
+
+  const [row] = await db.select().from(postsTable).where(eq(postsTable.id, id)).limit(1);
   res.json({ success: true, data: mapRowToPost(row as any) });
 });
 

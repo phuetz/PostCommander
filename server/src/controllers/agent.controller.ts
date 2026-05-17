@@ -196,3 +196,33 @@ export async function shadowProfileHandler(req: Request, res: Response) {
     });
   }
 }
+
+export async function emergencyStopHandler(req: Request, res: Response) {
+  try {
+    const { reason, sourceUrl } = req.body;
+    logger.warn(`[EMERGENCY STOP] Triggered by extension. Reason: ${reason}, URL: ${sourceUrl}`);
+
+    const db = getDrizzle();
+
+    // Pause all active outreach campaigns to protect the account
+    const { eq } = await import('drizzle-orm');
+    await db
+      .update(schema.outreachCampaigns)
+      .set({ status: 'paused', updatedAt: new Date().toISOString() })
+      .where(eq(schema.outreachCampaigns.status, 'active'));
+
+    // In a real app, we would also emit a WebSocket event to the frontend here 
+    // to show an emergency banner.
+
+    res.status(200).json({
+      success: true,
+      message: 'Emergency stop executed. All active campaigns paused.',
+    });
+  } catch (error: unknown) {
+    logger.error({ error }, 'Failed to execute emergency stop.');
+    res.status(500).json({
+      success: false,
+      error: 'Failed to execute emergency stop.',
+    });
+  }
+}

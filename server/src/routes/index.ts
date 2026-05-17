@@ -51,17 +51,12 @@ router.use('/inbox', inboxRoutes);
 router.use('/assist', assistRoutes);
 router.use('/auth/chatgpt-pro', codexAuthRoutes);
 import { outreachRoutes } from './outreach.routes.js';
+import { liveRoutes } from './live.routes.js';
+import { audioRoutes } from './audio.routes.js';
 
 router.use('/outreach', outreachRoutes);
-
-router.get('/live', (_req, res) => {
-  res.json({
-    status: 'ok',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || '1.0.0',
-  });
-});
+router.use('/live', liveRoutes);
+router.use('/audio', audioRoutes);
 
 // Health check
 router.get('/health', async (_req, res) => {

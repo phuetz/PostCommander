@@ -46,6 +46,9 @@ const AutoBlogPage = lazy(() =>
 const OutreachPage = lazy(() =>
   import('@/pages/OutreachPage').then((m) => ({ default: m.default })),
 );
+const VoiceStudioPage = lazy(() =>
+  import('@/pages/VoiceStudioPage').then((m) => ({ default: m.default })),
+);
 const TemplatesPage = lazy(() =>
   import('@/pages/TemplatesPage').then((m) => ({ default: m.TemplatesPage })),
 );
@@ -67,6 +70,9 @@ const ABTestPage = lazy(() =>
 const EngagementPage = lazy(() =>
   import('@/pages/EngagementPage').then((m) => ({ default: m.EngagementPage })),
 );
+const AnalyticsPage = lazy(() =>
+  import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })),
+);
 const TrendingPage = lazy(() =>
   import('@/pages/TrendingPage').then((m) => ({ default: m.TrendingPage })),
 );
@@ -87,6 +93,9 @@ const ApprovalsPage = lazy(() =>
 );
 const InboxPage = lazy(() =>
   import('@/pages/InboxPage').then((m) => ({ default: m.InboxPage })),
+);
+const AutomationsPage = lazy(() =>
+  import('@/pages/AutomationsPage').then((m) => ({ default: m.AutomationsPage })),
 );
 
 // Hub + Wizards
@@ -260,6 +269,7 @@ export default function App() {
               <Route path="hooks" element={<HookGeneratorPage />} />
               <Route path="carousel" element={<CarouselPage />} />
               <Route path="video-script" element={<VideoScriptPage />} />
+              <Route path="voice-studio" element={<VoiceStudioPage />} />
               <Route path="autoblog" element={<AutoBlogPage />} />
               <Route path="outreach" element={<OutreachPage />} />
               <Route path="templates" element={<TemplatesPage />} />
@@ -269,6 +279,7 @@ export default function App() {
               <Route path="images" element={<ImagesPage />} />
               <Route path="ab-test" element={<ABTestPage />} />
               <Route path="engagement" element={<EngagementPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="trending" element={<TrendingPage />} />
               <Route path="pillars" element={<PillarsPage />} />
               <Route path="simulator" element={<SimulatorPage />} />
@@ -276,6 +287,7 @@ export default function App() {
               <Route path="settings" element={<SettingsPage />} />
               <Route path="approvals" element={<ApprovalsPage />} />
               <Route path="inbox" element={<InboxPage />} />
+              <Route path="automations" element={<AutomationsPage />} />
               <Route
                 path="admin/deleted-accounts"
                 element={

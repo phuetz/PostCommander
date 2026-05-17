@@ -17,6 +17,7 @@ export interface Template {
   exampleOutput: string | null;
   usesCount: number;
   language: string;
+  variables: string[];
   createdAt: string;
 }
 
@@ -28,6 +29,9 @@ export interface TemplateFilters {
 }
 
 function rowToTemplate(row: any): Template {
+  const matches = row.promptTemplate?.match(/\{\{(\w+)\}\}/g);
+  const variables = matches ? [...new Set<string>(matches.map((m: string) => m.slice(2, -2)))] : [];
+
   return {
     id: row.id,
     name: row.name,
@@ -39,6 +43,7 @@ function rowToTemplate(row: any): Template {
     exampleOutput: row.exampleOutput,
     usesCount: row.usesCount ?? 0,
     language: row.language,
+    variables,
     createdAt: row.createdAt,
   };
 }

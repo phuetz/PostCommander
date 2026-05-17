@@ -13,6 +13,8 @@ import {
   addPostComment,
   updatePostStatus,
   repurposeUrl,
+  approvePost,
+  rejectPost,
 } from '../controllers/posts.controller.js';
 import {
   createPostSchema,
@@ -20,6 +22,7 @@ import {
   listPostsQuerySchema,
   publishPostSchema,
   schedulePostSchema,
+  repurposeUrlSchema,
 } from '@postcommander/shared';
 
 const router = Router();
@@ -37,6 +40,8 @@ router.post('/:id/schedule', validate(schedulePostSchema), schedulePost);
 router.get('/:id/comments', getPostComments);
 router.post('/:id/comments', addPostComment);
 router.patch('/:id/status', updatePostStatus);
-router.post('/repurpose-url', repurposeUrl);
+router.post('/:id/approve', approvePost);
+router.post('/:id/reject', rejectPost);
+router.post('/repurpose-url', validate(repurposeUrlSchema), repurposeUrl);
 
 export default router;

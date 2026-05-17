@@ -4,14 +4,67 @@ import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 
 console.log('PostCommander: LinkedIn Content Script Injected.');
 
+// ── Evasion Utilities ──
+const randomSleep = (min: number, max: number) => new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
+
+// ── Anti-Bot Watchdog ──
+let emergencyMode = false;
+
+function checkSecurityBlocks() {
+  if (emergencyMode) return; // Already in emergency
+
+  const hasCaptcha = document.querySelector('#captcha-internal, iframe[src*="arkoselabs"]');
+  const hasSecurityCheck = document.querySelector('.checkpoint-container, h1[data-test-id="security-check-title"]');
+  const hasTooManyRequests = document.body.innerText.includes('Too Many Requests') && document.title.includes('429');
+
+  if (hasCaptcha || hasSecurityCheck || hasTooManyRequests) {
+    console.warn('🚨 PostCommander: ANTI-BOT SECURITY DETECTED! Triggering Emergency Stop.');
+    emergencyMode = true;
+
+    // Show visual alert to user
+    const alertDiv = document.createElement('div');
+    alertDiv.style.cssText = `
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999999;
+      background: #ef4444; color: white; padding: 16px; text-align: center;
+      font-family: system-ui; font-weight: bold; font-size: 16px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    `;
+    alertDiv.innerHTML = '🚨 PostCommander: LinkedIn Security Check detected. Automated actions paused. Please resolve manually.';
+    document.body.prepend(alertDiv);
+
+    // Send kill signal to backend
+    fetch('http://localhost:3001/api/agent/emergency-stop', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer mvp_extension_token_123',
+      },
+      body: JSON.stringify({
+        reason: hasCaptcha ? 'Captcha' : hasTooManyRequests ? 'Rate Limit (429)' : 'Security Checkpoint',
+        sourceUrl: window.location.href,
+      }),
+    }).catch(console.error);
+  }
+}
+
+// Run watchdog every 3 seconds
+setInterval(checkSecurityBlocks, 3000);
+
 // Define a simple floating action button component
 function FloatingActionButton() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
   const handleScrape = async () => {
+    if (emergencyMode) {
+      alert('PostCommander is in emergency mode due to security blocks. Cannot scrape.');
+      return;
+    }
+
     setStatus('loading');
 
     try {
+      // Evasion: Wait organically before action
+      await randomSleep(800, 2500);
       // Best-effort generic scraping for LinkedIn comments
       // LinkedIn frequently changes classes, so this tries a few common patterns
       const commentElements = document.querySelectorAll(
@@ -228,8 +281,10 @@ root.render(<FloatingActionButton />);
 // ── Shadow Profiling CRM ──
 // If the user navigates to a LinkedIn profile, quietly capture their info.
 if (window.location.href.includes('linkedin.com/in/')) {
-  // LinkedIn is a SPA, so we wait a bit for the profile to render.
+  // Evasion: Wait a random amount of time (3-6s) to act like a human reading
   setTimeout(async () => {
+    if (emergencyMode) return;
+
     try {
       const nameEl = document.querySelector('h1.text-heading-xlarge');
       const headlineEl = document.querySelector('.text-body-medium.break-words');
@@ -256,5 +311,5 @@ if (window.location.href.includes('linkedin.com/in/')) {
     } catch (e) {
       console.error('PostCommander Shadow Profile Error:', e);
     }
-  }, 3000); // Wait 3s after navigating to the profile
+  }, Math.random() * 3000 + 3000); // Wait 3-6s
 }

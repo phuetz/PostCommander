@@ -5,6 +5,7 @@ import {
   scrapeLeadHandler,
   ghostwriteCommentHandler,
   shadowProfileHandler,
+  emergencyStopHandler,
 } from '../controllers/agent.controller.js';
 
 const router = Router();
@@ -21,5 +22,8 @@ router.post('/ghostwrite-comment', authMiddleware, ghostwriteCommentHandler);
 
 // Endpoint for Chrome Extension shadow profiling
 router.post('/shadow-profile', authMiddleware, shadowProfileHandler);
+
+// Endpoint for Chrome Extension to trigger an emergency stop (Anti-Bot detection)
+router.post('/emergency-stop', authMiddleware, emergencyStopHandler);
 
 export default router;

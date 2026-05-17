@@ -65,5 +65,11 @@ export const prefetchRoute = (path: string) => {
     case '/admin/deleted-accounts':
       import('@/pages/DeletedAccountsPage');
       break;
+    case '/autoblog':
+      import('@/pages/AutoBlogPage');
+      break;
+    case '/outreach':
+      import('@/pages/OutreachPage');
+      break;
   }
 };

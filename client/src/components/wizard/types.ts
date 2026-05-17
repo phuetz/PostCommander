@@ -11,6 +11,8 @@ export interface WizardStepContext<TData> {
 export interface WizardStep<TData = Record<string, any>> {
   key: string;
   title: string;
+  description?: string;
+  icon: any; // Using any or React.ElementType since lucide-react icons are passed
   subtitle?: string;
   helpTitle?: string;
   helpContent?: ReactNode;

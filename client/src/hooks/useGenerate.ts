@@ -5,6 +5,7 @@ import type { GenerateRequest, GenerateResponse } from '@postcommander/shared';
 interface GenerateState {
   isGenerating: boolean;
   streamedContent: string;
+  agentStatus: string | null;
   result: GenerateResponse | null;
   error: string | null;
 }
@@ -13,6 +14,7 @@ export function useGenerate() {
   const [state, setState] = useState<GenerateState>({
     isGenerating: false,
     streamedContent: '',
+    agentStatus: null,
     result: null,
     error: null,
   });
@@ -29,6 +31,7 @@ export function useGenerate() {
     setState({
       isGenerating: true,
       streamedContent: '',
+      agentStatus: null,
       result: null,
       error: null,
     });
@@ -46,6 +49,7 @@ export function useGenerate() {
           setState({
             isGenerating: false,
             streamedContent: result.content,
+            agentStatus: null,
             result,
             error: null,
           });
@@ -55,10 +59,17 @@ export function useGenerate() {
           setState((prev) => ({
             ...prev,
             isGenerating: false,
+            agentStatus: null,
             error,
           }));
           abortRef.current = null;
         },
+        (status) => {
+          setState((prev) => ({
+            ...prev,
+            agentStatus: status,
+          }));
+        }
       );
       abortRef.current = cancel;
     } else {
@@ -67,6 +78,7 @@ export function useGenerate() {
         setState({
           isGenerating: false,
           streamedContent: result.content,
+          agentStatus: null,
           result,
           error: null,
         });
@@ -97,6 +109,7 @@ export function useGenerate() {
     setState({
       isGenerating: false,
       streamedContent: '',
+      agentStatus: null,
       result: null,
       error: null,
     });

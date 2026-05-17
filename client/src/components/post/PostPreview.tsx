@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linkedin, Twitter, Facebook, Instagram, Music, Pin, Pencil, Sparkles } from 'lucide-react';
+import { Linkedin, Twitter, Facebook, Instagram, Music, Pin, Pencil, Sparkles, Mic, Loader2 } from 'lucide-react';
 import clsx from 'clsx';
 import { PLATFORMS, type PlatformId } from '@postcommander/shared';
 import { CopyButton } from './CopyButton';
@@ -8,6 +8,8 @@ import { PostEditor } from './PostEditor';
 
 import { useAuth } from '@/hooks/useAuth';
 import { SocialMockup } from './SocialMockup';
+import { useAudioGenerator } from '@/hooks/useAudioGenerator';
+import { AudioPlayer } from '@/components/ui/AudioPlayer';
 
 interface PostPreviewProps {
   platforms: PlatformId[];
@@ -37,6 +39,7 @@ export function PostPreview({
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<PlatformId>(platforms[0] || 'linkedin');
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
+  const { generateAudio, isGenerating, audioUrl } = useAudioGenerator();
 
   if (platforms.length === 0) return null;
 
@@ -143,6 +146,14 @@ export function PostPreview({
               </div>
 
               <div className="flex items-center gap-1">
+                <button
+                  onClick={() => generateAudio(content, 'af_bella')}
+                  disabled={isGenerating || !content}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 dark:hover:bg-brand-900/50 transition-colors disabled:opacity-50"
+                >
+                  {isGenerating ? <Loader2 size={14} className="animate-spin" /> : <Mic size={14} />}
+                  {isGenerating ? 'Génération...' : t('common.listen', 'Écouter')}
+                </button>
                 {onVariantChange && (
                   <button
                     onClick={() => setEditingPlatform(activeTab)}
@@ -155,6 +166,13 @@ export function PostPreview({
                 <CopyButton text={content} />
               </div>
             </div>
+
+            {/* Audio Player (Conditional) */}
+            {audioUrl && (
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                <AudioPlayer audioUrl={audioUrl} title="Voix-off du post" />
+              </div>
+            )}
           </>
         )}
       </div>

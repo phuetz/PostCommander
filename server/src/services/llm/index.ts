@@ -2,24 +2,9 @@ import { generateText, streamText } from 'ai';
 import { createModel } from './provider-factory.js';
 import { buildPrompts, buildStreamingPrompts, buildVariantsPrompt } from './prompts.js';
 import type { LLMGenerateRequest, LLMGenerateResult, LLMStreamChunk, LLMBlogGenerateRequest } from './types.js';
+import { enrichPromptWithUrls } from '../../utils/scraper.js';
+import { generateJsonWithRetry } from '../../utils/llm-retry.js';
 import { chatgptProGenerate } from './chatgpt-pro/sdk-wrapper.js';
-
-/**
- * Parse a JSON string that may contain markdown code fences.
- */
-function parseJsonResponse(text: string): any {
-  // Strip potential markdown code fences
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
 
 /**
  * Generate a complete social media post with platform variants (non-streaming).
@@ -28,30 +13,69 @@ export async function generatePost(
   request: LLMGenerateRequest,
   userId?: string,
 ): Promise<LLMGenerateResult> {
+  // --- Multi-Agent Pipeline (Non-streaming) ---
+  const enrichedPrompt = await enrichPromptWithUrls(request.prompt);
+  const model = createModel(request.provider, request.model, userId);
+
+  // Agent 1: Researcher
+  const researcherSystem = `You are an expert social media researcher and strategist.
+Your job is to analyze the user's prompt and extract key arguments, a structural outline, and 3 viral hook ideas.
+Write in: ${request.language || 'English'}
+Keep it concise and factual.`;
+  const researcherResult = await generateText({
+    model,
+    system: researcherSystem,
+    messages: [{ role: 'user', content: enrichedPrompt }],
+    temperature: 0.7,
+    maxTokens: 500,
+  });
+  const research = researcherResult.text;
+
+  // Agent 2: Writer
+  const writerSystem = `You are a talented social media copywriter.
+Use the following research to write a highly engaging initial draft for ${request.platforms.join(', ')}.
+Tone: ${request.tone}
+Language: ${request.language || 'English'}
+Do NOT use hashtags. Focus purely on writing an amazing draft.`;
+  const writerResult = await generateText({
+    model,
+    system: writerSystem,
+    messages: [
+      { role: 'user', content: `Topic: ${enrichedPrompt}\n\nResearch:\n${research}` }
+    ],
+    temperature: 0.7,
+    maxTokens: 800,
+  });
+  const draft = writerResult.text;
+
+  // Agent 3: Editor
   const { system, user } = buildPrompts({
-    prompt: request.prompt,
+    prompt: enrichedPrompt,
     platforms: request.platforms,
     tone: request.tone,
     language: request.language,
   });
 
-  let rawText: string;
-  if (request.provider === 'chatgpt-pro') {
-    if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
-    rawText = await chatgptProGenerate({ userId, model: request.model, system, prompt: user });
-  } else {
-    const model = createModel(request.provider, request.model, userId);
-    const result = await generateText({
-      model,
-      system,
-      messages: [{ role: 'user', content: user }],
-      temperature: 0.7,
-      maxTokens: 2048,
-    });
-    rawText = result.text;
-  }
+  const editorUser = `${user}\n\nHere is the initial draft to improve and polish. Output the final JSON format based on this draft:\n${draft}`;
 
-  const parsed = parseJsonResponse(rawText);
+  const parsed = await generateJsonWithRetry<any>(
+    async (currentPrompt) => {
+      if (request.provider === 'chatgpt-pro') {
+        if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
+        return chatgptProGenerate({ userId, model: request.model, system, prompt: currentPrompt });
+      } else {
+        const result = await generateText({
+          model,
+          system,
+          messages: [{ role: 'user', content: currentPrompt }],
+          temperature: 0.7,
+          maxTokens: 2048,
+        });
+        return result.text;
+      }
+    },
+    editorUser
+  );
 
   return {
     content: parsed.content ?? '',
@@ -69,13 +93,53 @@ export async function streamPost(
   userId: string | undefined,
   onChunk: (chunk: LLMStreamChunk) => void,
 ): Promise<LLMGenerateResult> {
-  // Phase 1: Stream the main content
+  // --- Multi-Agent Pipeline ---
+  const enrichedPrompt = await enrichPromptWithUrls(request.prompt);
+  const model = createModel(request.provider, request.model, userId);
+
+  // Agent 1: Researcher
+  onChunk({ type: 'agent-status', content: '🕵️ L\'Agent Chercheur rassemble des informations et idées...' });
+  const researcherSystem = `You are an expert social media researcher and strategist.
+Your job is to analyze the user's prompt and extract key arguments, a structural outline, and 3 viral hook ideas.
+Write in: ${request.language || 'English'}
+Keep it concise and factual.`;
+  const researcherResult = await generateText({
+    model,
+    system: researcherSystem,
+    messages: [{ role: 'user', content: enrichedPrompt }],
+    temperature: 0.7,
+    maxTokens: 500,
+  });
+  const research = researcherResult.text;
+
+  // Agent 2: Writer
+  onChunk({ type: 'agent-status', content: '✍️ L\'Agent Rédacteur écrit le brouillon initial...' });
+  const writerSystem = `You are a talented social media copywriter.
+Use the following research to write a highly engaging initial draft for ${request.platforms.join(', ')}.
+Tone: ${request.tone}
+Language: ${request.language || 'English'}
+Do NOT use hashtags. Focus purely on writing an amazing draft.`;
+  const writerResult = await generateText({
+    model,
+    system: writerSystem,
+    messages: [
+      { role: 'user', content: `Topic: ${enrichedPrompt}\n\nResearch:\n${research}` }
+    ],
+    temperature: 0.7,
+    maxTokens: 800,
+  });
+  const draft = writerResult.text;
+
+  // Agent 3: Editor (Streaming)
+  onChunk({ type: 'agent-status', content: '🧐 L\'Agent Éditeur polit la version finale...' });
   const { system, user } = buildStreamingPrompts({
-    prompt: request.prompt,
+    prompt: enrichedPrompt,
     platforms: request.platforms,
     tone: request.tone,
     language: request.language,
   });
+
+  const editorUser = `${user}\n\nHere is the initial draft to improve and polish:\n${draft}`;
 
   let mainContent = '';
 
@@ -85,17 +149,16 @@ export async function streamPost(
       userId,
       model: request.model,
       system,
-      prompt: user,
+      prompt: editorUser,
       onTextDelta: (delta) => {
         onChunk({ type: 'text-delta', content: delta });
       },
     });
   } else {
-    const model = createModel(request.provider, request.model, userId);
     const streamResult = streamText({
       model,
       system,
-      messages: [{ role: 'user', content: user }],
+      messages: [{ role: 'user', content: editorUser }],
       temperature: 0.7,
       maxTokens: 1024,
     });
@@ -105,6 +168,8 @@ export async function streamPost(
     }
   }
 
+  onChunk({ type: 'agent-status', content: '✨ Génération des déclinaisons par plateforme...' });
+
   // Phase 2: Generate platform variants (non-streaming)
   const variantsPrompts = buildVariantsPrompt({
     mainContent,
@@ -112,38 +177,39 @@ export async function streamPost(
     tone: request.tone,
   });
 
-  let variantsText: string;
-  if (request.provider === 'chatgpt-pro') {
-    if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
-    variantsText = await chatgptProGenerate({
-      userId,
-      model: request.model,
-      system: variantsPrompts.system,
-      prompt: variantsPrompts.user,
-    });
-  } else {
-    const model = createModel(request.provider, request.model, userId);
-    const variantsResult = await generateText({
-      model,
-      system: variantsPrompts.system,
-      messages: [{ role: 'user', content: variantsPrompts.user }],
-      temperature: 0.5,
-      maxTokens: 2048,
-    });
-    variantsText = variantsResult.text;
-  }
-  // Synthesize a result object compatible with the existing variants parser below.
-  const variantsResult = { text: variantsText };
-
   let platformVariants: Record<string, string> = {};
   let hashtags: string[] = [];
 
   try {
-    const parsed = parseJsonResponse(variantsResult.text);
+    const parsed = await generateJsonWithRetry<any>(
+      async (currentPrompt) => {
+        if (request.provider === 'chatgpt-pro') {
+          if (!userId) throw new Error('ChatGPT Pro requires a logged-in user');
+          return chatgptProGenerate({
+            userId,
+            model: request.model,
+            system: variantsPrompts.system,
+            prompt: currentPrompt,
+          });
+        } else {
+          const variantsModel = createModel(request.provider, request.model, userId);
+          const variantsResult = await generateText({
+            model: variantsModel,
+            system: variantsPrompts.system,
+            messages: [{ role: 'user', content: currentPrompt }],
+            temperature: 0.5,
+            maxTokens: 2048,
+          });
+          return variantsResult.text;
+        }
+      },
+      variantsPrompts.user
+    );
+
     platformVariants = parsed.platformVariants ?? {};
     hashtags = Array.isArray(parsed.hashtags) ? parsed.hashtags : [];
-  } catch {
-    // If parsing fails, use the main content for all platforms
+  } catch (error) {
+    // If self-healing fails completely, use the main content for all platforms
     for (const pid of request.platforms) {
       platformVariants[pid] = mainContent;
     }

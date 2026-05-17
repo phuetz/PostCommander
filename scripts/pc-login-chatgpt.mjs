@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global Buffer, URLSearchParams, fetch, setTimeout, clearTimeout */
 /**
  * Standalone CLI fallback for ChatGPT Pro login.
  *

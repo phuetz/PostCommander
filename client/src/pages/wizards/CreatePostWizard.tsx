@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import toast from 'react-hot-toast';
+import { FileText, MessageSquare, Share2, Sparkles, PenTool } from 'lucide-react';
 import type { PlatformId, ToneId, LLMProviderId } from '@postcommander/shared';
 import { Wizard, AIFillButton, type WizardStep } from '@/components/wizard';
 import { Input } from '@/components/ui/Input';
@@ -48,6 +49,8 @@ export function CreatePostWizard() {
     {
       key: 'brief',
       title: 'Brief',
+      description: 'Définir le sujet et l\'audience',
+      icon: FileText,
       subtitle: 'De quoi parle ton post ?',
       helpTitle: 'Aide : le brief',
       helpContent: (
@@ -139,6 +142,8 @@ export function CreatePostWizard() {
     {
       key: 'style',
       title: 'Style',
+      description: 'Choisir le ton de communication',
+      icon: MessageSquare,
       subtitle: 'Quel ton donner ?',
       helpTitle: 'Aide : le ton',
       helpContent: (
@@ -200,6 +205,8 @@ export function CreatePostWizard() {
     {
       key: 'platforms',
       title: 'Plateformes',
+      description: 'Sélectionner les réseaux',
+      icon: Share2,
       subtitle: 'Où publier ?',
       helpTitle: 'Aide : les plateformes',
       helpContent: (
@@ -244,6 +251,8 @@ export function CreatePostWizard() {
     {
       key: 'generate',
       title: 'Génération',
+      description: 'Créer et réviser',
+      icon: Sparkles,
       subtitle: 'Lance et révise',
       helpTitle: 'Aide : la génération',
       helpContent: (
@@ -373,6 +382,7 @@ export function CreatePostWizard() {
     <Wizard
       title="Créer un post"
       subtitle="Assistant guidé en 4 étapes"
+      icon={PenTool}
       steps={steps}
       initialData={INITIAL}
       onComplete={handleComplete}

@@ -26,6 +26,8 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
   MISTRAL_API_KEY: z.string().optional(),
+  TAVILY_API_KEY: z.string().optional(),
+  MEM0_API_KEY: z.string().optional(),
   OLLAMA_BASE_URL: z.string().default('http://localhost:11434'),
 
   // OAuth credentials — optional until platform connections are configured
@@ -63,6 +65,12 @@ const envSchema = z.object({
   PASSWORD_RESET_WEBHOOK_URL: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   RESEND_FROM: z.string().default('PostCommander <noreply@postcommander.app>'),
+
+  // Stagehand Outreach
+  LINKEDIN_SESSION_COOKIE: z.string().optional(),
+  OUTREACH_DRY_RUN: z.enum(['true', 'false']).default('true').transform((v) => v === 'true'),
+  BROWSERBASE_API_KEY: z.string().optional(),
+  BROWSERBASE_PROJECT_ID: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

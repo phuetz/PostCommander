@@ -1,14 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { Moon, Sun, Menu, User } from 'lucide-react';
+import { Moon, Sun, Menu, User, Sparkles } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface HeaderProps {
   title: string;
   onMenuToggle: () => void;
+  onCopilotToggle?: () => void;
 }
 
-export function Header({ title, onMenuToggle }: HeaderProps) {
+export function Header({ title, onMenuToggle, onCopilotToggle }: HeaderProps) {
   const { t } = useTranslation();
   const { isDark, toggleTheme } = useTheme();
 
@@ -35,6 +36,17 @@ export function Header({ title, onMenuToggle }: HeaderProps) {
         >
           {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
+
+        {onCopilotToggle && (
+          <button
+            onClick={onCopilotToggle}
+            className="p-2 rounded-lg text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-900/30 transition-colors relative"
+            title="Ouvrir Copilot"
+          >
+            <Sparkles size={18} />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 border border-white dark:border-gray-900 rounded-full"></span>
+          </button>
+        )}
 
         <div className="ml-2 pl-2 border-l border-gray-200 dark:border-gray-700">
           <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">

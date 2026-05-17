@@ -45,8 +45,10 @@ The script writes the encrypted tokens to `~/.postcommander/auth/openai.json`. T
 - **Rich Media Generation** — Generate and attach AI images directly within the post composer.
 - **A/B Testing Simulator** — Test different hooks and post variations to predict and optimize engagement.
 - **Hooks, Carousels & Templates** — Access pre-built generators for high-converting formats.
+- **AI Copilot (Global)** — A persistent sidebar assistant accessible from anywhere in the app to brainstorm, generate, and orchestrate actions.
 
 **⚙️ Autopilot & Advanced Automation**
+- **Visual Workflow Builder** — A drag-and-drop canvas (powered by React Flow) to build complex lead nurturing and automation sequences.
 - **Autoblog Engine** — Configure recurring background jobs that autonomously research and draft expert-level blog articles based on your chosen frequency and topic.
 - **Automated Outreach Campaigns** — Discover prospects via targeted keywords, score profiles, and automatically dispatch personalized DM campaigns.
 - **Autonomous SDR Agent** — Automatically scrape, qualify, and converse with leads in the comments section using stateful, multi-turn ReAct dialogue.
@@ -58,6 +60,15 @@ The script writes the encrypted tokens to `~/.postcommander/auth/openai.json`. T
 - **Web Clipper (Repurposing)** — Draft social posts instantly from any active article or YouTube video tab.
 - **Shadow Profiling** — Silently extract CRM data and lead insights from visited LinkedIn profiles.
 - **Virality Checker** — Real-time post quality scoring overlay displayed directly on LinkedIn and Twitter.
+
+**🤖 Agentic First (Headless AI)**
+- **Model Context Protocol (MCP)** — Native SSE server allowing Claude Desktop or Cursor to directly connect and query your metrics or draft posts.
+- **OpenAPI Swagger** — Auto-generated OpenAPI JSON spec enabling ChatGPT Custom Actions to interact with your PostCommander instance seamlessly.
+
+**🎨 Premium "Nexus" UX**
+- **Command Palette (⌘K)** — Lightning-fast global navigation and action execution.
+- **Dynamic Message Templates** — Regex-powered snippets with auto-fill variables for ultra-fast Inbox responses.
+- **Glassmorphism & Micro-animations** — A premium, stunning interface powered by Framer Motion and Tailwind.
 
 ## Tech Stack
 

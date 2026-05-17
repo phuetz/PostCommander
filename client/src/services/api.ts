@@ -34,6 +34,7 @@ export function streamPost(
   onToken: (token: string) => void,
   onDone: (result: GenerateResponse) => void,
   onError: (error: string) => void,
+  onStatus?: (status: string) => void,
 ): () => void {
   const baseURL = import.meta.env.VITE_API_URL || '/api';
   const url = `${baseURL}/generate/stream`;
@@ -95,6 +96,8 @@ export function streamPost(
 
             if (eventType === 'text-delta') {
               onToken(parsed.content);
+            } else if (eventType === 'agent-status') {
+              onStatus?.(parsed.content);
             } else if (eventType === 'done') {
               onDone(parsed.result);
             } else if (eventType === 'error') {
@@ -198,6 +201,18 @@ export async function addPostComment(id: string, content: string): Promise<PostC
 export async function updatePostStatus(id: string, status: string): Promise<Post> {
   const { data } = await api.patch<ApiResponse<Post>>(`/posts/${id}/status`, { status });
   if (!data.success || !data.data) throw new Error(data.error || 'Failed to update status');
+  return data.data;
+}
+
+export async function approvePost(id: string): Promise<Post> {
+  const { data } = await api.post<ApiResponse<Post>>(`/posts/${id}/approve`);
+  if (!data.success || !data.data) throw new Error(data.error || 'Failed to approve post');
+  return data.data;
+}
+
+export async function rejectPost(id: string, feedback: string): Promise<Post> {
+  const { data } = await api.post<ApiResponse<Post>>(`/posts/${id}/reject`, { feedback });
+  if (!data.success || !data.data) throw new Error(data.error || 'Failed to reject post');
   return data.data;
 }
 
@@ -796,6 +811,44 @@ export interface TrendingTopic {
 
 export interface TrendingResult {
   topics: TrendingTopic[];
+}
+
+// --- Inbox ---
+
+export interface InboxComment {
+  id: string;
+  platformCommentId: string;
+  authorName: string;
+  authorHandle: string | null;
+  authorAvatarUrl: string | null;
+  content: string;
+  isReplied: number;
+  replyContent: string | null;
+  leadScore: number;
+  leadStatus: string | null;
+  leadReason: string | null;
+  requiresHuman: number;
+  isResolved: number;
+  agentState: string | null;
+  createdAt: string;
+  platform: string;
+  postContent: string | null;
+}
+
+export async function getInbox(): Promise<InboxComment[]> {
+  const { data } = await api.get<ApiResponse<InboxComment[]>>('/inbox');
+  if (!data.success || !data.data) throw new Error(data.error || 'Failed to fetch inbox');
+  return data.data;
+}
+
+export async function resolveConversation(id: string): Promise<void> {
+  const { data } = await api.patch<ApiResponse>(`/inbox/${id}/resolve`);
+  if (!data.success) throw new Error(data.error || 'Failed to resolve conversation');
+}
+
+export async function replyToComment(id: string, content: string): Promise<void> {
+  const { data } = await api.post<ApiResponse>(`/inbox/${id}/reply`, { content });
+  if (!data.success) throw new Error(data.error || 'Failed to reply');
 }
 
 export interface TrendingParams {

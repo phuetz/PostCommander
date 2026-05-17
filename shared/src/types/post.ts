@@ -4,8 +4,9 @@ import type { LLMProviderId } from '../constants/llm-providers.js';
 
 export type PostStatus =
   | 'draft'
-  | 'pending_approval'
+  | 'needs_approval'
   | 'approved'
+  | 'rejected'
   | 'scheduled'
   | 'published'
   | 'failed';

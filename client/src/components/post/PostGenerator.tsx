@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, X, Save } from 'lucide-react';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import type { PlatformId, ToneId, LLMProviderId, GenerateRequest } from '@postcommander/shared';
 import { useGenerate } from '@/hooks/useGenerate';
@@ -16,7 +17,7 @@ import { PostPreview } from './PostPreview';
 
 export function PostGenerator() {
   const { t } = useTranslation();
-  const { isGenerating, streamedContent, result, error, generate, cancel, reset } = useGenerate();
+  const { isGenerating, streamedContent, agentStatus, result, error, generate, cancel, reset } = useGenerate();
 
   const [prompt, setPrompt] = useState('');
   const [platforms, setPlatforms] = useState<PlatformId[]>(['linkedin']);
@@ -306,15 +307,27 @@ export function PostGenerator() {
 
       {/* Streaming / Result Preview */}
       {(isGenerating || hasResult || Object.keys(variants).length > 0) && (
-        <PostPreview
-          platforms={isBlogArticle ? ['linkedin'] : platforms}
-          platformVariants={currentVariants}
-          onVariantChange={
-            hasResult || Object.keys(variants).length > 0 ? handleVariantChange : undefined
-          }
-          streaming={isGenerating}
-          streamedContent={streamedContent}
-        />
+        <div className="space-y-4">
+          {isGenerating && agentStatus && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="px-4 py-3 bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-lg text-brand-700 dark:text-brand-400 text-sm font-medium flex items-center gap-2"
+            >
+              <div className="w-4 h-4 rounded-full border-2 border-brand-500 border-t-transparent animate-spin" />
+              {agentStatus}
+            </motion.div>
+          )}
+          <PostPreview
+            platforms={isBlogArticle ? ['linkedin'] : platforms}
+            platformVariants={currentVariants}
+            onVariantChange={
+              hasResult || Object.keys(variants).length > 0 ? handleVariantChange : undefined
+            }
+            streaming={isGenerating}
+            streamedContent={streamedContent}
+          />
+        </div>
       )}
 
       {/* Hashtags */}

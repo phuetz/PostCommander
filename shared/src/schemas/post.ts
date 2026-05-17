@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const postStatusSchema = z.enum(['draft', 'scheduled', 'published', 'failed']);
+export const postStatusSchema = z.enum(['draft', 'needs_approval', 'approved', 'rejected', 'scheduled', 'published', 'failed']);
 
 export const createPostSchema = z.object({
   content: z.string().min(1, 'Contenu requis'),
@@ -28,7 +28,7 @@ export const updatePostSchema = z.object({
 
 export const listPostsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  pageSize: z.coerce.number().int().min(1).max(200).default(20),
   status: postStatusSchema.optional(),
   search: z.string().optional(),
 });
@@ -41,4 +41,10 @@ export const publishPostSchema = z.object({
 
 export const schedulePostSchema = z.object({
   scheduledAt: z.string().min(1, 'La date de programmation est requise'),
+});
+
+export const repurposeUrlSchema = z.object({
+  url: z.string().url('Doit être une URL valide'),
+  title: z.string().min(1, 'Le titre est requis'),
+  content: z.string().min(1, 'Le contenu est requis'),
 });

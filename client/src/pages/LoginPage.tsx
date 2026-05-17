@@ -14,9 +14,12 @@ function getLoginErrorMessage(error: unknown): string {
     'response' in error &&
     typeof (error as { response?: unknown }).response === 'object'
   ) {
-    const response = (error as { response?: { data?: { error?: string } } }).response;
+    const response = (error as { response?: { data?: { error?: any } } }).response;
     if (response?.data?.error) {
-      return response.data.error;
+      if (typeof response.data.error === 'string') return response.data.error;
+      if (typeof response.data.error === 'object') {
+        return response.data.error.message || JSON.stringify(response.data.error);
+      }
     }
   }
 

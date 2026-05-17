@@ -101,7 +101,7 @@ export const posts = sqliteTable(
     hashtags: text('hashtags'), // JSON string array
     autoPlugContent: text('auto_plug_content'),
     autoPlugThreshold: integer('auto_plug_threshold'),
-    status: text('status').notNull().default('draft'),
+    status: text('status').notNull().default('draft'), // draft, needs_approval, scheduled, published, failed, rejected
     scheduledAt: text('scheduled_at'),
     publishedAt: text('published_at'),
     createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
@@ -109,6 +109,25 @@ export const posts = sqliteTable(
   },
   (table) => ({
     userIdx: index('idx_posts_user').on(table.userId),
+  }),
+);
+
+export const postApprovals = sqliteTable(
+  'post_approvals',
+  {
+    id: text('id').primaryKey(),
+    postId: text('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: text('status').notNull(), // 'approved' or 'rejected'
+    feedback: text('feedback'),
+    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  },
+  (table) => ({
+    postIdIdx: index('idx_post_approvals_post_id').on(table.postId),
   }),
 );
 
@@ -169,6 +188,7 @@ export const socialComments = sqliteTable('social_comments', {
   leadReason: text('lead_reason'),
   agentState: text('agent_state'), // JSON string of the conversation history
   requiresHuman: integer('requires_human').default(0), // 0 or 1
+  isResolved: integer('is_resolved').default(0), // 0 or 1
   publishedAt: text('published_at').notNull(),
   createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
 });
@@ -393,5 +413,89 @@ export const autoBlogConfigs = sqliteTable(
   (table) => ({
     userIdx: index('idx_auto_blog_configs_user').on(table.userId),
     statusIdx: index('idx_auto_blog_configs_status').on(table.status),
+  }),
+);
+
+export const outreachCampaigns = sqliteTable(
+  'outreach_campaigns',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    targetKeywords: text('target_keywords').notNull(),
+    targetActivity: text('target_activity'),
+    campaignGoal: text('campaign_goal').notNull(),
+    platform: text('platform').notNull(),
+    dailyLimit: integer('daily_limit').notNull().default(15),
+    status: text('status').notNull().default('active'),
+    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+  },
+  (table) => ({
+    userIdx: index('idx_outreach_campaigns_user').on(table.userId),
+    statusIdx: index('idx_outreach_campaigns_status').on(table.status),
+  }),
+);
+
+export const outreachSequenceSteps = sqliteTable(
+  'outreach_sequence_steps',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => outreachCampaigns.id, { onDelete: 'cascade' }),
+    stepNumber: integer('step_number').notNull(),
+    delayDays: integer('delay_days').notNull().default(0),
+    promptTemplate: text('prompt_template').notNull(),
+    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  },
+  (table) => ({
+    campaignIdx: index('idx_outreach_sequence_steps_campaign').on(table.campaignId),
+  }),
+);
+
+export const outreachProspects = sqliteTable(
+  'outreach_prospects',
+  {
+    id: text('id').primaryKey(),
+    campaignId: text('campaign_id')
+      .notNull()
+      .references(() => outreachCampaigns.id, { onDelete: 'cascade' }),
+    profileName: text('profile_name').notNull(),
+    profileBio: text('profile_bio').notNull(),
+    profileUrl: text('profile_url'),
+    status: text('status').notNull().default('discovered'),
+    replyStatus: text('reply_status').notNull().default('none'),
+    currentStepNumber: integer('current_step_number').notNull().default(1),
+    threadContext: text('thread_context').default('[]'),
+    generatedMessage: text('generated_message'),
+    lastContactedAt: text('last_contacted_at'),
+    sentAt: text('sent_at'),
+    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  },
+  (table) => ({
+    campaignIdx: index('idx_outreach_prospects_campaign').on(table.campaignId),
+    statusIdx: index('idx_outreach_prospects_status').on(table.status),
+    replyStatusIdx: index('idx_outreach_prospects_reply').on(table.replyStatus),
+  }),
+);
+
+export const outreachReplies = sqliteTable(
+  'outreach_replies',
+  {
+    id: text('id').primaryKey(),
+    prospectId: text('prospect_id')
+      .notNull()
+      .references(() => outreachProspects.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    receivedAt: text('received_at').notNull().default('CURRENT_TIMESTAMP'),
+  },
+  (table) => ({
+    prospectIdx: index('idx_outreach_replies_prospect').on(table.prospectId),
   }),
 );

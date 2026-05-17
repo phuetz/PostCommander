@@ -10,9 +10,9 @@ interface PostJobData {
   postId: string;
 }
 
-const connection = new Redis(config.REDIS_URL, {
-  maxRetriesPerRequest: null,
-});
+import { sharedRedisConnection } from '../../utils/redis.js';
+
+const connection = sharedRedisConnection;
 
 export const postWorker = new Worker<PostJobData>(
   'post-publishing',

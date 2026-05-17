@@ -6,6 +6,9 @@ import { errorHandler } from './middleware/error-handler.js';
 import { setupMiddlewares } from './middleware/setup.js';
 import apiRoutes from './routes/index.js';
 import { stripeWebhookHandler } from './controllers/stripe.controller.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
+import { mcpRouter } from './mcp/server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +31,12 @@ export function createApp(): express.Application {
 
   // ── API routes ──────────────────────────────────────────────
   app.use('/api', apiRoutes);
+
+  // ── OpenAPI (Swagger) ───────────────────────────────────────
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+  // ── MCP Server (Claude Desktop / Cursor) ────────────────────
+  app.use('/mcp', mcpRouter);
 
   // ── Serve static client files (Production only) ─────────────
   if (process.env.NODE_ENV === 'production') {

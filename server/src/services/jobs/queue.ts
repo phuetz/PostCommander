@@ -2,9 +2,9 @@ import { Queue, type QueueOptions } from 'bullmq';
 import { Redis } from 'ioredis';
 import { config } from '../../config/env.js';
 
-const connection = new Redis(config.REDIS_URL, {
-  maxRetriesPerRequest: null,
-});
+import { sharedRedisConnection } from '../../utils/redis.js';
+
+const connection = sharedRedisConnection;
 
 export const postQueue = new Queue('post-publishing', {
   connection: connection as QueueOptions['connection'],
@@ -15,7 +15,15 @@ export const agentQueue = new Queue('agent-workflow', {
 });
 
 export const autoBlogQueue = new Queue('auto-blog', {
-  connection: connection as any,
+  connection: connection as QueueOptions['connection'],
+});
+
+export const outreachQueue = new Queue('outreach-campaigns', {
+  connection: connection as QueueOptions['connection'],
+});
+
+export const analyticsQueue = new Queue('analytics-sync', {
+  connection: connection as QueueOptions['connection'],
 });
 
 export interface QueueHealth {
