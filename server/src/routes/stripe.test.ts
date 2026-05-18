@@ -93,7 +93,7 @@ describe('Stripe Routes', () => {
         status: 'active',
         currentPeriodStart: new Date().toISOString(),
         currentPeriodEnd: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
-        cancelAtPeriodEnd: 0,
+        cancelAtPeriodEnd: false,
         canceledAt: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -108,7 +108,7 @@ describe('Stripe Routes', () => {
         status: 'active',
         currentPeriodStart: new Date().toISOString(),
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 3600_000).toISOString(),
-        cancelAtPeriodEnd: 0,
+        cancelAtPeriodEnd: false,
         canceledAt: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -174,7 +174,7 @@ describe('Stripe Routes', () => {
         status: 'active',
         currentPeriodStart: new Date().toISOString(),
         currentPeriodEnd: new Date(Date.now() + 7 * 24 * 3600_000).toISOString(),
-        cancelAtPeriodEnd: 0,
+        cancelAtPeriodEnd: false,
         canceledAt: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -189,7 +189,7 @@ describe('Stripe Routes', () => {
         status: 'active',
         currentPeriodStart: new Date().toISOString(),
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 3600_000).toISOString(),
-        cancelAtPeriodEnd: 0,
+        cancelAtPeriodEnd: false,
         canceledAt: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -213,7 +213,7 @@ describe('Stripe Routes', () => {
       .from(subscriptionsTable)
       .where(eq(subscriptionsTable.userId, userB.id));
 
-    expect(aliceSub.cancelAtPeriodEnd).toBe(1);
-    expect(bobSub.cancelAtPeriodEnd).toBe(0);
+    expect(aliceSub.cancelAtPeriodEnd).toBe(true);
+    expect(bobSub.cancelAtPeriodEnd).toBe(false);
   });
 });

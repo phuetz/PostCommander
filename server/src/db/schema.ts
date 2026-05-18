@@ -1,6 +1,6 @@
-import { sqliteTable, text, integer, index, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { pgTable, text, integer, boolean, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
 
-export const users = sqliteTable('users', {
+export const users = pgTable('users', {
   id: text('id').primaryKey(),
   email: text('email').unique().notNull(),
   passwordHash: text('password_hash'),
@@ -11,21 +11,21 @@ export const users = sqliteTable('users', {
   plan: text('plan').notNull().default('free'),
   planStatus: text('plan_status').notNull().default('active'),
   postsUsedThisMonth: integer('posts_used_this_month').default(0),
-  postsResetDate: text('posts_reset_date'),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
-  updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+  postsResetDate: timestamp('posts_reset_date', { mode: 'string' }),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const workspaces = sqliteTable('workspaces', {
+export const workspaces = pgTable('workspaces', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   ownerId: text('owner_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const workspaceMembers = sqliteTable(
+export const workspaceMembers = pgTable(
   'workspace_members',
   {
     id: text('id').primaryKey(),
@@ -36,14 +36,14 @@ export const workspaceMembers = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     role: text('role').notNull().default('member'), // 'owner', 'admin', 'member'
-    joinedAt: text('joined_at').notNull().default('CURRENT_TIMESTAMP'),
+    joinedAt: timestamp('joined_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     workspaceUserIdx: uniqueIndex('idx_workspace_members_user').on(table.workspaceId, table.userId),
   }),
 );
 
-export const settings = sqliteTable(
+export const settings = pgTable(
   'settings',
   {
     id: text('id').primaryKey(),
@@ -51,7 +51,7 @@ export const settings = sqliteTable(
     workspaceId: text('workspace_id').references(() => workspaces.id, { onDelete: 'cascade' }),
     key: text('key').notNull(),
     value: text('value').notNull(),
-    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_settings_user').on(table.userId),
@@ -59,7 +59,7 @@ export const settings = sqliteTable(
   }),
 );
 
-export const platformConnections = sqliteTable(
+export const platformConnections = pgTable(
   'platform_connections',
   {
     id: text('id').primaryKey(),
@@ -69,11 +69,11 @@ export const platformConnections = sqliteTable(
     accountName: text('account_name'),
     accessToken: text('access_token').notNull(),
     refreshToken: text('refresh_token'),
-    tokenExpires: text('token_expires'),
+    tokenExpires: timestamp('token_expires', { mode: 'string' }),
     scopes: text('scopes'),
     metadata: text('metadata'),
-    connectedAt: text('connected_at').notNull().default('CURRENT_TIMESTAMP'),
-    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+    connectedAt: timestamp('connected_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_platform_connections_user').on(table.userId),
@@ -84,7 +84,7 @@ export const platformConnections = sqliteTable(
   }),
 );
 
-export const posts = sqliteTable(
+export const posts = pgTable(
   'posts',
   {
     id: text('id').primaryKey(),
@@ -102,17 +102,17 @@ export const posts = sqliteTable(
     autoPlugContent: text('auto_plug_content'),
     autoPlugThreshold: integer('auto_plug_threshold'),
     status: text('status').notNull().default('draft'), // draft, needs_approval, scheduled, published, failed, rejected
-    scheduledAt: text('scheduled_at'),
-    publishedAt: text('published_at'),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
-    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+    scheduledAt: timestamp('scheduled_at', { mode: 'string' }),
+    publishedAt: timestamp('published_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_posts_user').on(table.userId),
   }),
 );
 
-export const postApprovals = sqliteTable(
+export const postApprovals = pgTable(
   'post_approvals',
   {
     id: text('id').primaryKey(),
@@ -124,14 +124,14 @@ export const postApprovals = sqliteTable(
       .references(() => users.id, { onDelete: 'cascade' }),
     status: text('status').notNull(), // 'approved' or 'rejected'
     feedback: text('feedback'),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     postIdIdx: index('idx_post_approvals_post_id').on(table.postId),
   }),
 );
 
-export const postComments = sqliteTable(
+export const postComments = pgTable(
   'post_comments',
   {
     id: text('id').primaryKey(),
@@ -142,7 +142,7 @@ export const postComments = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     content: text('content').notNull(),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     postIdIdx: index('idx_post_comments_post_id').on(table.postId),
@@ -150,7 +150,7 @@ export const postComments = sqliteTable(
   }),
 );
 
-export const postPublications = sqliteTable('post_publications', {
+export const postPublications = pgTable('post_publications', {
   id: text('id').primaryKey(),
   postId: text('post_id')
     .notNull()
@@ -165,13 +165,13 @@ export const postPublications = sqliteTable('post_publications', {
   likes: integer('likes').default(0),
   commentsCount: integer('comments_count').default(0),
   shares: integer('shares').default(0),
-  hasAutoPlugged: integer('has_auto_plugged').default(0),
-  lastSyncedAt: text('last_synced_at'),
-  publishedAt: text('published_at'),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  hasAutoPlugged: boolean('has_auto_plugged').default(false),
+  lastSyncedAt: timestamp('last_synced_at', { mode: 'string' }),
+  publishedAt: timestamp('published_at', { mode: 'string' }),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const socialComments = sqliteTable('social_comments', {
+export const socialComments = pgTable('social_comments', {
   id: text('id').primaryKey(),
   postPublicationId: text('post_publication_id')
     .notNull()
@@ -181,19 +181,19 @@ export const socialComments = sqliteTable('social_comments', {
   authorHandle: text('author_handle'),
   authorAvatarUrl: text('author_avatar_url'),
   content: text('content').notNull(),
-  isReplied: integer('is_replied').default(0), // 0 or 1 for SQLite boolean
+  isReplied: boolean('is_replied').default(false), // 0 or 1 for SQLite boolean
   replyContent: text('reply_content'),
   leadScore: integer('lead_score'),
   leadStatus: text('lead_status').default('unscored'),
   leadReason: text('lead_reason'),
   agentState: text('agent_state'), // JSON string of the conversation history
-  requiresHuman: integer('requires_human').default(0), // 0 or 1
-  isResolved: integer('is_resolved').default(0), // 0 or 1
-  publishedAt: text('published_at').notNull(),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  requiresHuman: boolean('requires_human').default(false), // 0 or 1
+  isResolved: boolean('is_resolved').default(false), // 0 or 1
+  publishedAt: timestamp('published_at', { mode: 'string' }).notNull(),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const subscriptions = sqliteTable('subscriptions', {
+export const subscriptions = pgTable('subscriptions', {
   id: text('id').primaryKey(),
   userId: text('user_id')
     .notNull()
@@ -203,15 +203,15 @@ export const subscriptions = sqliteTable('subscriptions', {
   plan: text('plan').notNull(),
   interval: text('interval').notNull(),
   status: text('status').notNull(),
-  currentPeriodStart: text('current_period_start'),
-  currentPeriodEnd: text('current_period_end'),
-  cancelAtPeriodEnd: integer('cancel_at_period_end').default(0),
-  canceledAt: text('canceled_at'),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
-  updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+  currentPeriodStart: timestamp('current_period_start', { mode: 'string' }),
+  currentPeriodEnd: timestamp('current_period_end', { mode: 'string' }),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
+  canceledAt: timestamp('canceled_at', { mode: 'string' }),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const invoices = sqliteTable('invoices', {
+export const invoices = pgTable('invoices', {
   id: text('id').primaryKey(),
   userId: text('user_id')
     .notNull()
@@ -222,10 +222,10 @@ export const invoices = sqliteTable('invoices', {
   status: text('status').notNull(),
   invoiceUrl: text('invoice_url'),
   invoicePdf: text('invoice_pdf'),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const deletedAccountAudits = sqliteTable(
+export const deletedAccountAudits = pgTable(
   'deleted_account_audits',
   {
     id: text('id').primaryKey(),
@@ -234,8 +234,8 @@ export const deletedAccountAudits = sqliteTable(
     stripeCustomerId: text('stripe_customer_id'),
     plan: text('plan').notNull(),
     planStatus: text('plan_status').notNull(),
-    userCreatedAt: text('user_created_at'),
-    deletedAt: text('deleted_at').notNull().default('CURRENT_TIMESTAMP'),
+    userCreatedAt: timestamp('user_created_at', { mode: 'string' }),
+    deletedAt: timestamp('deleted_at', { mode: 'string' }).notNull().defaultNow(),
     source: text('source').notNull().default('self_service'),
     snapshot: text('snapshot').notNull(),
   },
@@ -248,7 +248,7 @@ export const deletedAccountAudits = sqliteTable(
   }),
 );
 
-export const deletedBillingRecords = sqliteTable(
+export const deletedBillingRecords = pgTable(
   'deleted_billing_records',
   {
     id: text('id').primaryKey(),
@@ -259,7 +259,7 @@ export const deletedBillingRecords = sqliteTable(
     stripeRecordId: text('stripe_record_id').notNull(),
     status: text('status').notNull(),
     snapshot: text('snapshot').notNull(),
-    archivedAt: text('archived_at').notNull().default('CURRENT_TIMESTAMP'),
+    archivedAt: timestamp('archived_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     auditIdx: index('idx_deleted_billing_records_audit').on(table.deletedAccountAuditId),
@@ -271,7 +271,7 @@ export const deletedBillingRecords = sqliteTable(
   }),
 );
 
-export const viralPosts = sqliteTable('viral_posts', {
+export const viralPosts = pgTable('viral_posts', {
   id: text('id').primaryKey(),
   platform: text('platform').notNull(),
   content: text('content').notNull(),
@@ -283,10 +283,10 @@ export const viralPosts = sqliteTable('viral_posts', {
   category: text('category'),
   tags: text('tags'), // JSON string array
   language: text('language').default('en'),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const templates = sqliteTable('templates', {
+export const templates = pgTable('templates', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
@@ -297,10 +297,10 @@ export const templates = sqliteTable('templates', {
   exampleOutput: text('example_output'),
   usesCount: integer('uses_count').default(0),
   language: text('language').default('en'),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const writingStyles = sqliteTable(
+export const writingStyles = pgTable(
   'writing_styles',
   {
     id: text('id').primaryKey(),
@@ -311,15 +311,15 @@ export const writingStyles = sqliteTable(
     samplePosts: text('sample_posts').notNull(), // JSON string array
     analyzedStyle: text('analyzed_style'), // JSON object
     llmSystemPrompt: text('llm_system_prompt'),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
-    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_writing_styles_user').on(table.userId),
   }),
 );
 
-export const generatedImages = sqliteTable(
+export const generatedImages = pgTable(
   'generated_images',
   {
     id: text('id').primaryKey(),
@@ -329,14 +329,14 @@ export const generatedImages = sqliteTable(
     provider: text('provider').notNull(),
     imageUrl: text('image_url'),
     imagePath: text('image_path'),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_generated_images_user').on(table.userId),
   }),
 );
 
-export const contentPillars = sqliteTable(
+export const contentPillars = pgTable(
   'content_pillars',
   {
     id: text('id').primaryKey(),
@@ -348,15 +348,15 @@ export const contentPillars = sqliteTable(
     topics: text('topics'), // JSON string array
     postingFrequency: text('posting_frequency').default('weekly'),
     targetPlatforms: text('target_platforms'), // JSON string array
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
-    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_content_pillars_user').on(table.userId),
   }),
 );
 
-export const contentIdeas = sqliteTable(
+export const contentIdeas = pgTable(
   'content_ideas',
   {
     id: text('id').primaryKey(),
@@ -370,24 +370,24 @@ export const contentIdeas = sqliteTable(
     status: text('status').notNull().default('idea'),
     postId: text('post_id').references(() => posts.id, { onDelete: 'set null' }),
     priority: integer('priority').default(0),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_content_ideas_user').on(table.userId),
   }),
 );
 
-export const passwordResetTokens = sqliteTable('password_reset_tokens', {
+export const passwordResetTokens = pgTable('password_reset_tokens', {
   id: text('id').primaryKey(),
   userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   token: text('token').notNull().unique(),
   expiresAt: text('expires_at').notNull(),
-  createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
 });
 
-export const autoBlogConfigs = sqliteTable(
+export const autoBlogConfigs = pgTable(
   'auto_blog_configs',
   {
     id: text('id').primaryKey(),
@@ -406,9 +406,9 @@ export const autoBlogConfigs = sqliteTable(
     authorRole: text('author_role'),
     authorReferences: text('author_references'),
     status: text('status').notNull().default('active'),
-    lastGeneratedAt: text('last_generated_at'),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
-    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+    lastGeneratedAt: timestamp('last_generated_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_auto_blog_configs_user').on(table.userId),
@@ -416,7 +416,7 @@ export const autoBlogConfigs = sqliteTable(
   }),
 );
 
-export const outreachCampaigns = sqliteTable(
+export const outreachCampaigns = pgTable(
   'outreach_campaigns',
   {
     id: text('id').primaryKey(),
@@ -433,8 +433,8 @@ export const outreachCampaigns = sqliteTable(
     platform: text('platform').notNull(),
     dailyLimit: integer('daily_limit').notNull().default(15),
     status: text('status').notNull().default('active'),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
-    updatedAt: text('updated_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     userIdx: index('idx_outreach_campaigns_user').on(table.userId),
@@ -442,7 +442,7 @@ export const outreachCampaigns = sqliteTable(
   }),
 );
 
-export const outreachSequenceSteps = sqliteTable(
+export const outreachSequenceSteps = pgTable(
   'outreach_sequence_steps',
   {
     id: text('id').primaryKey(),
@@ -452,14 +452,14 @@ export const outreachSequenceSteps = sqliteTable(
     stepNumber: integer('step_number').notNull(),
     delayDays: integer('delay_days').notNull().default(0),
     promptTemplate: text('prompt_template').notNull(),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     campaignIdx: index('idx_outreach_sequence_steps_campaign').on(table.campaignId),
   }),
 );
 
-export const outreachProspects = sqliteTable(
+export const outreachProspects = pgTable(
   'outreach_prospects',
   {
     id: text('id').primaryKey(),
@@ -474,9 +474,9 @@ export const outreachProspects = sqliteTable(
     currentStepNumber: integer('current_step_number').notNull().default(1),
     threadContext: text('thread_context').default('[]'),
     generatedMessage: text('generated_message'),
-    lastContactedAt: text('last_contacted_at'),
-    sentAt: text('sent_at'),
-    createdAt: text('created_at').notNull().default('CURRENT_TIMESTAMP'),
+    lastContactedAt: timestamp('last_contacted_at', { mode: 'string' }),
+    sentAt: timestamp('sent_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     campaignIdx: index('idx_outreach_prospects_campaign').on(table.campaignId),
@@ -485,7 +485,7 @@ export const outreachProspects = sqliteTable(
   }),
 );
 
-export const outreachReplies = sqliteTable(
+export const outreachReplies = pgTable(
   'outreach_replies',
   {
     id: text('id').primaryKey(),
@@ -493,7 +493,7 @@ export const outreachReplies = sqliteTable(
       .notNull()
       .references(() => outreachProspects.id, { onDelete: 'cascade' }),
     content: text('content').notNull(),
-    receivedAt: text('received_at').notNull().default('CURRENT_TIMESTAMP'),
+    receivedAt: timestamp('received_at', { mode: 'string' }).notNull().defaultNow(),
   },
   (table) => ({
     prospectIdx: index('idx_outreach_replies_prospect').on(table.prospectId),

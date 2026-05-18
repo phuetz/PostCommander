@@ -60,7 +60,7 @@ export async function analyzeStyle(
   modelId: string,
   userId?: string,
 ): Promise<{ analysis: StyleAnalysis; systemPrompt: string }> {
-  const model = createModel(provider, modelId, userId);
+  const model = await createModel(provider, modelId, userId);
 
   const system = `You are an expert writing style analyst. You specialize in deconstructing writing patterns to create detailed style profiles.
 
@@ -211,7 +211,7 @@ export async function generateInStyle(
     throw new Error('Writing style has not been analyzed yet');
   }
 
-  const model = createModel(provider, modelId, userId);
+  const model = await createModel(provider, modelId, userId);
 
   const system = `${style.llmSystemPrompt}
 

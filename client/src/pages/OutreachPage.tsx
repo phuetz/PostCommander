@@ -5,12 +5,15 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SequenceBuilder, type SequenceStep } from '../components/outreach/SequenceBuilder';
 import { CampaignList } from '../components/outreach/CampaignList';
+import { OSINTScanner } from '../components/outreach/OSINTScanner';
+import { OutreachAnalytics } from '../components/outreach/OutreachAnalytics';
 import { useCreateCampaign } from '../hooks/useOutreach';
 import { LiveTerminal } from '../components/ui/LiveTerminal';
 import { useAgentStream } from '../hooks/useAgentStream';
 
 export default function OutreachPage() {
   const { logs, isConnected } = useAgentStream('outreach');
+  const [activeTab, setActiveTab] = useState<'campaigns' | 'osint' | 'analytics'>('campaigns');
   const [showForm, setShowForm] = useState(false);
   const createMutation = useCreateCampaign();
   const [formData, setFormData] = useState<CreateOutreachCampaignInput>({
@@ -60,7 +63,7 @@ export default function OutreachPage() {
             Trouvez des prospects et envoyez-leur des messages personnalisés automatiquement.
           </p>
         </div>
-        {!showForm && (
+        {!showForm && activeTab === 'campaigns' && (
           <button
             onClick={() => setShowForm(true)}
             className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
@@ -71,9 +74,34 @@ export default function OutreachPage() {
         )}
       </div>
 
+      <div className="flex gap-4 border-b border-border pb-2">
+        <button 
+          onClick={() => { setActiveTab('campaigns'); setShowForm(false); }}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === 'campaigns' ? 'text-brand-500 border-b-2 border-brand-500' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Campagnes Automatisées
+        </button>
+        <button 
+          onClick={() => { setActiveTab('osint'); setShowForm(false); }}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === 'osint' ? 'text-brand-500 border-b-2 border-brand-500' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          OSINT Scanner (IA)
+        </button>
+        <button 
+          onClick={() => { setActiveTab('analytics'); setShowForm(false); }}
+          className={`px-4 py-2 font-medium text-sm transition-colors ${activeTab === 'analytics' ? 'text-brand-500 border-b-2 border-brand-500' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          Dashboard & Analytics
+        </button>
+      </div>
+
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          {showForm ? (
+          {activeTab === 'analytics' ? (
+            <OutreachAnalytics />
+          ) : activeTab === 'osint' ? (
+            <OSINTScanner />
+          ) : showForm ? (
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <form onSubmit={handleSubmit} className="p-6 space-y-8">
                 <div>

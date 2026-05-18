@@ -43,7 +43,7 @@ export async function generateABVariants(
   request: ABTestRequest,
   userId?: string,
 ): Promise<ABTestResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const count = request.variantCount ?? 3;
 
   const system = `You are a world-class social media strategist and copywriter. Your job is to generate multiple DISTINCT variants of the same post idea, each with a genuinely different angle and hook style.

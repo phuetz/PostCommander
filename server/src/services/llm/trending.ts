@@ -41,7 +41,7 @@ export async function getTrendingTopics(
   request: TrendingRequest,
   userId?: string,
 ): Promise<TrendingResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const language = request.language || 'English';
 
   const system = `You are a social media trend analyst and content strategist. Your job is to identify current trending topics, conversations, and content themes that are gaining traction on social media.

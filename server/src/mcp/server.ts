@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import express from 'express';
 import { z } from 'zod';
-import db from '../db/index.js';
+import { getDb } from '../db/connection.js';
 
 // Initialize MCP Server
 export const mcpServer = new McpServer({
@@ -18,8 +18,9 @@ mcpServer.tool(
   async () => {
     try {
       // Very simplified DB call for MCP example
-      const row = db.prepare('SELECT COUNT(*) as count FROM posts').get() as { count: number };
-      const published = db.prepare('SELECT COUNT(*) as count FROM posts WHERE status = ?').get('published') as { count: number };
+      const pool = getDb();
+      const { rows } = await pool.query('SELECT COUNT(*) as count FROM posts'); const row = rows[0] as { count: number };
+      const { rows: publishedRows } = await pool.query('SELECT COUNT(*) as count FROM posts WHERE status = $1', ['published']); const published = publishedRows[0] as { count: number };
       
       return {
         content: [
@@ -52,14 +53,13 @@ mcpServer.tool(
   },
   async ({ content, platforms }) => {
     try {
-      const stmt = db.prepare(`
-        INSERT INTO posts (id, user_id, content, platforms, status, original_prompt, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-      
+      const pool = getDb();
       const id = `post_${Date.now()}`;
-      // Note: Assuming a mock user_id for the MCP context unless injected via auth
-      stmt.run(id, 'user_1', content, JSON.stringify(platforms), 'draft', 'Generated via MCP', new Date().toISOString(), new Date().toISOString());
+      await pool.query(
+        "INSERT INTO posts (id, user_id, content, platforms, status, original_prompt, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+        [id, 'user_1', content, JSON.stringify(platforms), 'draft', 'Generated via MCP', new Date().toISOString(), new Date().toISOString()]
+      );
+
       
       return {
         content: [

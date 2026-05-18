@@ -9,9 +9,12 @@ import crypto from 'crypto';
 import { generateText } from 'ai';
 import { createModel } from '../services/llm/provider-factory.js';
 import { sharedRedisConnection } from '../utils/redis.js';
-import { MemoryClient } from 'mem0ai';
+import { memoryService } from '../services/memory/memory.service.js';
 import { Stagehand } from '@browserbasehq/stagehand';
 import { liveActivity } from '../services/live-activity.js';
+import { Resend } from 'resend';
+
+const resend = new Resend(config.RESEND_API_KEY);
 
 const connection = sharedRedisConnection;
 
@@ -112,17 +115,15 @@ export const outreachWorker = new Worker(
 
             // 🧠 Extract Long-Term Memory from Mem0
             let memoryContext = 'No long term memory available for this prospect.';
-            if (config.MEM0_API_KEY) {
-              try {
-                const mem0 = new MemoryClient({ apiKey: config.MEM0_API_KEY });
-                const mem0Result = await mem0.search('preferences and facts about this prospect', { user_id: prospect.id } as any);
-                if (mem0Result && mem0Result.results && mem0Result.results.length > 0) {
-                  memoryContext = mem0Result.results.map((m: any) => `- ${m.memory}`).join('\n');
-                  logger.info(`[Mem0] Injected ${mem0Result.results.length} memories for prospect ${prospect.profileName}`);
-                }
-              } catch (memErr) {
-                logger.error({ err: memErr }, '[Mem0] Failed to fetch memories');
+            
+            try {
+              const recalled = await memoryService.recall(prospect.id, 'preferences and facts about this prospect', 5);
+              if (recalled && recalled !== 'No context available.') {
+                memoryContext = recalled;
+                logger.info(`[Mem0] Injected memories for prospect ${prospect.profileName}`);
               }
+            } catch (memErr) {
+              logger.error({ err: memErr }, '[Mem0] Failed to fetch memories');
             }
 
             const systemPrompt = `
@@ -141,7 +142,7 @@ export const outreachWorker = new Worker(
               Return ONLY the message content to send right now.
             `;
 
-            const model = createModel('openai', 'gpt-4o');
+            const model = await createModel('openai', 'gpt-4o');
             const { text } = await generateText({
               model,
               messages: [{ role: 'system', content: systemPrompt }],
@@ -180,15 +181,17 @@ export const outreachWorker = new Worker(
               await liveActivity.broadcast('outreach', `Navigation vers le profil de ${prospect.profileName} sur LinkedIn...`);
               await page.goto(`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(prospect.profileName)}`);
               
+              // 🌍 Multi-language adaptation (defaulting to English, but flexible)
+              const locale = (campaign as any).targetLanguage || 'English';
               await liveActivity.broadcast('outreach', `Analyse visuelle : Recherche du bouton Message/Connecter...`);
               const act1 = await stagehand.act(
-                `Look for a person matching the bio: "${prospect.profileBio}". Click their "Message" or "Connect" button. If not found, do nothing.`
+                `Look for a person matching the bio: "${prospect.profileBio}". Click their "Message" or "Connect" button. The page might be in ${locale}. If not found, do nothing.`
               );
               logger.info(`[Stagehand] Prospect locate result: ${act1.message}`);
 
               await liveActivity.broadcast('outreach', `Saisie du message personnalisé généré par l'IA...`);
               const act2 = await stagehand.act(
-                `Type the following message into the active message or connection request box: "${generatedMessage}"`
+                `Type the following message into the active message or connection request box: "${generatedMessage}". Do not send it yet, just type it.`
               );
               logger.info(`[Stagehand] Message typing result: ${act2.message}`);
 
@@ -201,6 +204,40 @@ export const outreachWorker = new Worker(
               } else {
                 logger.info('[Stagehand] DRY RUN: Skipping the Send button click.');
                 await stagehand.act("Click the 'Close' button or click outside to discard the draft.");
+              }
+            } else if (campaign.platform.toLowerCase() === 'email') {
+              logger.info(`[OutreachWorker] Sending email to ${prospect.profileName}`);
+              await liveActivity.broadcast('outreach', `Envoi de l'email à ${prospect.profileName}...`);
+              
+              if (!config.RESEND_API_KEY) {
+                throw new Error("RESEND_API_KEY is not configured. Cannot send emails.");
+              }
+              
+              // Extract email from bio or metadata if possible, otherwise skip or use a dummy for dry run
+              const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/;
+              const match = prospect.profileBio.match(emailRegex);
+              const targetEmail = match ? match[1] : null;
+              
+              if (!targetEmail && !config.OUTREACH_DRY_RUN) {
+                throw new Error(`No email address found in profile bio for ${prospect.profileName}`);
+              }
+              
+              // Generate subject line using a small LLM call
+              const { text: subjectText } = await generateText({
+                model: await createModel('openai', 'gpt-4o'),
+                messages: [{ role: 'system', content: `Generate a short, catchy email subject line for this message: "${generatedMessage}". Return ONLY the subject line.` }],
+              });
+              
+              if (!config.OUTREACH_DRY_RUN && targetEmail) {
+                await resend.emails.send({
+                  from: config.RESEND_FROM,
+                  to: [targetEmail],
+                  subject: subjectText.replace(/['"]/g, '').trim(),
+                  html: `<p>${generatedMessage.replace(/\n/g, '<br>')}</p>`,
+                });
+                logger.info(`[OutreachWorker] Email sent to ${targetEmail}`);
+              } else {
+                logger.info(`[OutreachWorker] DRY RUN: Skipping email send to ${targetEmail || 'unknown'}`);
               }
             } else {
               logger.info(`[Stagehand] Automation for platform ${campaign.platform} is not fully supported yet. Simulating send.`);

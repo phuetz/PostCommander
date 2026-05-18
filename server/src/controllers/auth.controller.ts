@@ -350,7 +350,7 @@ export const AuthController = {
         .update(subscriptionsTable)
         .set({
           status: 'canceled',
-          cancelAtPeriodEnd: 0,
+          cancelAtPeriodEnd: false,
           canceledAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         })

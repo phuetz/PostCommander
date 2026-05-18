@@ -44,11 +44,10 @@ COPY --from=builder /app/client/dist ./client/dist
 # Le backend servira le client statique s'il est configuré pour, 
 # sinon on s'assure juste que les fichiers sont là pour un serveur web comme Nginx.
 
-# Copie des fichiers de migration DB et autres assets du serveur
-COPY server/src/db/migrations ./server/dist/db/migrations
+# Copie des fichiers de migration Drizzle
+COPY --from=builder /app/server/drizzle ./server/drizzle
 
-# Création du dossier pour la base de données SQLite
-RUN mkdir -p /app/server/data && chown -R node:node /app/server/data
+
 
 # Changement d'utilisateur pour des raisons de sécurité
 USER node

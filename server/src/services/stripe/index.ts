@@ -242,7 +242,7 @@ export async function syncSubscription(stripeSubscriptionId: string): Promise<vo
   const planInfo = planFromPriceId(priceId);
   const periodStart = new Date(sub.current_period_start * 1000).toISOString();
   const periodEnd = new Date(sub.current_period_end * 1000).toISOString();
-  const cancelAtPeriodEnd = sub.cancel_at_period_end ? 1 : 0;
+  const cancelAtPeriodEnd = sub.cancel_at_period_end ? true : false;
   const canceledAt = sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null;
 
   if (existingSub) {
@@ -371,7 +371,7 @@ async function handleCheckoutCompleted(db: any, session: Stripe.Checkout.Session
         stripePriceId: priceId,
         currentPeriodStart: new Date(sub.current_period_start * 1000).toISOString(),
         currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
-        cancelAtPeriodEnd: 0,
+        cancelAtPeriodEnd: false,
         canceledAt: null,
         updatedAt: new Date().toISOString(),
       })
@@ -387,7 +387,7 @@ async function handleCheckoutCompleted(db: any, session: Stripe.Checkout.Session
       status: sub.status,
       currentPeriodStart: new Date(sub.current_period_start * 1000).toISOString(),
       currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
-      cancelAtPeriodEnd: 0,
+      cancelAtPeriodEnd: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -402,7 +402,7 @@ async function handleSubscriptionUpdated(
 ): Promise<void> {
   const stripeSubId = subscription.id;
   const status = subscription.status;
-  const cancelAtPeriodEnd = subscription.cancel_at_period_end ? 1 : 0;
+  const cancelAtPeriodEnd = subscription.cancel_at_period_end ? true : false;
   const canceledAt = subscription.canceled_at
     ? new Date(subscription.canceled_at * 1000).toISOString()
     : null;

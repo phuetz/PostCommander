@@ -1,1 +1,0 @@
-ALTER TABLE posts ADD COLUMN original_post_id TEXT DEFAULT NULL;

@@ -21,7 +21,7 @@ export async function scoreLeadInteraction({
   authorName,
   userId,
 }: Omit<AutoReplyParams, 'brandTone'>) {
-  const model = createModel(providerId, modelId, userId);
+  const model = await createModel(providerId, modelId, userId);
 
   const systemPrompt = `You are an expert sales development representative (SDR) and community manager.
 Your goal is to score a social media comment left by a user on your brand's post.
@@ -72,7 +72,7 @@ export async function generateAutoReply({
   brandTone = 'Professional yet friendly',
   userId,
 }: AutoReplyParams): Promise<string> {
-  const model = createModel(providerId, modelId, userId);
+  const model = await createModel(providerId, modelId, userId);
 
   const systemPrompt = `You are an expert community manager for a brand.
 Your goal is to reply to a social media comment left by a user on your brand's post.
@@ -117,7 +117,7 @@ export async function runConversationalAgent({
   history,
   userId,
 }: AgentParams) {
-  const model = createModel(providerId, modelId, userId);
+  const model = await createModel(providerId, modelId, userId);
 
   const systemPrompt = `You are an expert SDR and community manager representing our brand.
 You are talking to a user named ${authorName} in the comments of a social media post.

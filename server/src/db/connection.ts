@@ -1,28 +1,19 @@
-import Database from 'better-sqlite3';
-import { drizzle, BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
-import path from 'node:path';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { runMigrations } from './migrate.js';
+import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
+import pg from 'pg';
+import { config } from '../config/env.js';
 import * as schema from './schema.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let pool: pg.Pool | null = null;
+let db: NodePgDatabase<typeof schema> | null = null;
 
-const DB_DIR = path.join(__dirname, '..', '..', 'data');
-const DB_PATH = path.join(DB_DIR, 'postcommander.db');
-
-let sqlite: Database.Database | null = null;
-let db: BetterSQLite3Database<typeof schema> | null = null;
-
-export function getDb(): Database.Database {
-  if (!sqlite) {
+export function getDb(): pg.Pool {
+  if (!pool) {
     throw new Error('Database not initialized. Call initDb() first.');
   }
-  return sqlite;
+  return pool;
 }
 
-export function getDrizzle(): BetterSQLite3Database<typeof schema> {
+export function getDrizzle(): NodePgDatabase<typeof schema> {
   if (!db) {
     throw new Error('Drizzle not initialized. Call initDb() first.');
   }
@@ -30,38 +21,28 @@ export function getDrizzle(): BetterSQLite3Database<typeof schema> {
 }
 
 export interface DbInstance {
-  sqlite: Database.Database;
-  db: BetterSQLite3Database<typeof schema>;
+  pool: pg.Pool;
+  db: NodePgDatabase<typeof schema>;
 }
 
 export function initDb(): DbInstance {
-  // Ensure the data directory exists
-  if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
-  }
+  const connectionString = config.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postcommander';
 
-  sqlite = new Database(DB_PATH);
+  pool = new pg.Pool({
+    connectionString,
+    max: 20, // Max number of connections in the pool
+  });
 
-  // Enable WAL mode for better concurrent read performance
-  sqlite.pragma('journal_mode = WAL');
+  db = drizzle(pool, { schema });
 
-  // Enable foreign keys
-  sqlite.pragma('foreign_keys = ON');
-
-  // Run migrations
-  runMigrations(sqlite);
-
-  // Initialize Drizzle
-  db = drizzle(sqlite, { schema });
-
-  console.log(`Database initialized at ${DB_PATH}`);
-  return { sqlite, db };
+  console.log(`Database initialized with connection to ${connectionString.split('@')[1]}`);
+  return { pool, db };
 }
 
-export function closeDb(): void {
-  if (sqlite) {
-    sqlite.close();
-    sqlite = null;
+export async function closeDb(): Promise<void> {
+  if (pool) {
+    await pool.end();
+    pool = null;
     db = null;
   }
 }

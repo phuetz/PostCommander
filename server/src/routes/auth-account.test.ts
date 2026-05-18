@@ -176,7 +176,7 @@ describe('Account data routes', () => {
       status: 'canceled',
       currentPeriodStart: now,
       currentPeriodEnd: now,
-      cancelAtPeriodEnd: 0,
+      cancelAtPeriodEnd: false,
       canceledAt: now,
       createdAt: now,
       updatedAt: now,

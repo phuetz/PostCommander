@@ -44,7 +44,7 @@ export async function predictEngagement(
   request: EngagementRequest,
   userId?: string,
 ): Promise<EngagementResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
 
   const system = `You are an expert social media analyst specializing in engagement prediction and content optimization. Analyze the given post content and predict its engagement potential.
 

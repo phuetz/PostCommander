@@ -47,7 +47,7 @@ export async function simulatePerformance(
   request: SimulateRequest,
   userId?: string,
 ): Promise<SimulateResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const audience = request.audience || 'general professional audience (1K-10K followers)';
 
   let historyContext = '';

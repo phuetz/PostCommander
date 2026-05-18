@@ -204,7 +204,7 @@ export const cancelUserSubscription = catchAsync(
     // Update local record
     await db
       .update(subscriptionsTable)
-      .set({ cancelAtPeriodEnd: 1, updatedAt: new Date().toISOString() })
+      .set({ cancelAtPeriodEnd: true, updatedAt: new Date().toISOString() })
       .where(eq(subscriptionsTable.id, subscription.id));
 
     const response: ApiResponse<{ message: string }> = {
@@ -238,7 +238,7 @@ export const resumeUserSubscription = catchAsync(
       .where(
         and(
           eq(subscriptionsTable.userId, user.id),
-          eq(subscriptionsTable.cancelAtPeriodEnd, 1),
+          eq(subscriptionsTable.cancelAtPeriodEnd, true),
           inArray(subscriptionsTable.status, ['active', 'trialing']),
         ),
       )
@@ -254,7 +254,7 @@ export const resumeUserSubscription = catchAsync(
     // Update local record
     await db
       .update(subscriptionsTable)
-      .set({ cancelAtPeriodEnd: 0, canceledAt: null, updatedAt: new Date().toISOString() })
+      .set({ cancelAtPeriodEnd: false, canceledAt: null, updatedAt: new Date().toISOString() })
       .where(eq(subscriptionsTable.id, subscription.id));
 
     const response: ApiResponse<{ message: string }> = {

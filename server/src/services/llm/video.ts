@@ -44,7 +44,7 @@ export async function generateVideoScript(
   params: GenerateVideoScriptParams,
   userId?: string,
 ): Promise<VideoScriptResult> {
-  const model = createModel(params.provider as LLMProviderId, params.model, userId);
+  const model = await createModel(params.provider as LLMProviderId, params.model, userId);
 
   const durationStr =
     params.duration === 'short'

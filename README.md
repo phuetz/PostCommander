@@ -1,206 +1,85 @@
-# PostCommander
+# 🚀 PostCommander : The Autonomous Growth Engine
 
-An intelligent social media content generation and publishing platform powered by AI. Generate, optimize, and publish posts across multiple platforms (Twitter, LinkedIn, Facebook, Instagram, TikTok, Pinterest) with data-driven insights and A/B testing capabilities.
+PostCommander n'est plus un simple outil de gestion de réseaux sociaux. C'est devenu une **plateforme complète de prospection agentique et d'automatisation de la croissance (Growth Engine)** pilotée par l'Intelligence Artificielle. 
 
-## Quickstart (3 minutes)
+Conçu pour les agences, les SDRs (Sales Development Representatives) et les créateurs de contenu ambitieux, PostCommander unifie la création de contenu, le scraping avancé (OSINT), et l'engagement conversationnel autonome.
 
-```bash
-npm install
-npm run dev
-# → http://localhost:5173/app
-```
+---
 
-1. The dev environment auto-logs you in (`DEV_AUTO_LOGIN_EMAIL` in `.env`).
-2. Land on the **Hub** at `/app` — four guided workflows.
-3. *(Optional)* Open **Réglages → Compte ChatGPT Pro** and click **Se connecter**. The server opens an OAuth flow on `localhost:1455`; complete it in your browser to use your ChatGPT Pro subscription instead of an API key.
-4. From the Hub, launch **Créer un post**, **Lancer un blog auto**, **Lancer une campagne outreach** or **Analyser ma performance**. Each is a guided wizard with a side help panel and an **✨ IA** button next to each field for AI-suggested values.
-5. Need every page? Toggle **Mode Expert** at the bottom of the sidebar to reveal the 25+ advanced screens.
+## 🌟 Fonctionnalités Principales
 
-### ChatGPT Pro CLI fallback
+### 1. Le Moteur de Création de Contenu (Content Studio)
+Gérez vos réseaux sociaux (LinkedIn, Twitter, Meta, etc.) comme une agence de classe mondiale.
+- **Génération IA Multi-Modèles :** Rédigez des posts en utilisant OpenAI, Anthropic, Google ou Mistral.
+- **Approval Workflow :** Un système de validation complet (`draft` -> `needs_approval` -> `approved`) pour les équipes éditoriales.
+- **Calendrier & Planification :** Visualisez, glissez-déposez et planifiez vos publications sur plusieurs plateformes simultanément.
 
-If port 1455 is occupied or you're running on a remote server, use the standalone login:
+### 2. Le Moteur Autoblog (Autopilot)
+Un système autonome qui gère votre SEO sans intervention humaine.
+- **BullMQ Workers :** Un processus en arrière-plan qui génère périodiquement des articles de blog techniques ou marketing basés sur des règles définies par l'utilisateur.
+- **Publication Automatisée :** L'IA rédige, formate en Markdown/HTML et publie les articles selon une fréquence précise (quotidienne, hebdomadaire).
 
-```bash
-node scripts/pc-login-chatgpt.mjs
-# (or pc-login-chatgpt.cmd on Windows, pc-login-chatgpt.sh on Unix)
-```
+### 3. La Suite d'Investigation OSINT (Growth Engine)
+L'outil le plus puissant de la plateforme. Un scanner de prospection B2B utilisant des techniques de hackers éthiques.
+- **Vision IA (Scanner Biométrique) :** Uploadez la photo d'un badge ou d'un visage de conférence. L'IA déduit la profession et l'entreprise, et cherche l'identité sur le web.
+- **Extraction Furtive (Stagehand) :** Extrait silencieusement le CV et les diplômes depuis LinkedIn via l'injection de cookies de session (`li_at`).
+- **Deep Dossier & Username Pivoting :** Traque les pseudonymes de la cible sur Reddit, GitHub, etc., pour déduire ses passions secrètes et génère un rapport complet.
+- **Intent Tracker (Google Dorking) :** Scanne automatiquement les plateformes de recrutement (Lever, Greenhouse) pour savoir si l'entreprise de votre prospect a un besoin immédiat d'achat.
+- **Waterfall Contact Finder & Password Reset Exploit :** Cherche l'email du prospect gratuitement sur le web, génère des permutations, et vérifie secrètement l'existence de l'adresse en testant les formulaires de récupération de mot de passe (Microsoft 365, Zoom).
+- **Empathy Synthesizer (Hippocampe) :** Utilise la base vectorielle `Mem0` pour analyser psychologiquement le prospect et générer des Icebreakers ultra-personnalisés. L'intégration permet d'ajouter le prospect et son message directement dans une séquence automatisée.
 
-The script writes the encrypted tokens to `~/.postcommander/auth/openai.json`. The server imports them into the DB on the next `getChatGptAuth()` call.
+### 4. MySoulmate & Interaction Agentique (Phase 5-8)
+PostCommander intègre des modules conversationnels avancés.
+- **ReAct Agents :** Agents conversationnels capables de qualifier des leads en temps réel via une interface de chat.
+- **Intégration Vocale (Kokoro-82M) :** Synthèse vocale 100% JavaScript (sans dépendances lourdes) pour des appels IA interactifs ou des agents vocaux.
+- **Mémoire Vectorielle Long Terme :** Chaque interaction est sauvegardée dans un "Memory Box" pour que les agents virtuels se souviennent des prospects pour toujours.
 
+---
 
+## 🏗️ Architecture Technique (Monorepo)
 
-## Features
+Le projet utilise les npm workspaces pour structurer le code en trois parties distinctes :
 
-**🚀 Core Platform & Multi-Channel Publishing**
-- **Multi-Platform Integrations** — Connect and publish natively to Twitter/X, LinkedIn, Facebook, Instagram, TikTok, and Pinterest.
-- **Visual Content Calendar** — Schedule posts, manage queues, and orchestrate your entire publishing strategy.
-- **Analytics & Insights** — Track engagement metrics, trending topics, and viral patterns across all accounts.
-- **Team Workspaces** — Collaborate with team members using role-based access control.
-- **Integrated Billing** — Full SaaS subscription management powered by Stripe.
+*   **`client/` (Frontend) :** React 19, Vite, Tailwind CSS, TanStack Query, Framer Motion. 
+*   **`server/` (Backend) :** Node.js, Express, better-sqlite3 (SQLite), Drizzle ORM, BullMQ (Redis), Vercel AI SDK, Mem0 (Vector DB), Stagehand / Browserbase (Headless Browser Automation).
+*   **`shared/` (Types & Contrats) :** Zod schemas et types TypeScript partagés.
 
-**🧠 AI-Powered Content Engine**
-- **Multi-LLM Architecture** — Generate content using OpenAI, Anthropic, Google, Mistral, or local Ollama models.
-- **Custom Writing Styles** — Train the AI to mimic your unique voice by analyzing your past successful posts.
-- **Content Pillars & Ideas Board** — Organize your strategy with color-coded pillars and manage an idea backlog.
-- **Rich Media Generation** — Generate and attach AI images directly within the post composer.
-- **A/B Testing Simulator** — Test different hooks and post variations to predict and optimize engagement.
-- **Hooks, Carousels & Templates** — Access pre-built generators for high-converting formats.
-- **AI Copilot (Global)** — A persistent sidebar assistant accessible from anywhere in the app to brainstorm, generate, and orchestrate actions.
+---
 
-**⚙️ Autopilot & Advanced Automation**
-- **Visual Workflow Builder** — A drag-and-drop canvas (powered by React Flow) to build complex lead nurturing and automation sequences.
-- **Autoblog Engine** — Configure recurring background jobs that autonomously research and draft expert-level blog articles based on your chosen frequency and topic.
-- **Automated Outreach Campaigns** — Discover prospects via targeted keywords, score profiles, and automatically dispatch personalized DM campaigns.
-- **Autonomous SDR Agent** — Automatically scrape, qualify, and converse with leads in the comments section using stateful, multi-turn ReAct dialogue.
-- **Dynamic Auto-Plug** — Automatically append promotional CTAs or links to your posts the exact moment they hit virality thresholds.
-- **Evergreen Recycling** — Automatically identify, recycle, and republish your top-performing historical content.
+## 🛠️ Installation et Déploiement
 
-**🧩 Chrome Extension (Growth Hacker Suite)**
-- **Ghostwriter (`/ai`)** — Type `/ai` directly into native social media comment boxes to auto-generate context-aware replies on the fly.
-- **Web Clipper (Repurposing)** — Draft social posts instantly from any active article or YouTube video tab.
-- **Shadow Profiling** — Silently extract CRM data and lead insights from visited LinkedIn profiles.
-- **Virality Checker** — Real-time post quality scoring overlay displayed directly on LinkedIn and Twitter.
+### Prérequis
+- **Node.js** (v18+)
+- **Redis** (Requis pour BullMQ et l'Autoblog/Outreach engine)
+- **Clés API requises :** 
+  - OpenAI / Anthropic (LLM)
+  - Browserbase (`BROWSERBASE_API_KEY` & `PROJECT_ID` pour l'OSINT furtif)
+  - Mem0 (`MEM0_API_KEY` pour la mémoire à long terme)
+  - Tavily (`TAVILY_API_KEY` pour la recherche web)
+  - LinkedIn Session Cookie (`li_at` pour le scraping)
 
-**🤖 Agentic First (Headless AI)**
-- **Model Context Protocol (MCP)** — Native SSE server allowing Claude Desktop or Cursor to directly connect and query your metrics or draft posts.
-- **OpenAPI Swagger** — Auto-generated OpenAPI JSON spec enabling ChatGPT Custom Actions to interact with your PostCommander instance seamlessly.
+### Lancement en Développement
+1. Cloner le repo et installer les dépendances à la racine :
+   ```bash
+   npm install
+   ```
+2. Configurer les variables d'environnement en copiant le fichier `.env.example` vers `.env` à la racine.
+3. Lancer la base de données Redis localement.
+4. Lancer le frontend, le backend et les workers en parallèle :
+   ```bash
+   npm run dev
+   ```
 
-**🎨 Premium "Nexus" UX**
-- **Command Palette (⌘K)** — Lightning-fast global navigation and action execution.
-- **Dynamic Message Templates** — Regex-powered snippets with auto-fill variables for ultra-fast Inbox responses.
-- **Glassmorphism & Micro-animations** — A premium, stunning interface powered by Framer Motion and Tailwind.
+### Commandes Utiles
+*   **Build de production :** `npm run build` (Compile `shared`, `server` et `client`).
+*   **Tests :** `npm test -w @postcommander/server` ou `npm run typecheck`.
+*   **Linting :** `npm run lint` et `npm run format`.
 
-## Tech Stack
+---
 
-- **Frontend**: React 19 + Vite, TanStack Query, Tailwind CSS
-- **Backend**: Express.js + TypeScript, SQLite (with Drizzle ORM)
-- **Chrome Extension**: Manifest V3, React, CRXJS Vite Plugin
-- **Job Queue**: BullMQ (Redis-backed)
-- **LLM Integration**: Vercel AI SDK
-- **Testing**: Playwright (e2e), Vitest (unit/integration)
-- **Package Management**: npm workspaces (monorepo)
+## 🛡️ Sécurité & Conformité (Avertissements OSINT)
+Les modules d'investigation avancés ("Password Reset Exploit", "Username Pivoting", et extraction de cookies de session) doivent être utilisés dans le **strict respect du RGPD/CCPA**. Le logiciel est conçu comme un outil de productivité et de Growth Hacking, non comme une arme de nuisance. L'usage de `Stagehand` pour simuler des requêtes humaines doit rester en dessous des seuils d'alerte des fournisseurs (Google/Microsoft).
 
-## Quick Start
+---
 
-### Prerequisites
-
-- Node.js 18+
-- npm 9+
-- Redis (for job queue)
-- At least one LLM provider API key (OpenAI, Anthropic, Google, Mistral, or local Ollama)
-
-### Installation
-
-```bash
-# Install dependencies
-npm install
-
-# Copy environment template and configure
-cp .env.example .env
-
-# Set required variables in .env:
-# - JWT_SECRET (any random string)
-# - ENCRYPTION_KEY (32-byte hex key)
-# - At least one LLM provider key (OPENAI_API_KEY, ANTHROPIC_API_KEY, etc.)
-# - REDIS_URL (default: redis://localhost:6379)
-
-# For development auto-login (optional):
-# DEV_AUTO_LOGIN_EMAIL=your-email@example.com
-```
-
-### Development
-
-```bash
-# Start dev server (client at http://localhost:5173, API at http://localhost:3001)
-npm run dev
-
-# Run tests
-npm run test                    # unit + integration tests
-npm run test:e2e               # end-to-end tests with Playwright
-
-# Lint and format
-npm run lint
-npm run format
-
-# Type checking
-npm run typecheck
-
-# Full verification (lint + build + test)
-npm run verify
-npm run verify:release         # includes e2e tests
-```
-
-### Database
-
-```bash
-# Reset database (deletes all data)
-npm run db:reset
-
-# Backup database
-npm run db:backup --keep 5 --out backups/
-```
-
-## Architecture
-
-See [CLAUDE.md](./CLAUDE.md) for detailed architecture documentation including:
-
-- Monorepo structure and build order
-- Server boot sequence and job workers
-- Database migrations and schema
-- Client structure and routing
-- LLM provider abstraction
-- Authentication and authorization
-
-## API Documentation
-
-### Health Checks
-
-- `GET /api/health` — Full health check (database, Redis, queue status)
-- `GET /api/live` — Lightweight liveness check (uptime, version)
-
-### Main Endpoints
-
-- `/api/auth` — Authentication (login, register, password reset)
-- `/api/generate` — Content generation
-- `/api/posts` — Post management and publishing
-- `/api/platforms` — Social platform connections
-- `/api/analytics` — Post analytics and performance
-- `/api/templates` — Content templates
-- `/api/images` — Image generation and management
-- `/api/workspaces` — Team workspace management
-
-For detailed API routes, see `server/src/routes/`.
-
-## Environment Variables
-
-See `.env.example` for all available options. Key variables:
-
-**Required in production:**
-
-- `JWT_SECRET` — Session token signing key
-- `ENCRYPTION_KEY` — User data encryption (32-byte hex)
-- `REDIS_URL` — Redis connection for job queue
-- At least one LLM provider key
-
-**Optional:**
-
-- `DEV_AUTO_LOGIN_EMAIL` — Auto-login in development
-- `ADMIN_EMAILS` — Comma-separated list of admin emails
-- `BASE_URL` — Public-facing URL (must be HTTPS for social platform callbacks)
-- `STRIPE_*` — Stripe payment configuration
-
-## Contributing
-
-1. Create a feature branch from `main`
-2. Make your changes following the conventions in [CLAUDE.md](./CLAUDE.md)
-3. Run `npm run verify:release` to ensure quality
-4. Commit and push to your branch
-5. Open a pull request
-
-## License
-
-Proprietary — All rights reserved
-
-## Support
-
-For issues, questions, or feedback, open an issue on GitHub or contact the development team.
+> *Documentation générée par Antigravity - The AI Growth Partner (Mai 2026).*

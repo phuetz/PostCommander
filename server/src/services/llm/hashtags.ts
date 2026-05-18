@@ -82,7 +82,7 @@ export async function researchHashtags(
   request: ResearchHashtagsRequest,
   userId?: string,
 ): Promise<ResearchHashtagsResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const count = request.count ?? 15;
 
   const platformGuide =

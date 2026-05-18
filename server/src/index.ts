@@ -11,11 +11,15 @@ import './workers/outreach.worker.js';
 import { startAnalyticsWorker } from './workers/analytics.worker.js';
 import { startAutoBlogWorker } from './workers/autoblog.worker.js';
 import { startOutreachWorker } from './workers/outreach.worker.js';
+import { startPublishingWorker } from './workers/publishing.worker.js';
 
 async function main(): Promise<void> {
-  // Initialize the database (runs migrations on startup)
+  // Initialize the database
   logger.info('Initializing database...');
   initDb();
+  
+  const { runMigrations } = await import('./db/migrate.js');
+  await runMigrations();
 
   // Seed reference data
   logger.info('Seeding reference data...');
@@ -27,6 +31,7 @@ async function main(): Promise<void> {
   startAnalyticsWorker();
   startAutoBlogWorker();
   startOutreachWorker();
+  startPublishingWorker();
 
   // Create the Express app
   const app = createApp();

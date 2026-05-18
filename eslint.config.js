@@ -5,11 +5,11 @@ import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/build/**', '**/dev-dist/**'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/build/**', '**/dev-dist/**', '**/memory-engine/**'],
   },
   js.configs.recommended,
   {
-    files: ['scripts/**/*.mjs'],
+    files: ['**/*.mjs'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

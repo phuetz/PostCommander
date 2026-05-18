@@ -39,6 +39,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Spinner } from '@/components/ui/Spinner';
 import { ChatGPTProSection } from '@/components/settings/ChatGPTProSection';
+import { WorkspaceManager } from '@/components/settings/WorkspaceManager';
 
 const platformIcons: Record<PlatformId, React.ElementType> = {
   linkedin: Linkedin,
@@ -474,6 +475,9 @@ export function SettingsPage() {
           </div>
         </div>
       </Card>
+
+      {/* Team / Workspace Management */}
+      <WorkspaceManager />
 
       {/* Save button */}
       <div className="flex justify-end pb-6">

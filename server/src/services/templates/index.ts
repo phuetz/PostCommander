@@ -126,7 +126,7 @@ export async function useTemplate(
     throw new Error(`Missing variables: ${unfilled.join(', ')}`);
   }
 
-  const model = createModel(provider, modelId, userId);
+  const model = await createModel(provider, modelId, userId);
 
   const system = `You are an expert social media content creator. Generate a high-quality social media post based on the following filled template prompt.
 

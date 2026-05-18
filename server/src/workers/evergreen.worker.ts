@@ -49,7 +49,7 @@ export async function runEvergreenRecycling() {
     console.log(`[Evergreen Worker] Recyclage du post ${post.id}...`);
 
     try {
-      const model = createModel('openai', 'gpt-4o', post.userId || undefined);
+      const model = await createModel('openai', 'gpt-4o', post.userId || undefined);
 
       const systemPrompt = `You are an expert social media manager.
 Your task is to take a previously successful post and REWRITE it completely to give it a fresh angle.

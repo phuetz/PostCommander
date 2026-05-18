@@ -8,17 +8,34 @@ services:
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postcommander
       # Required in production:
       # - JWT_SECRET=${JWT_SECRET}
       # - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       # Optional but recommended:
       # - BASE_URL=https://your-public-domain.example
       # - RESEND_API_KEY=${RESEND_API_KEY}
-    volumes:
-      - sqlite_data:/app/server/data
     depends_on:
       redis:
         condition: service_healthy
+      postgres:
+        condition: service_started
+
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postcommander
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -33,5 +50,5 @@ services:
       retries: 5
 
 volumes:
-  sqlite_data:
+  pgdata:
   redis_data:

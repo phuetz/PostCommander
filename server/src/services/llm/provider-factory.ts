@@ -6,85 +6,80 @@ import { createOllama } from 'ollama-ai-provider';
 import type { LanguageModelV1 } from 'ai';
 import type { LLMProviderId } from '@postcommander/shared';
 import { config } from '../../config/env.js';
-import { getDb } from '../../db/connection.js';
+import { getDrizzle } from '../../db/connection.js';
+import { settings as settingsTable } from '../../db/schema.js';
+import { eq, and } from 'drizzle-orm';
 import type { ProviderConfig } from './types.js';
 import { decryptSecret } from '../../utils/secret-crypto.js';
 
-/**
- * Retrieve an API key: first check env vars, then fall back to the settings DB.
- */
-function getApiKey(settingKey: string, userId?: string, envValue?: string): string | undefined {
+async function getApiKey(settingKey: string, userId?: string, envValue?: string): Promise<string | undefined> {
   if (envValue) return envValue;
   if (!userId) return undefined;
 
   try {
-    const db = getDb();
-    const row = db
-      .prepare('SELECT value FROM settings WHERE user_id = ? AND key = ?')
-      .get(userId, settingKey) as { value: string } | undefined;
+    const db = getDrizzle();
+    const [row] = await db
+      .select({ value: settingsTable.value })
+      .from(settingsTable)
+      .where(and(eq(settingsTable.userId, userId), eq(settingsTable.key, settingKey)))
+      .limit(1);
     return decryptSecret(row?.value);
   } catch {
     return undefined;
   }
 }
 
-function getSettingValue(key: string, userId?: string): string | undefined {
+async function getSettingValue(key: string, userId?: string): Promise<string | undefined> {
   if (!userId) return undefined;
 
   try {
-    const db = getDb();
-    const row = db
-      .prepare('SELECT value FROM settings WHERE user_id = ? AND key = ?')
-      .get(userId, key) as { value: string } | undefined;
+    const db = getDrizzle();
+    const [row] = await db
+      .select({ value: settingsTable.value })
+      .from(settingsTable)
+      .where(and(eq(settingsTable.userId, userId), eq(settingsTable.key, key)))
+      .limit(1);
     return row?.value;
   } catch {
     return undefined;
   }
 }
 
-/**
- * Build provider configuration by merging env vars and DB settings.
- */
-function getProviderConfig(providerId: LLMProviderId, userId?: string): ProviderConfig {
+async function getProviderConfig(providerId: LLMProviderId, userId?: string): Promise<ProviderConfig> {
   switch (providerId) {
     case 'openai':
       return {
-        apiKey: getApiKey('openaiApiKey', userId, config.OPENAI_API_KEY),
+        apiKey: await getApiKey('openaiApiKey', userId, config.OPENAI_API_KEY),
       };
     case 'anthropic':
       return {
-        apiKey: getApiKey('anthropicApiKey', userId, config.ANTHROPIC_API_KEY),
+        apiKey: await getApiKey('anthropicApiKey', userId, config.ANTHROPIC_API_KEY),
       };
     case 'google':
       return {
-        apiKey: getApiKey('googleApiKey', userId, config.GOOGLE_GENERATIVE_AI_API_KEY),
+        apiKey: await getApiKey('googleApiKey', userId, config.GOOGLE_GENERATIVE_AI_API_KEY),
       };
     case 'mistral':
       return {
-        apiKey: getApiKey('mistralApiKey', userId, config.MISTRAL_API_KEY),
+        apiKey: await getApiKey('mistralApiKey', userId, config.MISTRAL_API_KEY),
       };
     case 'ollama':
       return {
-        baseUrl: getSettingValue('ollamaBaseUrl', userId) || config.OLLAMA_BASE_URL,
+        baseUrl: await getSettingValue('ollamaBaseUrl', userId) || config.OLLAMA_BASE_URL,
       };
     case 'chatgpt-pro':
-      // ChatGPT Pro uses a direct Codex Responses client, not the AI SDK provider.
-      // See services/llm/chatgpt-pro/sdk-wrapper.ts.
       return {};
     default:
       throw new Error(`Unknown provider: ${providerId}`);
   }
 }
 
-/**
- * Create a Vercel AI SDK language model instance for the given provider and model.
- */
-export function createModel(
+export async function createModel(
   providerId: LLMProviderId,
   modelId: string,
   userId?: string,
-): LanguageModelV1 {
-  const providerConfig = getProviderConfig(providerId, userId);
+): Promise<LanguageModelV1> {
+  const providerConfig = await getProviderConfig(providerId, userId);
 
   switch (providerId) {
     case 'openai': {
@@ -132,8 +127,6 @@ export function createModel(
       return ollama(modelId);
     }
     case 'chatgpt-pro':
-      // ChatGPT Pro does not flow through the Vercel AI SDK — call chatgptProGenerate
-      // directly from `services/llm/chatgpt-pro/sdk-wrapper.ts` instead.
       throw new Error(
         'ChatGPT Pro provider uses its own client. Call chatgptProGenerate() directly instead of createModel().',
       );

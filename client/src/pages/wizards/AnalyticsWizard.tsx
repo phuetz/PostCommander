@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, BarChart3, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Wizard, type WizardStep } from '@/components/wizard';
 import { getAnalyticsOverview, type AnalyticsOverview } from '@/services/api';
@@ -23,6 +23,7 @@ export function AnalyticsWizard() {
   const steps: WizardStep<AnalyticsWizardData>[] = [
     {
       key: 'period',
+      icon: Settings,
       title: 'Période',
       subtitle: 'Sur quelle fenêtre veux-tu analyser ?',
       helpTitle: 'Aide : choisir une période',
@@ -66,6 +67,7 @@ export function AnalyticsWizard() {
     },
     {
       key: 'report',
+      icon: TrendingUp,
       title: 'Rapport',
       subtitle: 'Vue d\'ensemble',
       helpTitle: 'Aide : lire le rapport',

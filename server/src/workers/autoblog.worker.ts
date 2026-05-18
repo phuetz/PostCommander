@@ -115,7 +115,10 @@ export const autoBlogWorker = new Worker(
           language: 'fr',
         }, conf.userId);
 
-        // Save to posts table as draft
+        // Save to posts table as scheduled
+        const scheduledTime = new Date();
+        scheduledTime.setHours(scheduledTime.getHours() + 1); // Schedule 1 hour from now
+
         await db.insert(posts).values({
           id: crypto.randomUUID(),
           userId: conf.userId,
@@ -124,8 +127,9 @@ export const autoBlogWorker = new Worker(
           originalPrompt: `[AutoBlog: ${conf.topic}]`,
           llmProvider: conf.provider,
           llmModel: conf.model,
-          platforms: JSON.stringify(['linkedin']), // Save as standard single platform for draft
-          status: 'draft',
+          platforms: JSON.stringify(['linkedin']), // Default platform
+          status: 'scheduled',
+          scheduledAt: scheduledTime.toISOString(),
         });
 
         // Update last_generated_at

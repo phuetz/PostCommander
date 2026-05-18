@@ -12,9 +12,9 @@ export function closeTestDatabase() {
   closeDb();
 }
 
-export function resetTestDatabase() {
+export async function resetTestDatabase() {
   const db = getDb();
-  db.exec(`
+  await db.query(`
     DELETE FROM deleted_billing_records;
     DELETE FROM deleted_account_audits;
     DELETE FROM content_ideas;

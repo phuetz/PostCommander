@@ -42,7 +42,7 @@ export async function generateCarousel(
   request: GenerateCarouselRequest,
   userId?: string,
 ): Promise<GenerateCarouselResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const slideCount = request.slideCount ?? 7;
 
   let platformInstructions: string;

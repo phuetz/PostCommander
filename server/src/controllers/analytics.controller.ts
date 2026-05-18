@@ -292,7 +292,7 @@ export const generateCommentReply = catchAsync(async (req: Request, res: Respons
 
   await db
     .update(socialComments)
-    .set({ isReplied: 1, replyContent: reply })
+    .set({ isReplied: true, replyContent: reply })
     .where(eq(socialComments.id, commentId));
 
   res.json({ success: true, data: { reply } });
@@ -428,14 +428,14 @@ export const runAgentStep = catchAsync(async (req: Request, res: Response) => {
 
   // Check if escalateToHuman was called
   const toolCalls = result.toolCalls || [];
-  const requiresHuman = toolCalls.some((tc) => tc.toolName === 'escalateToHuman') ? 1 : 0;
+  const requiresHuman = toolCalls.some((tc) => tc.toolName === 'escalateToHuman') ? true : false;
 
   await db
     .update(socialComments)
     .set({
       agentState: JSON.stringify(history),
       requiresHuman,
-      isReplied: 1, // Mark as replied since the agent handled it
+      isReplied: true, // Mark as replied since the agent handled it
     })
     .where(eq(socialComments.id, commentId));
 

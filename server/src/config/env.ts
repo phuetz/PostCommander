@@ -28,6 +28,7 @@ const envSchema = z.object({
   MISTRAL_API_KEY: z.string().optional(),
   TAVILY_API_KEY: z.string().optional(),
   MEM0_API_KEY: z.string().optional(),
+  MEM0_HOST: z.string().optional(),
   OLLAMA_BASE_URL: z.string().default('http://localhost:11434'),
 
   // OAuth credentials — optional until platform connections are configured
@@ -54,6 +55,7 @@ const envSchema = z.object({
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  DATABASE_URL: z.string().optional(),
   STRIPE_PRO_MONTHLY_PRICE_ID: z.string().optional(),
   STRIPE_PRO_YEARLY_PRICE_ID: z.string().optional(),
   STRIPE_BUSINESS_MONTHLY_PRICE_ID: z.string().optional(),

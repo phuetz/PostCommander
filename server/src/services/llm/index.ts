@@ -15,7 +15,7 @@ export async function generatePost(
 ): Promise<LLMGenerateResult> {
   // --- Multi-Agent Pipeline (Non-streaming) ---
   const enrichedPrompt = await enrichPromptWithUrls(request.prompt);
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
 
   // Agent 1: Researcher
   const researcherSystem = `You are an expert social media researcher and strategist.
@@ -95,7 +95,7 @@ export async function streamPost(
 ): Promise<LLMGenerateResult> {
   // --- Multi-Agent Pipeline ---
   const enrichedPrompt = await enrichPromptWithUrls(request.prompt);
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
 
   // Agent 1: Researcher
   onChunk({ type: 'agent-status', content: '🕵️ L\'Agent Chercheur rassemble des informations et idées...' });
@@ -192,7 +192,7 @@ Do NOT use hashtags. Focus purely on writing an amazing draft.`;
             prompt: currentPrompt,
           });
         } else {
-          const variantsModel = createModel(request.provider, request.model, userId);
+          const variantsModel = await createModel(request.provider, request.model, userId);
           const variantsResult = await generateText({
             model: variantsModel,
             system: variantsPrompts.system,
@@ -267,7 +267,7 @@ export async function generateBlogArticle(
     return { content };
   }
 
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const result = await generateText({
     model,
     system,

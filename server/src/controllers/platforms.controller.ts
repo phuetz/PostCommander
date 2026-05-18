@@ -174,7 +174,7 @@ export const handleCallback = catchAsync(async (req: Request, res: Response): Pr
   await db
     .delete(connectionsTable)
     .where(
-      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)),
+      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId as string)),
     );
 
   // Store the new connection
@@ -222,7 +222,7 @@ export const disconnectPlatform = catchAsync(async (req: Request, res: Response)
     .select()
     .from(connectionsTable)
     .where(
-      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)),
+      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId as string)),
     )
     .limit(1);
 
@@ -233,7 +233,7 @@ export const disconnectPlatform = catchAsync(async (req: Request, res: Response)
   await db
     .delete(connectionsTable)
     .where(
-      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId)),
+      and(eq(connectionsTable.userId, requestUser.id), eq(connectionsTable.platform, platformId as string)),
     );
 
   const response: ApiResponse = {

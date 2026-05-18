@@ -42,9 +42,10 @@ const statusBadgeMap: Record<
   { variant: 'default' | 'success' | 'warning' | 'danger' | 'info'; label: string }
 > = {
   draft: { variant: 'default', label: 'Draft' },
-  pending_approval: { variant: 'warning', label: 'Pending Approval' },
+  rejected: { variant: 'danger', label: 'Refusé' },
+  needs_approval: { variant: 'warning', label: 'À valider' },
   approved: { variant: 'success', label: 'Approved' },
-  published: { variant: 'success', label: 'Published' },
+  published: { variant: 'success', label: 'Publié' },
   scheduled: { variant: 'info', label: 'Scheduled' },
   failed: { variant: 'danger', label: 'Failed' },
 };

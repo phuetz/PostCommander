@@ -196,7 +196,7 @@ export async function suggestFieldValue(params: SuggestParams): Promise<AssistFi
       })
     ).trim();
   } else {
-    const llm = createModel(provider, model, params.userId);
+    const llm = await createModel(provider, model, params.userId);
     const result = await generateText({
       model: llm,
       system: prompt.system,

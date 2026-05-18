@@ -341,7 +341,7 @@ export async function generateIdeas(
   const pillar = await getPillar(userId, pillarId);
   if (!pillar) throw new Error('Pillar not found');
 
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const count = request.count ?? 5;
 
   const system = `You are a content strategist helping plan social media content. Generate creative, specific content ideas for the given content pillar.

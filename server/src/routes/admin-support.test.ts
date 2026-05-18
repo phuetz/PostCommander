@@ -61,7 +61,7 @@ describe('Admin support routes', () => {
       status: 'canceled',
       currentPeriodStart: now,
       currentPeriodEnd: now,
-      cancelAtPeriodEnd: 0,
+      cancelAtPeriodEnd: false,
       canceledAt: now,
       createdAt: now,
       updatedAt: now,
@@ -101,7 +101,7 @@ describe('Admin support routes', () => {
       plan: 'pro',
     });
     expect(response.body.data.audits[0].snapshot.user.email).toBeUndefined();
-    expect(response.body.data.audits[0].snapshot.contentCounts.posts).toBe(0);
+    expect(response.body.data.audits[0].snapshot.contentCounts.posts).toBe(false);
     expect(response.body.data.audits[0].billingRecords).toHaveLength(2);
     expect(
       response.body.data.audits[0].billingRecords

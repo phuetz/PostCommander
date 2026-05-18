@@ -62,8 +62,8 @@ router.use('/audio', audioRoutes);
 router.get('/health', async (_req, res) => {
   let dbStatus = 'ok';
   try {
-    const db = getDb();
-    db.prepare('SELECT 1').get();
+    const pool = getDb();
+    await pool.query('SELECT 1');
   } catch {
     dbStatus = 'error';
   }

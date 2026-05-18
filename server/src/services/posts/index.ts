@@ -82,7 +82,7 @@ export async function publishPost(
     const [connection] = await db
       .select()
       .from(connectionsTable)
-      .where(and(eq(connectionsTable.userId, userId), eq(connectionsTable.platform, platformId)))
+      .where(and(eq(connectionsTable.userId, userId), eq(connectionsTable.platform, platformId as string)))
       .orderBy(desc(connectionsTable.connectedAt))
       .limit(1);
 

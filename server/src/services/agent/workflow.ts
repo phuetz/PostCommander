@@ -73,7 +73,7 @@ export async function processAgentWorkflow(commentId: string) {
 
   // 3. CONVERSATIONAL AGENT PHASE
   // Only proceed if it's a potential or hot lead and doesn't require a human already.
-  if ((currentStatus === 'potential' || currentStatus === 'hot') && comment.requiresHuman !== 1) {
+  if ((currentStatus === 'potential' || currentStatus === 'hot') && comment.requiresHuman !== true) {
     logger.info(`Running conversational agent for comment ${commentId}...`);
     try {
       // Parse history or initialize it
@@ -98,7 +98,7 @@ export async function processAgentWorkflow(commentId: string) {
       history.push({ role: 'assistant', content: agentResult.text });
 
       // Check if it required human escalation
-      const requiresHuman = agentResult.text.includes('[SYSTEM: Conversation escalated') ? 1 : 0;
+      const requiresHuman = agentResult.text.includes('[SYSTEM: Conversation escalated') ? true : false;
 
       await db
         .update(schema.socialComments)
@@ -106,7 +106,7 @@ export async function processAgentWorkflow(commentId: string) {
           agentState: JSON.stringify(history),
           replyContent: agentResult.text,
           requiresHuman,
-          isReplied: 1, // Marked as replied for now
+          isReplied: true, // Marked as replied for now
         })
         .where(eq(schema.socialComments.id, commentId));
 

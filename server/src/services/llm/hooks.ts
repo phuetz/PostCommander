@@ -35,7 +35,7 @@ export async function generateHooks(
   request: GenerateHooksRequest,
   userId?: string,
 ): Promise<GenerateHooksResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
   const count = request.count ?? 5;
 
   const system = `You are a world-class social media copywriter specializing in viral hooks and opening lines. Your job is to generate attention-grabbing first lines that stop people from scrolling.

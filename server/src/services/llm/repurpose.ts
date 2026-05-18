@@ -88,7 +88,7 @@ export async function repurposePost(
   request: RepurposeRequest,
   userId?: string,
 ): Promise<RepurposeResult> {
-  const model = createModel(request.provider, request.model, userId);
+  const model = await createModel(request.provider, request.model, userId);
 
   const sourcePlatformName = PLATFORM_SPECS[request.sourcePlatform]?.name ?? request.sourcePlatform;
 

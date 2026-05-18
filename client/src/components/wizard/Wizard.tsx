@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, type ReactNode } from 'react';
+import React, { useState, useMemo, useCallback, type ReactNode } from 'react';
 import clsx from 'clsx';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';

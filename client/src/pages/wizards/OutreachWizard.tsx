@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Target, Search, MessageSquare, Rocket } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { OutreachPlatform } from '@postcommander/shared';
 import { Wizard, AIFillButton, type WizardStep } from '@/components/wizard';
@@ -46,6 +47,7 @@ export function OutreachWizard() {
   const steps: WizardStep<OutreachWizardData>[] = [
     {
       key: 'icp',
+      icon: Target,
       title: 'ICP',
       subtitle: 'Qui veux-tu atteindre ?',
       helpTitle: 'Aide : définir un ICP (Ideal Customer Profile)',
@@ -163,6 +165,7 @@ export function OutreachWizard() {
     },
     {
       key: 'source',
+      icon: Search,
       title: 'Source',
       subtitle: 'Où chercher les prospects ?',
       helpTitle: 'Aide : mots-clés et plateforme',
@@ -224,6 +227,7 @@ export function OutreachWizard() {
     },
     {
       key: 'message',
+      icon: MessageSquare,
       title: 'Message',
       subtitle: 'Le template envoyé à chaque prospect',
       helpTitle: 'Aide : écrire un bon message d\'outreach',
@@ -288,6 +292,7 @@ export function OutreachWizard() {
     },
     {
       key: 'launch',
+      icon: Rocket,
       title: 'Lancement',
       subtitle: 'Limites et démarrage',
       helpTitle: 'Aide : la limite quotidienne',

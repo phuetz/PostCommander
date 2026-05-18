@@ -89,7 +89,7 @@ export const analyticsWorker = new Worker(
               `🔥 Auto-Plug threshold reached for post ${post.id}! Publishing comment: "${post.autoPlugContent}"`,
             );
             // In a real scenario, call platform API to post the comment here
-            hasAutoPlugged = 1;
+            hasAutoPlugged = true;
           }
 
           // Update publication stats
@@ -117,7 +117,7 @@ export const analyticsWorker = new Worker(
               authorHandle: c.authorHandle,
               content: c.content,
               publishedAt: c.publishedAt,
-              isReplied: 0,
+              isReplied: false,
             }));
 
             await db.insert(socialComments).values(commentsToInsert);

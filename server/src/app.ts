@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/error-handler.js';
 import { setupMiddlewares } from './middleware/setup.js';
 import apiRoutes from './routes/index.js';
 import { stripeWebhookHandler } from './controllers/stripe.controller.js';
+import { handleBridgeProposal } from './controllers/bridge-proposal.controller.js';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import { mcpRouter } from './mcp/server.js';
@@ -24,6 +25,10 @@ export function createApp(): express.Application {
 
   // ── Stripe webhook (needs raw body BEFORE json parsing) ────
   app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
+
+  // ── ESN bridge: HMAC-signed server-to-server proposal generator. Needs raw
+  //    body so the signature stays byte-identical with what ESN signed.
+  app.post('/api/bridge/proposal', express.raw({ type: 'application/json' }), handleBridgeProposal);
 
   // ── Body parsing ────────────────────────────────────────────
   app.use(express.json({ limit: '1mb' }));

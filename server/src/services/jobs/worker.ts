@@ -22,9 +22,7 @@ export const postWorker = new Worker<PostJobData>(
 
     try {
       const db = getDb();
-      const row = db
-        .prepare('SELECT status, platforms, user_id FROM posts WHERE id = ?')
-        .get(postId) as { status: string; platforms: string; user_id: string | null } | undefined;
+      const { rows } = await db.query('SELECT status, platforms, user_id FROM posts WHERE id = $1', [postId]); const row = rows[0] as { status: string; platforms: string; user_id: string | null } | undefined;
 
       if (!row) {
         logger.warn(`No post found with id ${postId}`);
