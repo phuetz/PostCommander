@@ -44,7 +44,13 @@ export const publishingWorker = new Worker(
             .set({ status: 'processing', updatedAt: new Date().toISOString() })
             .where(eq(posts.id, post.id));
 
-          await postQueue.add('publish-post', { postId: post.id });
+          // Deterministic jobId: prevents enqueueing the same scheduled post
+          // twice if the dispatcher tick overlaps with a previous run.
+          await postQueue.add(
+            'publish-post',
+            { postId: post.id },
+            { jobId: `publish-post:${post.id}` },
+          );
         }
       }
       return;

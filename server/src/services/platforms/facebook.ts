@@ -6,6 +6,7 @@ import {
   type AccountInfo,
   type PublishOptions,
   type PublishResponse,
+  type PlatformMetrics,
 } from './base-platform.js';
 
 export class FacebookAdapter extends BasePlatformAdapter {
@@ -29,7 +30,10 @@ export class FacebookAdapter extends BasePlatformAdapter {
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       state,
-      scope: 'pages_manage_posts,pages_read_engagement,pages_show_list',
+      // read_insights enables /v19.0/{post_id}/insights for impressions/reach
+      // beyond the basic likes/comments summary. Connections issued before this
+      // scope was added must reconnect (same pattern as Twitter media.write).
+      scope: 'pages_manage_posts,pages_read_engagement,pages_show_list,read_insights',
       response_type: 'code',
     });
     return `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`;
@@ -144,6 +148,40 @@ export class FacebookAdapter extends BasePlatformAdapter {
     return {
       platformPostId: postId,
       platformUrl: `https://www.facebook.com/${postId}`,
+    };
+  }
+
+  /**
+   * Fetch engagement counts via the Graph API summary fields. For page posts,
+   * a single GET with `fields=likes.summary(true),comments.summary(true),shares`
+   * returns `summary.total_count` (likes, comments) and `shares.count`.
+   * Impressions / reach require Page Insights API which needs `read_insights`
+   * scope on a Page access token — left as 0 for now (will surface 403 cleanly
+   * if the scope is later added without page-token plumbing).
+   */
+  async fetchAnalytics(accessToken: string, platformPostId: string): Promise<PlatformMetrics> {
+    const url =
+      `https://graph.facebook.com/v19.0/${encodeURIComponent(platformPostId)}` +
+      `?fields=likes.summary(true),comments.summary(true),shares` +
+      `&access_token=${encodeURIComponent(accessToken)}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Facebook analytics fetch failed (${response.status}): ${text}`);
+    }
+
+    const data = (await response.json()) as {
+      likes?: { summary?: { total_count?: number } };
+      comments?: { summary?: { total_count?: number } };
+      shares?: { count?: number };
+    };
+
+    return {
+      views: 0, // requires Page Insights API + read_insights scope (chantier)
+      likes: data.likes?.summary?.total_count ?? 0,
+      shares: data.shares?.count ?? 0,
+      commentsCount: data.comments?.summary?.total_count ?? 0,
     };
   }
 

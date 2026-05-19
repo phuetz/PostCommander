@@ -6,11 +6,31 @@ if (process.env.SENTRY_DSN) {
   Sentry.init({
     // @ts-expect-error - dsn is valid but type definitions might be mismatched
     dsn: process.env.SENTRY_DSN,
-    integrations: [
-      nodeProfilingIntegration(),
-    ],
-    tracesSampleRate: 1.0,
-    profilesSampleRate: 1.0,
+    integrations: [nodeProfilingIntegration()],
+    tracesSampleRate: config.SENTRY_TRACES_SAMPLE_RATE,
+    profilesSampleRate: config.SENTRY_PROFILES_SAMPLE_RATE,
+    release: config.SENTRY_RELEASE,
+    // Scrub PII (cookies, auth headers, request bodies with credentials) from
+    // every event before it leaves the process. Pino handles the log channel;
+    // this covers everything Sentry captures (errors, breadcrumbs, traces).
+    beforeSend(event: Sentry.ErrorEvent): Sentry.ErrorEvent {
+      const req = event.request;
+      if (req) {
+        if (req.cookies) req.cookies = '[REDACTED]' as unknown as typeof req.cookies;
+        if (req.headers) {
+          const h = req.headers as Record<string, string>;
+          if (h.authorization) h.authorization = '[REDACTED]';
+          if (h.cookie) h.cookie = '[REDACTED]';
+        }
+        if (req.data && typeof req.data === 'object') {
+          const d = req.data as Record<string, unknown>;
+          for (const k of ['password', 'passwordHash', 'currentPassword', 'token', 'code']) {
+            if (k in d) d[k] = '[REDACTED]';
+          }
+        }
+      }
+      return event;
+    },
   });
 }
 import { initDb, closeDb } from './db/connection.js';
@@ -22,6 +42,7 @@ import './services/jobs/worker.js';
 import './services/jobs/agent.worker.js';
 import './workers/autoblog.worker.js';
 import './workers/outreach.worker.js';
+import './services/jobs/scraper.worker.js';
 import { startAnalyticsWorker } from './workers/analytics.worker.js';
 import { startAutoBlogWorker } from './workers/autoblog.worker.js';
 import { startOutreachWorker } from './workers/outreach.worker.js';

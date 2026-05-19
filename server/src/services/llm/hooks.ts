@@ -1,6 +1,6 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
+import { z } from 'zod';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM } from './_runtime.js';
 
 export interface GenerateHooksRequest {
   topic: string;
@@ -15,18 +15,9 @@ export interface GenerateHooksResult {
   hooks: string[];
 }
 
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
+const responseSchema = z.object({
+  hooks: z.array(z.string()).default([]),
+});
 
 /**
  * Generate multiple attention-grabbing hook/opening lines for a given topic.
@@ -35,7 +26,6 @@ export async function generateHooks(
   request: GenerateHooksRequest,
   userId?: string,
 ): Promise<GenerateHooksResult> {
-  const model = await createModel(request.provider, request.model, userId);
   const count = request.count ?? 5;
 
   const system = `You are a world-class social media copywriter specializing in viral hooks and opening lines. Your job is to generate attention-grabbing first lines that stop people from scrolling.
@@ -79,18 +69,16 @@ You MUST respond in valid JSON with this exact structure:
 
 Generate exactly ${count} hooks. Return ONLY valid JSON.`;
 
-  const user = `Generate ${count} attention-grabbing hook/opening lines about: ${request.topic}`;
-
-  const result = await generateText({
-    model,
+  const { data } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `Generate ${count} attention-grabbing hook/opening lines about: ${request.topic}`,
     temperature: 0.9,
     maxTokens: 1024,
+    schema: responseSchema,
   });
 
-  const parsed = parseJsonResponse(result.text);
-  return {
-    hooks: Array.isArray(parsed.hooks) ? parsed.hooks : [],
-  };
+  return { hooks: data.hooks ?? [] };
 }

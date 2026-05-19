@@ -85,6 +85,13 @@ const BodySchema = z.object({
   input: InputSchema,
 });
 
+/**
+ * Anti-replay window: signed requests older than this are rejected even with
+ * a valid HMAC. 5 minutes is the standard Stripe/Slack value — generous
+ * enough for clock skew, tight enough that a replay needs to be near-realtime.
+ */
+const BRIDGE_TIMESTAMP_TOLERANCE_MS = 5 * 60 * 1000;
+
 function verifyBridgeAuth(req: Request, raw: Buffer): { ok: true } | { ok: false; reason: string } {
   const token = process.env.ESN_BRIDGE_TOKEN;
   const hmacSecret = process.env.ESN_BRIDGE_HMAC_SECRET;
@@ -93,11 +100,26 @@ function verifyBridgeAuth(req: Request, raw: Buffer): { ok: true } | { ok: false
   const auth = req.header('Authorization') || '';
   if (auth !== `Bearer ${token}`) return { ok: false, reason: 'Invalid bearer token' };
 
+  // Anti-replay : require `X-PC-Timestamp` (ms since epoch) within ±5 min and
+  // sign it alongside the body so an attacker can't reuse an old signature.
+  const tsHeader = req.header('X-PC-Timestamp') || '';
+  const ts = Number(tsHeader);
+  if (!tsHeader || !Number.isFinite(ts)) {
+    return { ok: false, reason: 'Missing or invalid X-PC-Timestamp' };
+  }
+  const skew = Math.abs(Date.now() - ts);
+  if (skew > BRIDGE_TIMESTAMP_TOLERANCE_MS) {
+    return { ok: false, reason: 'Timestamp out of tolerance window' };
+  }
+
   const sigHeader = req.header('X-PC-Signature') || '';
   const [scheme, provided] = sigHeader.split('=');
   if (scheme !== 'sha256' || !provided) return { ok: false, reason: 'Missing/invalid signature' };
 
-  const expected = createHmac('sha256', hmacSecret).update(raw).digest('hex');
+  // The signed message is `<timestamp>.<rawBody>` — matches the Slack v0 pattern.
+  // Callers must update their signing logic accordingly.
+  const signedPayload = Buffer.concat([Buffer.from(`${tsHeader}.`, 'utf-8'), raw]);
+  const expected = createHmac('sha256', hmacSecret).update(signedPayload).digest('hex');
   try {
     const a = Buffer.from(provided, 'hex');
     const b = Buffer.from(expected, 'hex');

@@ -6,6 +6,7 @@ import {
   type AccountInfo,
   type PublishOptions,
   type PublishResponse,
+  type PlatformMetrics,
 } from './base-platform.js';
 
 export class LinkedInAdapter extends BasePlatformAdapter {
@@ -30,7 +31,10 @@ export class LinkedInAdapter extends BasePlatformAdapter {
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       state,
-      scope: 'openid profile email w_member_social',
+      // r_member_social = read likes/comments via /v2/socialActions for the
+      // analytics worker. Connections issued before this scope was added must
+      // be re-authorized (same pattern as Twitter media.write).
+      scope: 'openid profile email w_member_social r_member_social',
     });
     return `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`;
   }
@@ -224,6 +228,47 @@ export class LinkedInAdapter extends BasePlatformAdapter {
     return {
       platformPostId: postId,
       platformUrl: `https://www.linkedin.com/feed/update/${postId}`,
+    };
+  }
+
+  /**
+   * Fetch likes + comments counts via the socialActions API. LinkedIn returns
+   * counts in the `paging.total` field of each collection endpoint.
+   * Requires `r_member_social` scope (added 2026-05-19; older connections must
+   * be reconnected to get this data — they'll surface 403 and the worker will
+   * count them as failed). Views/impressions need the gated Marketing API
+   * (organizationalEntityShareStatistics) so we return 0 for now; shares
+   * (reposts) are not exposed in the public API so also 0.
+   */
+  async fetchAnalytics(accessToken: string, platformPostId: string): Promise<PlatformMetrics> {
+    const urn = encodeURIComponent(platformPostId);
+    const headers = {
+      Authorization: `Bearer ${accessToken}`,
+      'X-Restli-Protocol-Version': '2.0.0',
+    };
+
+    const [likesRes, commentsRes] = await Promise.all([
+      fetch(`https://api.linkedin.com/v2/socialActions/${urn}/likes?count=0`, { headers }),
+      fetch(`https://api.linkedin.com/v2/socialActions/${urn}/comments?count=0`, { headers }),
+    ]);
+
+    if (!likesRes.ok) {
+      const text = await likesRes.text();
+      throw new Error(`LinkedIn likes fetch failed (${likesRes.status}): ${text}`);
+    }
+    if (!commentsRes.ok) {
+      const text = await commentsRes.text();
+      throw new Error(`LinkedIn comments fetch failed (${commentsRes.status}): ${text}`);
+    }
+
+    const likesData = (await likesRes.json()) as { paging?: { total?: number } };
+    const commentsData = (await commentsRes.json()) as { paging?: { total?: number } };
+
+    return {
+      views: 0, // organizationalEntityShareStatistics requires extra scope
+      likes: likesData.paging?.total ?? 0,
+      shares: 0, // not exposed in public API
+      commentsCount: commentsData.paging?.total ?? 0,
     };
   }
 

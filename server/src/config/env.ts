@@ -63,6 +63,13 @@ const envSchema = z.object({
   STRIPE_SUCCESS_URL: z.string().default('http://localhost:5173/app/billing?success=true'),
   STRIPE_CANCEL_URL: z.string().default('http://localhost:5173/pricing'),
 
+  // Sentry sampling — defaults are conservative (10% traces, 1% profiles) to
+  // keep the Sentry bill predictable in prod. Override via env in dev/staging
+  // when you actually want full sampling for debugging.
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
+  SENTRY_PROFILES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.01),
+  SENTRY_RELEASE: z.string().optional(),
+
   // Password reset delivery
   PASSWORD_RESET_WEBHOOK_URL: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
@@ -73,6 +80,22 @@ const envSchema = z.object({
   OUTREACH_DRY_RUN: z.enum(['true', 'false']).default('true').transform((v) => v === 'true'),
   BROWSERBASE_API_KEY: z.string().optional(),
   BROWSERBASE_PROJECT_ID: z.string().optional(),
+
+  // Worker feature flags — both default OFF so unfinished integrations don't ship fake data.
+  // ANALYTICS_FETCH_ENABLED: when true, the analytics worker calls each platform adapter's
+  //   fetchAnalytics() (real API). When false, the worker logs once per cycle and no-ops —
+  //   no DB mutation, no fake metrics, no auto-plug trigger.
+  // OUTREACH_AUTO_DISCOVERY: when true, the outreach worker attempts automated prospect
+  //   discovery via Stagehand search. When false (default), discovery happens out-of-band
+  //   via the explicit /api/outreach/osint-scan + /add-from-osint routes.
+  ANALYTICS_FETCH_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  OUTREACH_AUTO_DISCOVERY: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -92,6 +115,27 @@ if (parsed.data.NODE_ENV === 'production' && parsed.data.JWT_SECRET === 'superse
 if (parsed.data.NODE_ENV === 'production' && !parsed.data.ENCRYPTION_KEY) {
   logger.fatal('ENCRYPTION_KEY must be explicitly configured in production');
   process.exit(1);
+}
+
+// In production, refuse to boot if any externally-facing URL still points at
+// localhost. Otherwise an env-var misconfiguration silently redirects users
+// to a non-existent dev server (Stripe checkout success page, OAuth callbacks,
+// CORS allow-list, frontend URL in emails) — caught here, fatal at boot.
+if (parsed.data.NODE_ENV === 'production') {
+  const localhostDefaults: Array<[string, string]> = [
+    ['BASE_URL', parsed.data.BASE_URL],
+    ['CLIENT_URL', parsed.data.CLIENT_URL],
+    ['STRIPE_SUCCESS_URL', parsed.data.STRIPE_SUCCESS_URL],
+    ['STRIPE_CANCEL_URL', parsed.data.STRIPE_CANCEL_URL],
+  ];
+  const offenders = localhostDefaults.filter(([, v]) => /^https?:\/\/localhost/i.test(v));
+  if (offenders.length > 0) {
+    logger.fatal(
+      { offenders: offenders.map(([k]) => k) },
+      'One or more URL env vars still default to localhost in production. Configure them explicitly.',
+    );
+    process.exit(1);
+  }
 }
 
 export const config = parsed.data;

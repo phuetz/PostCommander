@@ -40,32 +40,37 @@ export interface PublishResponse {
   platformUrl: string;
 }
 
+export interface PlatformMetrics {
+  views: number;
+  likes: number;
+  shares: number;
+  commentsCount: number;
+}
+
+export class NotImplementedError extends Error {
+  constructor(platformId: string, method: string) {
+    super(`${method} is not yet implemented for platform "${platformId}"`);
+    this.name = 'NotImplementedError';
+  }
+}
+
 export abstract class BasePlatformAdapter {
   abstract readonly platformId: PlatformId;
   abstract readonly name: string;
 
-  /**
-   * Get the OAuth2 authorization URL to redirect the user to.
-   */
   abstract getAuthUrl(state: string): string;
-
-  /**
-   * Exchange an authorization code for access/refresh tokens.
-   */
   abstract exchangeCode(code: string): Promise<OAuthTokens>;
-
-  /**
-   * Refresh an expired access token using the refresh token.
-   */
   abstract refreshToken(refreshToken: string): Promise<OAuthTokens>;
-
-  /**
-   * Publish a post to the platform.
-   */
   abstract publishPost(options: PublishOptions): Promise<PublishResponse>;
+  abstract getAccountInfo(accessToken: string): Promise<AccountInfo>;
 
   /**
-   * Retrieve information about the connected account.
+   * Fetch current public metrics for a published post. Default implementation
+   * throws NotImplementedError — adapters opt in by overriding. The worker
+   * dispatcher catches NotImplementedError and skips the publication, so an
+   * unsupported platform is non-fatal.
    */
-  abstract getAccountInfo(accessToken: string): Promise<AccountInfo>;
+  async fetchAnalytics(_accessToken: string, _platformPostId: string): Promise<PlatformMetrics> {
+    throw new NotImplementedError(this.platformId, 'fetchAnalytics');
+  }
 }

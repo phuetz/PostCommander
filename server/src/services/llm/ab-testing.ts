@@ -1,6 +1,5 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM, parseJsonResponse } from './_runtime.js';
 
 export interface ABTestRequest {
   prompt: string;
@@ -22,19 +21,6 @@ export interface ABTestResult {
   variants: ABVariant[];
 }
 
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
-
 /**
  * Generate multiple distinct A/B test variants of the same post idea.
  * Each variant uses a genuinely different angle/approach.
@@ -43,7 +29,6 @@ export async function generateABVariants(
   request: ABTestRequest,
   userId?: string,
 ): Promise<ABTestResult> {
-  const model = await createModel(request.provider, request.model, userId);
   const count = request.variantCount ?? 3;
 
   const system = `You are a world-class social media strategist and copywriter. Your job is to generate multiple DISTINCT variants of the same post idea, each with a genuinely different angle and hook style.
@@ -84,17 +69,17 @@ Rules:
 - Number the IDs as variant-1, variant-2, etc.
 - Return ONLY valid JSON. No markdown, no extra text.`;
 
-  const user = `Generate ${count} distinct A/B test variants of a social media post about: ${request.prompt}`;
-
-  const result = await generateText({
-    model,
+  const { raw } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `Generate ${count} distinct A/B test variants of a social media post about: ${request.prompt}`,
     temperature: 0.9,
     maxTokens: 4096,
   });
 
-  const parsed = parseJsonResponse(result.text);
+  const parsed = parseJsonResponse<any>(raw);
 
   return {
     variants: Array.isArray(parsed.variants)

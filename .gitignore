@@ -7,3 +7,11 @@ dist/
 .DS_Store
 *.log
 server/data/*.db
+coverage/
+.claude/
+playwright-report/
+test-results/
+*.tsbuildinfo
+dev-dist/
+prospectBot-scratch/
+memory-engine/

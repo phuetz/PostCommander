@@ -1,6 +1,5 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM, parseJsonResponse } from './_runtime.js';
 
 export interface GenerateCarouselRequest {
   topic: string;
@@ -22,19 +21,6 @@ export interface GenerateCarouselResult {
   caption: string;
 }
 
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
-
 /**
  * Generate carousel/thread content for a topic and platform.
  */
@@ -42,7 +28,6 @@ export async function generateCarousel(
   request: GenerateCarouselRequest,
   userId?: string,
 ): Promise<GenerateCarouselResult> {
-  const model = await createModel(request.provider, request.model, userId);
   const slideCount = request.slideCount ?? 7;
 
   let platformInstructions: string;
@@ -153,17 +138,17 @@ You MUST respond in valid JSON with this exact structure:
 
 Generate exactly ${slideCount} slides. Return ONLY valid JSON.`;
 
-  const user = `Create a ${request.platform} ${request.platform === 'twitter' ? 'thread' : 'carousel'} about: ${request.topic}`;
-
-  const result = await generateText({
-    model,
+  const { raw } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `Create a ${request.platform} ${request.platform === 'twitter' ? 'thread' : 'carousel'} about: ${request.topic}`,
     temperature: 0.8,
     maxTokens: 3072,
   });
 
-  const parsed = parseJsonResponse(result.text);
+  const parsed = parseJsonResponse<any>(raw);
   return {
     slides: Array.isArray(parsed.slides) ? parsed.slides : [],
     caption: parsed.caption ?? '',

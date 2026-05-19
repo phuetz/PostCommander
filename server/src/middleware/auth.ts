@@ -3,7 +3,11 @@ import jwt from 'jsonwebtoken';
 import { eq, and } from 'drizzle-orm';
 import { config } from '../config/env.js';
 import { getDrizzle } from '../db/connection.js';
-import { users as usersTable, workspaceMembers as workspaceMembersTable } from '../db/schema.js';
+import {
+  users as usersTable,
+  workspaceMembers as workspaceMembersTable,
+  revokedTokens as revokedTokensTable,
+} from '../db/schema.js';
 import { logger } from '../utils/logger.js';
 
 function getAdminEmails(): Set<string> {
@@ -32,13 +36,27 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
 
   try {
-    const decoded = jwt.verify(token, config.JWT_SECRET) as { userId: string };
+    const decoded = jwt.verify(token, config.JWT_SECRET) as { userId: string; jti?: string };
     const db = getDrizzle();
 
-    db.query.users
-      .findFirst({
-        where: eq(usersTable.id, decoded.userId),
-      })
+    // Revocation check: if the token has a jti and that jti appears in
+    // revoked_tokens, refuse the request as if the cookie had expired.
+    // (Tokens issued before the revocation table was introduced have no jti
+    // and skip this check — they remain valid until their natural expiry.)
+    const revocationGuard: Promise<void> = decoded.jti
+      ? db.query.revokedTokens
+          .findFirst({ where: eq(revokedTokensTable.jti, decoded.jti) })
+          .then((revoked) => {
+            if (revoked) {
+              const err = new Error('Token revoked');
+              (err as Error & { code?: string }).code = 'TOKEN_REVOKED';
+              throw err;
+            }
+          })
+      : Promise.resolve();
+
+    revocationGuard
+      .then(() => db.query.users.findFirst({ where: eq(usersTable.id, decoded.userId) }))
       .then((user) => {
         if (!user) {
           res.status(401).json({ error: 'Invalid or expired token' });
@@ -71,18 +89,29 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
             .then((member) => {
               if (member) {
                 req.workspaceId = workspaceId;
+                next();
+                return;
               }
-              next();
+              // Not a member → 403 explicit. Falling through to next() without
+              // workspaceId was masking authorization failures and surfacing as
+              // "row not found" later in downstream handlers.
+              res.status(403).json({ error: 'Not a member of this workspace' });
             })
             .catch((err) => {
-              logger.error({ err }, 'Failed to verify workspace membership');
-              next(); // Still proceed, just without workspaceId
+              // DB failure while checking membership is a server error — fail
+              // explicit rather than silently continuing without workspace scope.
+              logger.error({ err, workspaceId, userId: user.id }, 'Failed to verify workspace membership');
+              res.status(500).json({ error: 'Workspace membership lookup failed' });
             });
         } else {
           next();
         }
       })
       .catch((err) => {
+        if ((err as Error & { code?: string }).code === 'TOKEN_REVOKED') {
+          res.status(401).json({ error: 'Token revoked' });
+          return;
+        }
         logger.error({ err }, 'Failed to load authenticated user');
         res.status(500).json({ error: 'Authentication lookup failed' });
       });

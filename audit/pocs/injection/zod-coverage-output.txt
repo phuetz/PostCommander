@@ -1,0 +1,73 @@
+=== ZOD VALIDATION COVERAGE ===
+Total routes scanned: 112
+By method: { GET: 35, POST: 59, DELETE: 9, PUT: 6, PATCH: 3 }
+
+Mutating (POST/PUT/PATCH/DELETE): 77
+  Validated: 54 (70.1%)
+  Missing  : 23
+
+--- TOP 15 UNVALIDATED MUTATING ROUTES ---
+   POST /trigger-evergreen  (analytics.routes.ts)
+   POST /dev-login  (auth.routes.ts)
+   POST /logout  (auth.routes.ts)
+   DELETE /:id  (autoblog.routes.ts)
+   POST /start  (codex-auth.routes.ts)
+   POST /logout  (codex-auth.routes.ts)
+   PATCH /:id/resolve  (inbox.routes.ts)
+   POST /campaigns  (outreach.routes.ts)
+   PUT /campaigns/:id  (outreach.routes.ts)
+   DELETE /campaigns/:id  (outreach.routes.ts)
+   DELETE /:id  (pillars.routes.ts)
+   DELETE /ideas/:ideaId  (pillars.routes.ts)
+   DELETE /:platform/disconnect  (platforms.routes.ts)
+   DELETE /:id  (posts.routes.ts)
+   POST /:id/comments  (posts.routes.ts)
+  ... +8 more
+
+--- ROUTES WITHOUT AUTH MIDDLEWARE INLINE (top 20) ---
+Note: some are intentionally public (auth, stripe webhook, health);
+others may apply auth at router-mount level (router.use(authMiddleware)).
+   POST /comments/:id/reply  (analytics.routes.ts)
+   POST /comments/:id/score  (analytics.routes.ts)
+   POST /comments/:id/agent-step  (analytics.routes.ts)
+   POST /trigger-evergreen  (analytics.routes.ts)
+   POST /engagement  (analyze.routes.ts)
+   POST /simulate  (analyze.routes.ts)
+   POST /field  (assist.routes.ts)
+   POST /register  (auth.routes.ts)
+   POST /login  (auth.routes.ts)
+   POST /dev-login  (auth.routes.ts)
+   POST /logout  (auth.routes.ts)
+   POST /forgot-password  (auth.routes.ts)
+   POST /reset-password  (auth.routes.ts)
+   POST /  (autoblog.routes.ts)
+   PUT /:id  (autoblog.routes.ts)
+   DELETE /:id  (autoblog.routes.ts)
+   POST /start  (codex-auth.routes.ts)
+   POST /logout  (codex-auth.routes.ts)
+   POST /  (generate.routes.ts)
+   POST /stream  (generate.routes.ts)
+
+--- PER FILE ---
+  outreach.routes.ts: 12 routes, 10 mutating, 7 validated, 10 inline-unauth
+  posts.routes.ts: 13 routes, 10 mutating, 5 validated, 10 inline-unauth
+  generate.routes.ts: 9 routes, 9 mutating, 9 validated, 9 inline-unauth
+  auth.routes.ts: 9 routes, 7 mutating, 5 validated, 6 inline-unauth
+  pillars.routes.ts: 10 routes, 7 mutating, 5 validated, 7 inline-unauth
+  agent.routes.ts: 5 routes, 5 mutating, 5 validated, 0 inline-unauth
+  analytics.routes.ts: 7 routes, 4 mutating, 3 validated, 4 inline-unauth
+  stripe.routes.ts: 7 routes, 4 mutating, 1 validated, 4 inline-unauth
+  autoblog.routes.ts: 4 routes, 3 mutating, 2 validated, 3 inline-unauth
+  styles.routes.ts: 5 routes, 3 mutating, 2 validated, 3 inline-unauth
+  analyze.routes.ts: 2 routes, 2 mutating, 2 validated, 2 inline-unauth
+  codex-auth.routes.ts: 3 routes, 2 mutating, 0 validated, 2 inline-unauth
+  images.routes.ts: 4 routes, 2 mutating, 2 validated, 2 inline-unauth
+  inbox.routes.ts: 3 routes, 2 mutating, 1 validated, 2 inline-unauth
+  workspaces.routes.ts: 4 routes, 2 mutating, 1 validated, 2 inline-unauth
+  assist.routes.ts: 1 routes, 1 mutating, 1 validated, 1 inline-unauth
+  platforms.routes.ts: 4 routes, 1 mutating, 0 validated, 1 inline-unauth
+  settings.routes.ts: 2 routes, 1 mutating, 1 validated, 1 inline-unauth
+  templates.routes.ts: 3 routes, 1 mutating, 1 validated, 1 inline-unauth
+  trending.routes.ts: 1 routes, 1 mutating, 1 validated, 1 inline-unauth
+  admin.routes.ts: 1 routes, 0 mutating, 0 validated, 0 inline-unauth
+  viral.routes.ts: 3 routes, 0 mutating, 0 validated, 0 inline-unauth

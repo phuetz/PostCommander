@@ -33,8 +33,10 @@ process.env.ESN_BRIDGE_HMAC_SECRET = HMAC_SECRET;
 const { createApp } = await import('../app.js');
 const app = createApp();
 
-function sign(body: string): string {
-  return 'sha256=' + createHmac('sha256', HMAC_SECRET).update(body).digest('hex');
+function sign(body: string, ts: string = String(Date.now())): { sig: string; ts: string } {
+  const sig =
+    'sha256=' + createHmac('sha256', HMAC_SECRET).update(`${ts}.${body}`).digest('hex');
+  return { sig, ts };
 }
 
 const validInput = {
@@ -73,16 +75,19 @@ describe('POST /api/bridge/proposal', () => {
 
   it('rejects requests without a Bearer token', async () => {
     const body = JSON.stringify({ contentType: 'proposal', input: validInput });
+    const signed = sign(body);
     const res = await request(app)
       .post('/api/bridge/proposal')
       .set('Content-Type', 'application/json')
-      .set('X-PC-Signature', sign(body))
+      .set('X-PC-Timestamp', signed.ts)
+      .set('X-PC-Signature', signed.sig)
       .send(body);
     expect(res.status).toBe(401);
   });
 
   it('rejects requests with a bad signature', async () => {
     const body = JSON.stringify({ contentType: 'proposal', input: validInput });
+    const signed = sign(body);
     const res = await request(app)
       .post('/api/bridge/proposal')
       .set('Content-Type', 'application/json')
@@ -94,22 +99,26 @@ describe('POST /api/bridge/proposal', () => {
 
   it('rejects malformed payloads', async () => {
     const body = JSON.stringify({ contentType: 'proposal', input: { not: 'valid' } });
+    const signed = sign(body);
     const res = await request(app)
       .post('/api/bridge/proposal')
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${TOKEN}`)
-      .set('X-PC-Signature', sign(body))
+      .set('X-PC-Timestamp', signed.ts)
+      .set('X-PC-Signature', signed.sig)
       .send(body);
     expect(res.status).toBe(400);
   });
 
   it('streams a valid proposal draft when auth + payload are good', async () => {
     const body = JSON.stringify({ contentType: 'proposal', input: validInput });
+    const signed = sign(body);
     const res = await request(app)
       .post('/api/bridge/proposal')
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${TOKEN}`)
-      .set('X-PC-Signature', sign(body))
+      .set('X-PC-Timestamp', signed.ts)
+      .set('X-PC-Signature', signed.sig)
       .send(body);
 
     expect(res.status).toBe(200);
@@ -137,11 +146,13 @@ describe('POST /api/bridge/proposal', () => {
       text: '```json\n' + validDraftJson + '\n```',
     });
     const body = JSON.stringify({ contentType: 'proposal', input: validInput });
+    const signed = sign(body);
     const res = await request(app)
       .post('/api/bridge/proposal')
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${TOKEN}`)
-      .set('X-PC-Signature', sign(body))
+      .set('X-PC-Timestamp', signed.ts)
+      .set('X-PC-Signature', signed.sig)
       .send(body);
 
     expect(res.status).toBe(200);
@@ -155,11 +166,13 @@ describe('POST /api/bridge/proposal', () => {
   it('emits an error event when the LLM output is unparseable', async () => {
     generateTextMock.mockResolvedValue({ text: 'definitely not json' });
     const body = JSON.stringify({ contentType: 'proposal', input: validInput });
+    const signed = sign(body);
     const res = await request(app)
       .post('/api/bridge/proposal')
       .set('Content-Type', 'application/json')
       .set('Authorization', `Bearer ${TOKEN}`)
-      .set('X-PC-Signature', sign(body))
+      .set('X-PC-Timestamp', signed.ts)
+      .set('X-PC-Signature', signed.sig)
       .send(body);
 
     expect(res.status).toBe(200);

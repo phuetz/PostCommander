@@ -9,6 +9,7 @@ import {
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { requireFeature } from '../middleware/plan-limiter.js';
+import { emptyBodySchema } from '../schemas/routes.js';
 import {
   handleListPillars,
   handleCreatePillar,
@@ -33,7 +34,7 @@ router.get('/strategy', requireFeature('pillars'), handleStrategyOverview);
 router.get('/', requireFeature('pillars'), handleListPillars);
 router.post('/', requireFeature('pillars'), validate(createPillarSchema), handleCreatePillar);
 router.put('/:id', requireFeature('pillars'), validate(updatePillarSchema), handleUpdatePillar);
-router.delete('/:id', requireFeature('pillars'), handleDeletePillar);
+router.delete('/:id', requireFeature('pillars'), validate(emptyBodySchema), handleDeletePillar);
 
 // Ideas for a pillar
 router.get('/:id/ideas', requireFeature('pillars'), handleListIdeas);
@@ -52,6 +53,6 @@ router.put(
   validate(updateIdeaSchema),
   handleUpdateIdea,
 );
-router.delete('/ideas/:ideaId', requireFeature('pillars'), handleDeleteIdea);
+router.delete('/ideas/:ideaId', requireFeature('pillars'), validate(emptyBodySchema), handleDeleteIdea);
 
 export default router;

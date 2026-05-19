@@ -6,6 +6,7 @@ import {
   type AccountInfo,
   type PublishOptions,
   type PublishResponse,
+  type PlatformMetrics,
 } from './base-platform.js';
 
 export class PinterestAdapter extends BasePlatformAdapter {
@@ -147,6 +148,57 @@ export class PinterestAdapter extends BasePlatformAdapter {
     return {
       platformPostId: data.id,
       platformUrl: `https://www.pinterest.com/pin/${data.id}`,
+    };
+  }
+
+  /**
+   * Fetch pin analytics via the v5 endpoint. Pinterest requires a date range
+   * (we use the last 30 days), then returns `all.daily_metrics` aggregated or
+   * `all.summary_metrics`. We sum metrics across the window for the worker's
+   * "set, not add" model — Pinterest's API itself does not expose a single
+   * cumulative-since-creation count.
+   * Requires the `pins:read` + `user_accounts:read` scopes on the connection.
+   */
+  async fetchAnalytics(accessToken: string, platformPostId: string): Promise<PlatformMetrics> {
+    const endDate = new Date().toISOString().slice(0, 10);
+    const start = new Date();
+    start.setDate(start.getDate() - 30);
+    const startDate = start.toISOString().slice(0, 10);
+
+    const url =
+      `https://api.pinterest.com/v5/pins/${encodeURIComponent(platformPostId)}/analytics` +
+      `?start_date=${startDate}&end_date=${endDate}` +
+      `&metric_types=IMPRESSION,SAVE,PIN_CLICK,REACTION`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Pinterest analytics fetch failed (${response.status}): ${text}`);
+    }
+
+    const data = (await response.json()) as {
+      all?: {
+        summary_metrics?: {
+          IMPRESSION?: number;
+          SAVE?: number;
+          PIN_CLICK?: number;
+          REACTION?: number;
+        };
+      };
+    };
+
+    const m = data.all?.summary_metrics ?? {};
+    return {
+      views: m.IMPRESSION ?? 0,
+      // Pinterest's "engagement" model differs from sociaux classiques: saves
+      // (re-pins) are the closest analogue to "likes/shares". We map SAVE to
+      // both `likes` and `shares` of PlatformMetrics — the UI knows it's PT.
+      likes: m.REACTION ?? 0,
+      shares: m.SAVE ?? 0,
+      commentsCount: 0, // Pinterest comments are scarce + not exposed in analytics
     };
   }
 

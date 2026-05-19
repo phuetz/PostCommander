@@ -1,0 +1,90 @@
+=== NPM AUDIT SUMMARY ===
+
+[root] totals: { info: 0, low: 0, moderate: 8, high: 11, critical: 0, total: 19 }
+  Direct vulnerable deps:
+    - @browserbasehq/stagehand (high) range:>=3.0.0 fix: @browserbasehq/stagehand@2.5.8 (SEMVER MAJOR)
+    - ai (moderate) range:<=5.0.51 fix: ai@6.0.185 (SEMVER MAJOR)
+        · Vercel’s AI SDK's filetype whitelists can be bypassed when uploading files
+    - axios (high) range:1.0.0 - 1.15.1 fix: mem0ai@1.0.39 (SEMVER MAJOR)
+        · Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF
+        · Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain
+        · Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy
+        · Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0
+        · Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`
+        · Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams
+        · Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream
+        · Axios: no_proxy bypass via IP alias allows SSRF
+        · Axios: unbounded recursion in toFormData causes DoS via deeply nested request data
+        · Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0
+        · Axios: HTTP adapter streamed responses bypass maxContentLength
+        · Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking
+        · Axios: Header Injection via Prototype Pollution
+        · Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion
+        · Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking
+    - bullmq (moderate) range:5.66.1 - 5.76.1 fix: none
+    - drizzle-orm (high) range:<0.45.2 fix: none
+        · Drizzle ORM has SQL injection via improperly escaped SQL identifiers
+    - i18next-http-backend (moderate) range:<3.0.5 fix: none
+        ·  i18next-http-backend has Path Traversal & URL Injection via Unsanitised lng/ns
+    - mem0ai (high) range:>=2.0.0 fix: mem0ai@1.0.39 (SEMVER MAJOR)
+    - uuid (moderate) range:11.0.0 - 11.1.0 fix: none
+        · uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided
+
+[server] totals: { info: 0, low: 0, moderate: 7, high: 11, critical: 0, total: 18 }
+  Direct vulnerable deps:
+    - @browserbasehq/stagehand (high) range:>=3.0.0 fix: @browserbasehq/stagehand@2.5.8 (SEMVER MAJOR)
+    - ai (moderate) range:<=5.0.51 fix: ai@6.0.185 (SEMVER MAJOR)
+        · Vercel’s AI SDK's filetype whitelists can be bypassed when uploading files
+    - axios (high) range:1.0.0 - 1.15.1 fix: mem0ai@1.0.39 (SEMVER MAJOR)
+        · Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF
+        · Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain
+        · Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy
+        · Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0
+        · Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`
+        · Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams
+        · Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream
+        · Axios: no_proxy bypass via IP alias allows SSRF
+        · Axios: unbounded recursion in toFormData causes DoS via deeply nested request data
+        · Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0
+        · Axios: HTTP adapter streamed responses bypass maxContentLength
+        · Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking
+        · Axios: Header Injection via Prototype Pollution
+        · Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion
+        · Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking
+    - bullmq (moderate) range:5.66.1 - 5.76.1 fix: none
+    - drizzle-orm (high) range:<0.45.2 fix: none
+        · Drizzle ORM has SQL injection via improperly escaped SQL identifiers
+    - mem0ai (high) range:>=2.0.0 fix: mem0ai@1.0.39 (SEMVER MAJOR)
+    - uuid (moderate) range:11.0.0 - 11.1.0 fix: none
+        · uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided
+
+[client] totals: { info: 0, low: 0, moderate: 3, high: 2, critical: 0, total: 5 }
+  Direct vulnerable deps:
+    - axios (high) range:1.0.0 - 1.15.1 fix: none
+        · Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF
+        · Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain
+        · Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy
+        · Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0
+        · Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`
+        · Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams
+        · Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream
+        · Axios: no_proxy bypass via IP alias allows SSRF
+        · Axios: unbounded recursion in toFormData causes DoS via deeply nested request data
+        · Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0
+        · Axios: HTTP adapter streamed responses bypass maxContentLength
+        · Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking
+        · Axios: Header Injection via Prototype Pollution
+        · Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion
+        · Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking
+    - i18next-http-backend (moderate) range:<3.0.5 fix: none
+        ·  i18next-http-backend has Path Traversal & URL Injection via Unsanitised lng/ns
+
+[shared] totals: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 0 }
+
+=== JSCPD ===
+
+[server]
+  total clones: 75 duped lines: 993 %: 5.08
+
+[client]
+  total clones: 34 duped lines: 765 %: 1.84

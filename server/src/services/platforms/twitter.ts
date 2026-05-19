@@ -6,6 +6,7 @@ import {
   type AccountInfo,
   type PublishOptions,
   type PublishResponse,
+  type PlatformMetrics,
 } from './base-platform.js';
 
 export class TwitterAdapter extends BasePlatformAdapter {
@@ -178,6 +179,44 @@ export class TwitterAdapter extends BasePlatformAdapter {
     return {
       platformPostId: tweetId,
       platformUrl: `https://twitter.com/i/web/status/${tweetId}`,
+    };
+  }
+
+  /**
+   * Fetch public_metrics for a tweet via GET /2/tweets/{id}. Requires the
+   * `tweet.read` scope (granted by default at OAuth time). Non_public_metrics
+   * and organic_metrics need additional scopes + must be queried by the tweet
+   * author — kept out for now to avoid 403 noise.
+   */
+  async fetchAnalytics(accessToken: string, platformPostId: string): Promise<PlatformMetrics> {
+    const url = `https://api.twitter.com/2/tweets/${encodeURIComponent(platformPostId)}?tweet.fields=public_metrics`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Twitter analytics fetch failed (${response.status}): ${text}`);
+    }
+
+    const data = (await response.json()) as {
+      data?: {
+        public_metrics?: {
+          impression_count?: number;
+          like_count?: number;
+          retweet_count?: number;
+          quote_count?: number;
+          reply_count?: number;
+        };
+      };
+    };
+
+    const m = data.data?.public_metrics ?? {};
+    return {
+      views: m.impression_count ?? 0,
+      likes: m.like_count ?? 0,
+      shares: (m.retweet_count ?? 0) + (m.quote_count ?? 0),
+      commentsCount: m.reply_count ?? 0,
     };
   }
 

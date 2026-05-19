@@ -11,6 +11,7 @@ import {
   getInvoices,
   getPlansHandler,
 } from '../controllers/stripe.controller.js';
+import { emptyBodySchema } from '../schemas/routes.js';
 
 const router = Router();
 
@@ -20,12 +21,12 @@ router.use(authMiddleware);
 
 // Checkout & Portal
 router.post('/create-checkout', validate(createCheckoutSchema), createCheckout);
-router.post('/create-portal', createPortal);
+router.post('/create-portal', validate(emptyBodySchema), createPortal);
 
 // Subscription management
 router.get('/subscription', getSubscriptionStatus);
-router.post('/cancel', cancelUserSubscription);
-router.post('/resume', resumeUserSubscription);
+router.post('/cancel', validate(emptyBodySchema), cancelUserSubscription);
+router.post('/resume', validate(emptyBodySchema), resumeUserSubscription);
 
 // Invoices
 router.get('/invoices', getInvoices);

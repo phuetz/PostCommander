@@ -53,10 +53,12 @@ router.use('/auth/chatgpt-pro', codexAuthRoutes);
 import { outreachRoutes } from './outreach.routes.js';
 import { liveRoutes } from './live.routes.js';
 import { audioRoutes } from './audio.routes.js';
+import { automationsRoutes } from './automations.routes.js';
 
 router.use('/outreach', outreachRoutes);
 router.use('/live', liveRoutes);
 router.use('/audio', audioRoutes);
+router.use('/automations', automationsRoutes);
 
 // Health check
 router.get('/health', async (_req, res) => {

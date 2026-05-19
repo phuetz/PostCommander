@@ -1,11 +1,10 @@
 import { Worker, type Job } from 'bullmq';
-import { Redis } from 'ioredis';
 import { config } from '../config/env.js';
 import { getDrizzle } from '../db/connection.js';
 import { outreachCampaigns, outreachProspects, outreachSequenceSteps } from '../db/schema.js';
 import { eq, and, asc } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
-import crypto from 'crypto';
+import { attachWorkerObservability, withTimeout } from '../utils/worker-helpers.js';
 import { generateText } from 'ai';
 import { createModel } from '../services/llm/provider-factory.js';
 import { sharedRedisConnection } from '../utils/redis.js';
@@ -34,23 +33,23 @@ export const outreachWorker = new Worker(
       await liveActivity.broadcast('outreach', `Démarrage du cycle d'outreach. Campagnes actives : ${campaigns.length}`);
 
       for (const campaign of campaigns) {
-        // Step 1: Simulated Discovery based on targetActivity or targetKeywords
-        const contextTarget = campaign.targetActivity || campaign.targetKeywords;
-        const newProspectsCount = Math.floor(Math.random() * 2); // 0 or 1 per cycle for demo
-        for (let i = 0; i < newProspectsCount; i++) {
-          await db.insert(outreachProspects).values({
-            id: crypto.randomUUID(),
-            campaignId: campaign.id,
-            profileName: `Prospect ${crypto.randomBytes(2).toString('hex')} (${contextTarget})`,
-            profileBio: `A very interesting bio matching ${contextTarget}`,
-            status: 'discovered',
-            replyStatus: 'none',
-            currentStepNumber: 1,
-            threadContext: '[]',
-          });
-        }
-        if (newProspectsCount > 0) {
-          logger.info(`[OutreachWorker] Discovered ${newProspectsCount} new prospects for campaign ${campaign.name}`);
+        // Step 1: Automated prospect discovery.
+        // Real discovery happens out-of-band through the explicit OSINT routes
+        // (POST /api/outreach/osint-scan + /add-from-osint). The in-worker
+        // auto-discovery is gated behind a feature flag so the worker never
+        // invents fictional prospects: doing so would burn LLM credits on
+        // ghosts and pollute the campaign with placeholders.
+        if (!config.OUTREACH_AUTO_DISCOVERY) {
+          // Discovery disabled — the worker only advances the drip sequence
+          // for prospects already added via the OSINT routes.
+        } else {
+          // TODO: implement real Stagehand-based discovery (LinkedIn search
+          // by targetKeywords/targetActivity, scrape result cards, dedupe by
+          // profileUrl, persist). Tracked in the audit roadmap (R2/W2).
+          logger.warn(
+            { campaignId: campaign.id },
+            '[OutreachWorker] OUTREACH_AUTO_DISCOVERY is enabled but no real discovery implementation exists yet — skipping discovery for this cycle.',
+          );
         }
 
         // Fetch sequence steps for this campaign
@@ -179,31 +178,50 @@ export const outreachWorker = new Worker(
             if (campaign.platform.toLowerCase() === 'linkedin') {
               logger.info(`[Stagehand] Navigating to search for ${prospect.profileName}`);
               await liveActivity.broadcast('outreach', `Navigation vers le profil de ${prospect.profileName} sur LinkedIn...`);
-              await page.goto(`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(prospect.profileName)}`);
-              
-              // 🌍 Multi-language adaptation (defaulting to English, but flexible)
+              // 60s cap on navigation — a hung browser session would otherwise
+              // block the worker indefinitely (no BullMQ-level timeout exists).
+              await withTimeout(
+                page.goto(`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(prospect.profileName)}`),
+                60_000,
+                'stagehand.page.goto',
+              );
+
               const locale = (campaign as any).targetLanguage || 'English';
               await liveActivity.broadcast('outreach', `Analyse visuelle : Recherche du bouton Message/Connecter...`);
-              const act1 = await stagehand.act(
-                `Look for a person matching the bio: "${prospect.profileBio}". Click their "Message" or "Connect" button. The page might be in ${locale}. If not found, do nothing.`
+              const act1 = await withTimeout(
+                stagehand.act(
+                  `Look for a person matching the bio: "${prospect.profileBio}". Click their "Message" or "Connect" button. The page might be in ${locale}. If not found, do nothing.`,
+                ),
+                90_000,
+                'stagehand.act (locate prospect)',
               );
               logger.info(`[Stagehand] Prospect locate result: ${act1.message}`);
 
               await liveActivity.broadcast('outreach', `Saisie du message personnalisé généré par l'IA...`);
-              const act2 = await stagehand.act(
-                `Type the following message into the active message or connection request box: "${generatedMessage}". Do not send it yet, just type it.`
+              const act2 = await withTimeout(
+                stagehand.act(
+                  `Type the following message into the active message or connection request box: "${generatedMessage}". Do not send it yet, just type it.`,
+                ),
+                60_000,
+                'stagehand.act (type message)',
               );
               logger.info(`[Stagehand] Message typing result: ${act2.message}`);
 
               if (!config.OUTREACH_DRY_RUN) {
                 await liveActivity.broadcast('outreach', `Envoi du message en cours...`);
-                const act3 = await stagehand.act(
-                  "Click the 'Send' button to deliver the message."
+                const act3 = await withTimeout(
+                  stagehand.act("Click the 'Send' button to deliver the message."),
+                  30_000,
+                  'stagehand.act (send)',
                 );
                 logger.info(`[Stagehand] Message send result: ${act3.message}`);
               } else {
                 logger.info('[Stagehand] DRY RUN: Skipping the Send button click.');
-                await stagehand.act("Click the 'Close' button or click outside to discard the draft.");
+                await withTimeout(
+                  stagehand.act("Click the 'Close' button or click outside to discard the draft."),
+                  15_000,
+                  'stagehand.act (discard)',
+                );
               }
             } else if (campaign.platform.toLowerCase() === 'email') {
               logger.info(`[OutreachWorker] Sending email to ${prospect.profileName}`);
@@ -281,12 +299,15 @@ export const outreachWorker = new Worker(
       throw error;
     }
   },
-  { connection: connection as any },
+  {
+    connection: connection as any,
+    // Single-stream Stagehand: parallel sessions blow Browserbase quota and
+    // also LinkedIn's rate-limiter / anti-bot heuristics.
+    concurrency: 1,
+  },
 );
 
-outreachWorker.on('failed', (job, err) => {
-  logger.error({ err }, `[OutreachWorker] Job ${job?.id} failed`);
-});
+attachWorkerObservability(outreachWorker, 'outreach-campaigns');
 
 export async function startOutreachWorker() {
   const { outreachQueue } = await import('../services/jobs/queue.js');

@@ -1,0 +1,223 @@
+{
+  "totalRoutes": 112,
+  "byMethod": {
+    "GET": 35,
+    "POST": 59,
+    "DELETE": 9,
+    "PUT": 6,
+    "PATCH": 3
+  },
+  "mutatingTotal": 77,
+  "mutatingValidated": 75,
+  "mutatingMissing": [
+    "POST /campaigns  (outreach.routes.ts)",
+    "PUT /campaigns/:id  (outreach.routes.ts)"
+  ],
+  "publicMutating": [
+    "POST /comments/:id/reply  (analytics.routes.ts)",
+    "POST /comments/:id/score  (analytics.routes.ts)",
+    "POST /comments/:id/agent-step  (analytics.routes.ts)",
+    "POST /trigger-evergreen  (analytics.routes.ts)",
+    "POST /engagement  (analyze.routes.ts)",
+    "POST /simulate  (analyze.routes.ts)",
+    "POST /field  (assist.routes.ts)",
+    "POST /register  (auth.routes.ts)",
+    "POST /login  (auth.routes.ts)",
+    "POST /dev-login  (auth.routes.ts)",
+    "POST /logout  (auth.routes.ts)",
+    "POST /forgot-password  (auth.routes.ts)",
+    "POST /reset-password  (auth.routes.ts)",
+    "POST /  (autoblog.routes.ts)",
+    "PUT /:id  (autoblog.routes.ts)",
+    "DELETE /:id  (autoblog.routes.ts)",
+    "POST /start  (codex-auth.routes.ts)",
+    "POST /logout  (codex-auth.routes.ts)",
+    "POST /  (generate.routes.ts)",
+    "POST /stream  (generate.routes.ts)",
+    "POST /hooks  (generate.routes.ts)",
+    "POST /carousel  (generate.routes.ts)",
+    "POST /repurpose  (generate.routes.ts)",
+    "POST /hashtags  (generate.routes.ts)",
+    "POST /ab-test  (generate.routes.ts)",
+    "POST /video-script  (generate.routes.ts)",
+    "POST /blog-article  (generate.routes.ts)",
+    "POST /generate  (images.routes.ts)",
+    "PATCH /:id  (images.routes.ts)",
+    "PATCH /:id/resolve  (inbox.routes.ts)",
+    "POST /:id/reply  (inbox.routes.ts)",
+    "POST /campaigns  (outreach.routes.ts)",
+    "PUT /campaigns/:id  (outreach.routes.ts)",
+    "DELETE /campaigns/:id  (outreach.routes.ts)",
+    "POST /prospects/:id/simulate-reply  (outreach.routes.ts)",
+    "POST /osint-scan  (outreach.routes.ts)",
+    "POST /enrich-profile  (outreach.routes.ts)",
+    "POST /deep-dossier  (outreach.routes.ts)",
+    "POST /generate-icebreaker  (outreach.routes.ts)",
+    "POST /find-contact  (outreach.routes.ts)",
+    "POST /add-from-osint  (outreach.routes.ts)",
+    "POST /  (pillars.routes.ts)",
+    "PUT /:id  (pillars.routes.ts)",
+    "DELETE /:id  (pillars.routes.ts)",
+    "POST /:id/ideas  (pillars.routes.ts)",
+    "POST /:id/generate-ideas  (pillars.routes.ts)",
+    "PUT /ideas/:ideaId  (pillars.routes.ts)",
+    "DELETE /ideas/:ideaId  (pillars.routes.ts)",
+    "DELETE /:platform/disconnect  (platforms.routes.ts)",
+    "POST /  (posts.routes.ts)",
+    "PUT /:id  (posts.routes.ts)",
+    "DELETE /:id  (posts.routes.ts)",
+    "POST /:id/publish  (posts.routes.ts)",
+    "POST /:id/schedule  (posts.routes.ts)",
+    "POST /:id/comments  (posts.routes.ts)",
+    "PATCH /:id/status  (posts.routes.ts)",
+    "POST /:id/approve  (posts.routes.ts)",
+    "POST /:id/reject  (posts.routes.ts)",
+    "POST /repurpose-url  (posts.routes.ts)",
+    "PUT /  (settings.routes.ts)",
+    "POST /create-checkout  (stripe.routes.ts)",
+    "POST /create-portal  (stripe.routes.ts)",
+    "POST /cancel  (stripe.routes.ts)",
+    "POST /resume  (stripe.routes.ts)",
+    "POST /  (styles.routes.ts)",
+    "DELETE /:id  (styles.routes.ts)",
+    "POST /:id/generate  (styles.routes.ts)",
+    "POST /:id/generate  (templates.routes.ts)",
+    "POST /  (trending.routes.ts)",
+    "POST /:id/invite  (workspaces.routes.ts)",
+    "DELETE /:id/members/:userId  (workspaces.routes.ts)"
+  ],
+  "perFile": {
+    "admin.routes.ts": {
+      "total": 1,
+      "mutating": 0,
+      "validated": 0,
+      "unauth": 0
+    },
+    "agent.routes.ts": {
+      "total": 5,
+      "mutating": 5,
+      "validated": 5,
+      "unauth": 0
+    },
+    "analytics.routes.ts": {
+      "total": 7,
+      "mutating": 4,
+      "validated": 4,
+      "unauth": 4
+    },
+    "analyze.routes.ts": {
+      "total": 2,
+      "mutating": 2,
+      "validated": 2,
+      "unauth": 2
+    },
+    "assist.routes.ts": {
+      "total": 1,
+      "mutating": 1,
+      "validated": 1,
+      "unauth": 1
+    },
+    "auth.routes.ts": {
+      "total": 9,
+      "mutating": 7,
+      "validated": 7,
+      "unauth": 6
+    },
+    "autoblog.routes.ts": {
+      "total": 4,
+      "mutating": 3,
+      "validated": 3,
+      "unauth": 3
+    },
+    "codex-auth.routes.ts": {
+      "total": 3,
+      "mutating": 2,
+      "validated": 2,
+      "unauth": 2
+    },
+    "generate.routes.ts": {
+      "total": 9,
+      "mutating": 9,
+      "validated": 9,
+      "unauth": 9
+    },
+    "images.routes.ts": {
+      "total": 4,
+      "mutating": 2,
+      "validated": 2,
+      "unauth": 2
+    },
+    "inbox.routes.ts": {
+      "total": 3,
+      "mutating": 2,
+      "validated": 2,
+      "unauth": 2
+    },
+    "outreach.routes.ts": {
+      "total": 12,
+      "mutating": 10,
+      "validated": 8,
+      "unauth": 10
+    },
+    "pillars.routes.ts": {
+      "total": 10,
+      "mutating": 7,
+      "validated": 7,
+      "unauth": 7
+    },
+    "platforms.routes.ts": {
+      "total": 4,
+      "mutating": 1,
+      "validated": 1,
+      "unauth": 1
+    },
+    "posts.routes.ts": {
+      "total": 13,
+      "mutating": 10,
+      "validated": 10,
+      "unauth": 10
+    },
+    "settings.routes.ts": {
+      "total": 2,
+      "mutating": 1,
+      "validated": 1,
+      "unauth": 1
+    },
+    "stripe.routes.ts": {
+      "total": 7,
+      "mutating": 4,
+      "validated": 4,
+      "unauth": 4
+    },
+    "styles.routes.ts": {
+      "total": 5,
+      "mutating": 3,
+      "validated": 3,
+      "unauth": 3
+    },
+    "templates.routes.ts": {
+      "total": 3,
+      "mutating": 1,
+      "validated": 1,
+      "unauth": 1
+    },
+    "trending.routes.ts": {
+      "total": 1,
+      "mutating": 1,
+      "validated": 1,
+      "unauth": 1
+    },
+    "viral.routes.ts": {
+      "total": 3,
+      "mutating": 0,
+      "validated": 0,
+      "unauth": 0
+    },
+    "workspaces.routes.ts": {
+      "total": 4,
+      "mutating": 2,
+      "validated": 2,
+      "unauth": 2
+    }
+  }
+}

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repo layout
 
-npm workspaces monorepo with three packages: `client/` (React 19 + Vite), `server/` (Express + TypeScript), `shared/` (types, constants, schemas). The shared package is consumed via `@postcommander/shared` and must be built before downstream packages — the root `build` script enforces this order: `shared → server → client`.
+npm workspaces monorepo with four packages: `client/` (React 19 + Vite), `server/` (Express + TypeScript), `shared/` (types, constants, schemas), `extension/` (browser extension). The shared package is consumed via `@postcommander/shared` and must be built before downstream packages — the root `build` script enforces this order: `shared → server → client`.
 
 Generated output lives in `client/dist` and `shared/dist`; do not hand-edit. The server compiles to `server/dist/` via plain `tsc`.
 
@@ -23,8 +23,8 @@ npm run test                   # shared + server vitest suites
 npm run test:e2e               # Playwright; spins up its own server (3101) and client (4173)
 npm run verify                 # lint + build + test
 npm run verify:release         # verify + e2e
-npm run db:reset               # delete server/data/ (SQLite + outbox + images)
-npm run db:backup              # SQLite online-backup → server/data/backups/ (--keep N, --out DIR)
+npm run db:reset               # truncate dev tables (Postgres)
+npm run db:backup              # pg_dump → server/data/backups/ (--keep N, --out DIR)
 
 # Workspace-scoped
 npm test -w @postcommander/server                     # all server tests
@@ -38,11 +38,36 @@ There is no client unit-test runner; UI is covered by Playwright e2e under `test
 
 ### Server boot sequence (`server/src/index.ts` → `app.ts`)
 
-1. `initDb()` opens SQLite at `server/data/postcommander.db`, enables WAL + foreign keys, and runs migrations in `server/src/db/migrations/` in filename order. The `_migrations` table tracks what has been applied. Drizzle ORM is layered on top of `better-sqlite3` and exposed via `getDrizzle()`; raw SQL via `getDb()`.
-2. Reference data is seeded (`seedViralPosts`, `seedTemplates`).
-3. `./services/jobs/worker.ts` is imported for its side effect — it starts the BullMQ worker that drains the `post-publishing` queue (Redis-backed via `REDIS_URL`).
-4. Scheduled workers are started: `startAnalyticsWorker()` (periodic analytics aggregation) and `startEvergreenWorker()` (recurring content recycling).
-5. `createApp()` wires Helmet/CORS/rate limiting (`middleware/setup.ts`), cookie parsing, the **Stripe webhook with `express.raw` BEFORE `express.json`** (signature verification depends on the raw body), then JSON body parsing, then `/api` routes.
+1. **Sentry init** (if `SENTRY_DSN` set): sampling driven by `SENTRY_TRACES_SAMPLE_RATE` / `SENTRY_PROFILES_SAMPLE_RATE` (defaults 0.1 / 0.01), with `beforeSend` scrubbing PII from headers, cookies, and credential-bearing body fields.
+2. **`initDb()`** opens the Postgres pool from `DATABASE_URL`. Drizzle ORM (`drizzle-orm/pg-core`) is exposed via `getDrizzle()`; raw `pg` client via `getDb()`.
+3. **`runMigrations()`** applies pending Drizzle migrations from `server/drizzle/` at boot.
+4. Reference data seeded (`seedViralPosts`, `seedTemplates`).
+5. Workers imported for side effects: `services/jobs/{worker,agent.worker,scraper.worker}.ts` plus `workers/{autoblog,outreach}.worker.ts`.
+6. Scheduled cron workers started: `startAnalyticsWorker()`, `startAutoBlogWorker()`, `startOutreachWorker()`, `startPublishingWorker()`.
+7. `createApp()` wires Helmet/CORS/rate limiting (`middleware/setup.ts`), cookie parsing, the **Stripe webhook with `express.raw` BEFORE `express.json`** (signature verification depends on the raw body), then JSON body parsing, then `/api` routes.
+
+### Analytics adapter coverage & required scopes
+
+| Platform | `fetchAnalytics` impl | OAuth scopes for analytics | Notes |
+|---|---|---|---|
+| Twitter | ✅ `/2/tweets/{id}?tweet.fields=public_metrics` | `tweet.read` (default) | views = impression_count |
+| LinkedIn | ✅ `/v2/socialActions/{urn}/{likes,comments}` | **`r_member_social`** (added 2026-05-19 — old connections must reconnect) | views/shares = 0 (gated Marketing API) |
+| Facebook | ✅ `/v19.0/{post_id}?fields=likes.summary(true),...` | page access token (already used for publishing) | views = 0 (would need `read_insights` + Page Insights API) |
+| Instagram | ✅ `/v19.0/{media_id}/insights?metric=...` | **`instagram_basic` + `instagram_manage_insights`** | Requires IG Business / Creator account, 400 otherwise |
+| Pinterest | ✅ `/v5/pins/{pin_id}/analytics` | `pins:read` + `user_accounts:read` | Date-range query (last 30 d); SAVE→shares, REACTION→likes |
+| TikTok | ❌ NotImplementedError | n/a | API gated (business account approval multi-semaines) |
+
+When adding a new platform, override `fetchAnalytics(accessToken, platformPostId)` on its adapter — return `PlatformMetrics` shape (views/likes/shares/commentsCount, all `number`).
+
+### Worker feature flags (defaults safe — no fake data ships)
+
+Several workers are guarded behind boolean env flags. Defaults are `false` so an unfinished integration never ships fake user-visible data:
+
+- **`ANALYTICS_FETCH_ENABLED`** (default `false`): when off, the hourly analytics-sync worker logs once per cycle and no-ops (no DB mutation, no auto-plug trigger). When on, it dispatches `adapter.fetchAnalytics(token, platformPostId)` per publication — Twitter v2 `public_metrics` is implemented; other adapters throw `NotImplementedError` and the worker skips them (counted as `skippedUnsupported`).
+- **`OUTREACH_AUTO_DISCOVERY`** (default `false`): when off, the outreach worker only advances the drip sequence for prospects added explicitly via `/api/outreach/osint-scan` + `/add-from-osint`. When on, the worker would attempt Stagehand-based discovery (not yet implemented).
+- **`OUTREACH_DRY_RUN`** (default `true`): when on, Stagehand types the message but clicks "Discard" instead of "Send".
+
+To add a real-API integration for analytics on a new platform, override `fetchAnalytics` on its adapter in `server/src/services/platforms/<platform>.ts`.
 
 ### Server routing pattern
 
@@ -67,9 +92,11 @@ All HTTP responses follow `ApiResponse<T>` / `PaginatedResponse<T>` from `shared
 
 ### Database migrations
 
-SQL files in `server/src/db/migrations/` are auto-applied on server startup in filename order. Name new files sequentially: `0NN_short_name.sql`. The current schema is mirrored in Drizzle (`server/src/db/schema.ts`) and a Postgres variant exists at `schema-pg.ts` — keep them in sync if you touch the schema.
+The DB is **Postgres** (migration from SQLite completed in commit `2ae8436`). Schema source of truth: [`server/src/db/schema.ts`](server/src/db/schema.ts) (using `drizzle-orm/pg-core` `pgTable`). Migrations are generated by Drizzle Kit into `server/drizzle/` (SQL + `meta/` snapshots) and applied at boot via `runMigrations()`. The legacy `server/src/db/schema-pg.ts` template is dead code — to be removed.
 
-When adding new tables, update `resetTestDatabase()` in `server/src/test-utils/test-db.ts` to include them in the truncation list (to ensure test isolation). Currently truncates: `deleted_billing_records`, `deleted_account_audits`, `content_ideas`, `content_pillars`, `generated_images`, `writing_styles`, `post_publications`, `posts`, `platform_connections`, `invoices`, `subscriptions`, `password_reset_tokens`, `settings`, `users`.
+Generate a new migration after editing the schema: `npx drizzle-kit generate` (writes a new `server/drizzle/0NNN_*.sql` + updates `meta/_journal.json`).
+
+When adding new tables, update `resetTestDatabase()` in `server/src/test-utils/test-db.ts` to include them in the truncation list (test isolation).
 
 ## Conventions
 

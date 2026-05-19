@@ -1,7 +1,6 @@
-import { generateText } from 'ai';
 import type { LLMProviderId } from '@postcommander/shared';
 import type { AssistFieldKey, AssistFieldResponse } from '@postcommander/shared';
-import { createModel } from './provider-factory.js';
+import { runLLM } from './_runtime.js';
 import { chatgptProGenerate, chatgptProAvailable } from './chatgpt-pro/sdk-wrapper.js';
 import { config } from '../../config/env.js';
 
@@ -196,15 +195,16 @@ export async function suggestFieldValue(params: SuggestParams): Promise<AssistFi
       })
     ).trim();
   } else {
-    const llm = await createModel(provider, model, params.userId);
-    const result = await generateText({
-      model: llm,
+    const { raw } = await runLLM({
+      provider,
+      model,
+      userId: params.userId,
       system: prompt.system,
-      messages: [{ role: 'user', content: userMessage }],
+      user: userMessage,
       temperature: 0.85,
       maxTokens: 250,
     });
-    text = result.text.trim();
+    text = raw.trim();
   }
 
   if (totalToGenerate === 1) {

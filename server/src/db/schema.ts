@@ -109,6 +109,9 @@ export const posts = pgTable(
   },
   (table) => ({
     userIdx: index('idx_posts_user').on(table.userId),
+    workspaceIdx: index('idx_posts_workspace').on(table.workspaceId),
+    // Hot path: publishing scheduler queries "WHERE status='scheduled' AND scheduled_at <= NOW()".
+    statusScheduledIdx: index('idx_posts_status_scheduled').on(table.status, table.scheduledAt),
   }),
 );
 
@@ -150,33 +153,43 @@ export const postComments = pgTable(
   }),
 );
 
-export const postPublications = pgTable('post_publications', {
-  id: text('id').primaryKey(),
-  postId: text('post_id')
-    .notNull()
-    .references(() => posts.id, { onDelete: 'cascade' }),
-  platform: text('platform').notNull(),
-  connectionId: text('connection_id').references(() => platformConnections.id),
-  platformPostId: text('platform_post_id'),
-  platformUrl: text('platform_url'),
-  status: text('status').notNull().default('pending'),
-  errorMessage: text('error_message'),
-  views: integer('views').default(0),
-  likes: integer('likes').default(0),
-  commentsCount: integer('comments_count').default(0),
-  shares: integer('shares').default(0),
-  hasAutoPlugged: boolean('has_auto_plugged').default(false),
-  lastSyncedAt: timestamp('last_synced_at', { mode: 'string' }),
-  publishedAt: timestamp('published_at', { mode: 'string' }),
-  createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-});
+export const postPublications = pgTable(
+  'post_publications',
+  {
+    id: text('id').primaryKey(),
+    postId: text('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    platform: text('platform').notNull(),
+    connectionId: text('connection_id').references(() => platformConnections.id),
+    platformPostId: text('platform_post_id'),
+    platformUrl: text('platform_url'),
+    status: text('status').notNull().default('pending'),
+    errorMessage: text('error_message'),
+    views: integer('views').default(0),
+    likes: integer('likes').default(0),
+    commentsCount: integer('comments_count').default(0),
+    shares: integer('shares').default(0),
+    hasAutoPlugged: boolean('has_auto_plugged').default(false),
+    lastSyncedAt: timestamp('last_synced_at', { mode: 'string' }),
+    publishedAt: timestamp('published_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  },
+  (table) => ({
+    postIdx: index('idx_post_publications_post').on(table.postId),
+    postStatusIdx: index('idx_post_publications_post_status').on(table.postId, table.status),
+    connectionIdx: index('idx_post_publications_connection').on(table.connectionId),
+  }),
+);
 
-export const socialComments = pgTable('social_comments', {
-  id: text('id').primaryKey(),
-  postPublicationId: text('post_publication_id')
-    .notNull()
-    .references(() => postPublications.id, { onDelete: 'cascade' }),
-  platformCommentId: text('platform_comment_id').notNull(),
+export const socialComments = pgTable(
+  'social_comments',
+  {
+    id: text('id').primaryKey(),
+    postPublicationId: text('post_publication_id')
+      .notNull()
+      .references(() => postPublications.id, { onDelete: 'cascade' }),
+    platformCommentId: text('platform_comment_id').notNull(),
   authorName: text('author_name').notNull(),
   authorHandle: text('author_handle'),
   authorAvatarUrl: text('author_avatar_url'),
@@ -191,7 +204,18 @@ export const socialComments = pgTable('social_comments', {
   isResolved: boolean('is_resolved').default(false), // 0 or 1
   publishedAt: timestamp('published_at', { mode: 'string' }).notNull(),
   createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
-});
+  },
+  (table) => ({
+    // Idempotence guard: prevents duplicate inserts of the same platform comment.
+    platformCommentIdIdx: uniqueIndex('idx_social_comments_platform_comment_id').on(
+      table.platformCommentId,
+    ),
+    publicationRepliedIdx: index('idx_social_comments_publication_replied').on(
+      table.postPublicationId,
+      table.isReplied,
+    ),
+  }),
+);
 
 export const subscriptions = pgTable('subscriptions', {
   id: text('id').primaryKey(),
@@ -333,6 +357,7 @@ export const generatedImages = pgTable(
   },
   (table) => ({
     userIdx: index('idx_generated_images_user').on(table.userId),
+    postIdx: index('idx_generated_images_post').on(table.postId),
   }),
 );
 
@@ -374,6 +399,20 @@ export const contentIdeas = pgTable(
   },
   (table) => ({
     userIdx: index('idx_content_ideas_user').on(table.userId),
+  }),
+);
+
+export const revokedTokens = pgTable(
+  'revoked_tokens',
+  {
+    jti: text('jti').primaryKey(),
+    userId: text('user_id').notNull(),
+    revokedAt: timestamp('revoked_at', { mode: 'string' }).notNull().defaultNow(),
+    expiresAt: timestamp('expires_at', { mode: 'string' }).notNull(),
+  },
+  (table) => ({
+    expiresAtIdx: index('idx_revoked_tokens_expires_at').on(table.expiresAt),
+    userIdx: index('idx_revoked_tokens_user').on(table.userId),
   }),
 );
 
@@ -497,5 +536,28 @@ export const outreachReplies = pgTable(
   },
   (table) => ({
     prospectIdx: index('idx_outreach_replies_prospect').on(table.prospectId),
+  }),
+);
+
+export const flowAutomations = pgTable(
+  'flow_automations',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    status: text('status').notNull().default('draft'), // 'draft' or 'active'
+    flowData: text('flow_data').notNull(), // JSON string representing ReactFlow nodes & edges
+    lastRunAt: timestamp('last_run_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userIdx: index('idx_flow_automations_user').on(table.userId),
+    workspaceIdx: index('idx_flow_automations_workspace').on(table.workspaceId),
   }),
 );

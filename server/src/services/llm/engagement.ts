@@ -1,6 +1,5 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM, parseJsonResponse } from './_runtime.js';
 
 export interface EngagementRequest {
   content: string;
@@ -24,19 +23,6 @@ export interface EngagementResult {
   suggestions: string[];
 }
 
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
-
 /**
  * Predict engagement for a post using LLM analysis.
  */
@@ -44,8 +30,6 @@ export async function predictEngagement(
   request: EngagementRequest,
   userId?: string,
 ): Promise<EngagementResult> {
-  const model = await createModel(request.provider, request.model, userId);
-
   const system = `You are an expert social media analyst specializing in engagement prediction and content optimization. Analyze the given post content and predict its engagement potential.
 
 ## Platform: ${request.platform}
@@ -92,17 +76,17 @@ Rules:
 - Suggestions should be concrete improvements, not generic advice
 - Return ONLY valid JSON. No markdown, no extra text.`;
 
-  const user = `Analyze this ${request.platform} post for engagement potential:\n\n${request.content}`;
-
-  const result = await generateText({
-    model,
+  const { raw } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `Analyze this ${request.platform} post for engagement potential:\n\n${request.content}`,
     temperature: 0.3,
     maxTokens: 1024,
   });
 
-  const parsed = parseJsonResponse(result.text);
+  const parsed = parseJsonResponse<any>(raw);
 
   const breakdown: EngagementBreakdown = {
     hookStrength: clampScore(parsed.breakdown?.hookStrength),

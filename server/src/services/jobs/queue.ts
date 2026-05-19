@@ -1,30 +1,37 @@
 import { Queue, type QueueOptions } from 'bullmq';
-import { Redis } from 'ioredis';
-import { config } from '../../config/env.js';
-
 import { sharedRedisConnection } from '../../utils/redis.js';
 
 const connection = sharedRedisConnection;
 
-export const postQueue = new Queue('post-publishing', {
-  connection: connection as QueueOptions['connection'],
-});
+/**
+ * Default job options applied to every queue. Without these, BullMQ keeps
+ * completed jobs forever (Redis memory growth) and a job that throws is
+ * silently dropped (no retry). The retention windows (1 day for completed,
+ * 7 days for failed) give bull-board enough history to debug recent issues
+ * without filling Redis.
+ *
+ * Per-queue/per-job overrides remain possible via `queue.add(name, data, opts)`.
+ */
+const defaultJobOptions: QueueOptions['defaultJobOptions'] = {
+  attempts: 3,
+  backoff: { type: 'exponential', delay: 5_000 },
+  removeOnComplete: { age: 24 * 60 * 60, count: 1_000 },
+  removeOnFail: { age: 7 * 24 * 60 * 60 },
+};
 
-export const agentQueue = new Queue('agent-workflow', {
-  connection: connection as QueueOptions['connection'],
-});
+function makeQueue(name: string): Queue {
+  return new Queue(name, {
+    connection: connection as QueueOptions['connection'],
+    defaultJobOptions,
+  });
+}
 
-export const autoBlogQueue = new Queue('auto-blog', {
-  connection: connection as QueueOptions['connection'],
-});
-
-export const outreachQueue = new Queue('outreach-campaigns', {
-  connection: connection as QueueOptions['connection'],
-});
-
-export const analyticsQueue = new Queue('analytics-sync', {
-  connection: connection as QueueOptions['connection'],
-});
+export const postQueue = makeQueue('post-publishing');
+export const agentQueue = makeQueue('agent-workflow');
+export const autoBlogQueue = makeQueue('auto-blog');
+export const outreachQueue = makeQueue('outreach-campaigns');
+export const analyticsQueue = makeQueue('analytics-sync');
+export const scraperFlowQueue = makeQueue('scraper-flow');
 
 export interface QueueHealth {
   redis: 'ok' | 'error';

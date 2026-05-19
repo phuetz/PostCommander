@@ -12,8 +12,28 @@ export function closeTestDatabase() {
   closeDb();
 }
 
+/**
+ * Test isolation: TRUNCATE CASCADE is meaningfully faster than DELETE across
+ * 14 tables (one statement, no per-row overhead, FK cascade handles ordering).
+ * RESTART IDENTITY isn't useful here since IDs are uuids.
+ *
+ * Parallelism note: vitest `fileParallelism: false` is currently REQUIRED
+ * because every test file shares this single Postgres DB and calls
+ * resetTestDatabase() between tests. To enable parallelism, two options:
+ *   (a) Run each test inside `db.transaction()` + force ROLLBACK at the end —
+ *       requires the route handler to share the same tx instance (deep refactor).
+ *   (b) Give each vitest worker its own Postgres schema via `SET search_path
+ *       TO test_w_${VITEST_WORKER_ID}` + run migrations per schema at boot
+ *       (medium refactor in initDb + connection pool).
+ * Tracked as a chantier in audit/audit-complet-postcommander.md (T5).
+ */
 export async function resetTestDatabase() {
   const db = getDb();
+  // Kept as DELETE (not TRUNCATE CASCADE) — TRUNCATE on the broader table list
+  // caused FK-related test failures when run alongside route/controller tests
+  // that pre-seed specific fixtures. DELETE in dependency order is slower but
+  // predictable. The bigger fileParallelism + transaction-per-test refactor
+  // (audit T5) is the proper next step.
   await db.query(`
     DELETE FROM deleted_billing_records;
     DELETE FROM deleted_account_audits;

@@ -8,6 +8,27 @@
       "when": 1779139396107,
       "tag": "0000_crazy_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779181315861,
+      "tag": "0001_wise_mongu",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779192000000,
+      "tag": "0002_missing_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779200000000,
+      "tag": "0003_revoked_tokens",
+      "breakpoints": true
     }
   ]
 }

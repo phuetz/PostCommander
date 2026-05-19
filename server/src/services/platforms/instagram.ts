@@ -6,6 +6,7 @@ import {
   type AccountInfo,
   type PublishOptions,
   type PublishResponse,
+  type PlatformMetrics,
 } from './base-platform.js';
 
 export class InstagramAdapter extends BasePlatformAdapter {
@@ -30,7 +31,11 @@ export class InstagramAdapter extends BasePlatformAdapter {
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       state,
-      scope: 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement',
+      // instagram_manage_insights required for /v19.0/{media_id}/insights
+      // (impressions/likes/comments/shares). Connections issued before this
+      // scope was added must reconnect.
+      scope:
+        'instagram_basic,instagram_content_publish,instagram_manage_insights,pages_show_list,pages_read_engagement',
       response_type: 'code',
     });
     return `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`;
@@ -168,6 +173,46 @@ export class InstagramAdapter extends BasePlatformAdapter {
     return {
       platformPostId: publishData.id,
       platformUrl: `https://www.instagram.com/p/${publishData.id}`,
+    };
+  }
+
+  /**
+   * Fetch insights for an IG media object. Requires an Instagram Business or
+   * Creator account (`instagram_basic` + `instagram_manage_insights` scopes).
+   * Returns { values: [{ value }] } per metric. For non-business accounts
+   * the API returns 400 with a clear "must be business account" message,
+   * which surfaces to the worker as a normal fetch error (counted `failed`).
+   *
+   * Note: `impressions` was deprecated for Reels/Stories in v18+ for some
+   * accounts; we still request it and default to 0 if absent.
+   */
+  async fetchAnalytics(accessToken: string, platformPostId: string): Promise<PlatformMetrics> {
+    const url =
+      `https://graph.facebook.com/v19.0/${encodeURIComponent(platformPostId)}/insights` +
+      `?metric=impressions,likes,comments,shares` +
+      `&access_token=${encodeURIComponent(accessToken)}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Instagram analytics fetch failed (${response.status}): ${text}`);
+    }
+
+    const data = (await response.json()) as {
+      data?: Array<{ name: string; values?: Array<{ value?: number }> }>;
+    };
+
+    const byName = new Map<string, number>();
+    for (const metric of data.data ?? []) {
+      const v = metric.values?.[0]?.value ?? 0;
+      byName.set(metric.name, typeof v === 'number' ? v : 0);
+    }
+
+    return {
+      views: byName.get('impressions') ?? 0,
+      likes: byName.get('likes') ?? 0,
+      shares: byName.get('shares') ?? 0,
+      commentsCount: byName.get('comments') ?? 0,
     };
   }
 

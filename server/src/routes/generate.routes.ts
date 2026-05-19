@@ -8,6 +8,7 @@ import {
   abTestSchema,
   blogArticleSchema,
 } from '@postcommander/shared';
+import { videoScriptGenerateSchema } from '../schemas/routes.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { checkPostLimit, requireFeature } from '../middleware/plan-limiter.js';
@@ -47,7 +48,7 @@ router.post(
   handleResearchHashtags,
 );
 router.post('/ab-test', requireFeature('ab_testing'), validate(abTestSchema), handleABTest);
-router.post('/video-script', handleVideoScriptGenerate);
+router.post('/video-script', validate(videoScriptGenerateSchema), handleVideoScriptGenerate);
 router.post('/blog-article', validate(blogArticleSchema), handleBlogArticleGenerate);
 
 export default router;

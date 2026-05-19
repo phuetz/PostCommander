@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
+import { checkA11y } from './_helpers/a11y';
 
-test('auth page should load', async ({ page }) => {
+test('auth page should load', async ({ page }, testInfo) => {
   await page.goto('/login');
   await page.waitForLoadState('networkidle');
 
@@ -17,4 +18,7 @@ test('auth page should load', async ({ page }) => {
   // Try clicking sign in without filling
   const submitButton = page.locator('button[type="submit"]');
   await expect(submitButton).toBeVisible();
+
+  // WCAG 2.1 AA audit (opt-in: no-ops if @axe-core/playwright isn't installed).
+  await checkA11y(page, testInfo, 'login');
 });

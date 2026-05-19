@@ -55,7 +55,9 @@ export async function simulateCommentHandler(req: Request, res: Response) {
     logger.info(`Simulated comment ${commentId} created. Enqueueing to agent...`);
 
     // Enqueue the agent workflow job
-    await agentQueue.add('process-comment', { commentId });
+    // Deterministic jobId so BullMQ dedupes re-submissions of the same comment
+    // (prevents double-processing if the controller is retried).
+    await agentQueue.add('process-comment', { commentId }, { jobId: `process-comment:${commentId}` });
 
     res.status(200).json({
       success: true,
@@ -114,7 +116,9 @@ export async function scrapeLeadHandler(req: Request, res: Response) {
       });
 
       // Enqueue the agent workflow job
-      await agentQueue.add('process-comment', { commentId });
+      // Deterministic jobId so BullMQ dedupes re-submissions of the same comment
+    // (prevents double-processing if the controller is retried).
+    await agentQueue.add('process-comment', { commentId }, { jobId: `process-comment:${commentId}` });
       enqueuedComments.push(commentId);
     }
 

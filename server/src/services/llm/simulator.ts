@@ -1,9 +1,8 @@
-import { generateText } from 'ai';
 import { eq, desc, and } from 'drizzle-orm';
 import { getDrizzle } from '../../db/connection.js';
 import { posts } from '../../db/schema.js';
-import { createModel } from './provider-factory.js';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM, parseJsonResponse } from './_runtime.js';
 export interface SimulateRequest {
   content: string;
   platform: string;
@@ -27,19 +26,6 @@ export interface SimulateResult {
   summary: string;
 }
 
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
-
 /**
  * Simulate post performance using LLM analysis.
  */
@@ -47,7 +33,6 @@ export async function simulatePerformance(
   request: SimulateRequest,
   userId?: string,
 ): Promise<SimulateResult> {
-  const model = await createModel(request.provider, request.model, userId);
   const audience = request.audience || 'general professional audience (1K-10K followers)';
 
   let historyContext = '';
@@ -111,17 +96,17 @@ Rules:
 - The summary should be concise and insightful
 - Return ONLY valid JSON. No markdown, no extra text.`;
 
-  const user = `Predict the performance of this ${request.platform} post:\n\n${request.content}`;
-
-  const result = await generateText({
-    model,
+  const { raw } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `Predict the performance of this ${request.platform} post:\n\n${request.content}`,
     temperature: 0.4,
     maxTokens: 1024,
   });
 
-  const parsed = parseJsonResponse(result.text);
+  const parsed = parseJsonResponse<any>(raw);
 
   return {
     impressions: parseRange(parsed.impressions),

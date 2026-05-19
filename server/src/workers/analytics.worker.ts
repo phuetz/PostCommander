@@ -1,166 +1,175 @@
 import { Worker, type Job } from 'bullmq';
-import { v4 as uuidv4 } from 'uuid';
 import { getDrizzle } from '../db/connection.js';
-import { postPublications, socialComments, platformConnections, posts } from '../db/schema.js';
-import { eq, and, isNotNull } from 'drizzle-orm';
+import { platformConnections, postPublications, posts } from '../db/schema.js';
+import { eq, and, isNotNull, inArray } from 'drizzle-orm';
+import type { PlatformId } from '@postcommander/shared';
 import { logger } from '../utils/logger.js';
-import { config } from '../config/env.js';
-import { Redis } from 'ioredis';
-
 import { sharedRedisConnection } from '../utils/redis.js';
+import { config } from '../config/env.js';
+import { getPlatform, ensureFreshToken } from '../services/platforms/index.js';
+import { NotImplementedError, type PlatformMetrics } from '../services/platforms/base-platform.js';
+import { analyticsQueue } from '../services/jobs/queue.js';
+import { attachWorkerObservability } from '../utils/worker-helpers.js';
 
 const connection = sharedRedisConnection;
 
+export interface AnalyticsSyncStats {
+  synced: number;
+  skippedUnsupported: number;
+  failed: number;
+  total: number;
+  skipped: 'flag-disabled' | 'no-publications' | null;
+}
+
 /**
- * Simulates fetching actual analytics from a social network API.
- * In a real-world scenario, this would use the platform connections' access tokens
- * to call LinkedIn/Twitter APIs to get the real views, likes, and comments.
+ * Pure job handler — extracted so it can be unit-tested without booting BullMQ
+ * or a Redis connection. The Worker below simply binds this to the queue.
  */
-async function fetchRealPlatformAnalytics(publication: any, connection: any) {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
+export async function runAnalyticsSyncCycle(): Promise<AnalyticsSyncStats> {
+  if (!config.ANALYTICS_FETCH_ENABLED) {
+    logger.info(
+      '[AnalyticsWorker] ANALYTICS_FETCH_ENABLED=false — skipping fetch cycle (no DB mutation).',
+    );
+    return { synced: 0, skippedUnsupported: 0, failed: 0, total: 0, skipped: 'flag-disabled' };
+  }
 
-  // Return simulated realistic data based on time since published
-  const hoursSincePublished = Math.max(
-    1,
-    Math.floor((Date.now() - new Date(publication.publishedAt).getTime()) / (1000 * 60 * 60)),
+  logger.info('[AnalyticsWorker] Starting real analytics sync...');
+  const db = getDrizzle();
+
+  const publications = await db
+    .select({
+      pub: postPublications,
+      post: posts,
+    })
+    .from(postPublications)
+    .innerJoin(posts, eq(postPublications.postId, posts.id))
+    .where(
+      and(
+        eq(postPublications.status, 'published'),
+        isNotNull(postPublications.connectionId),
+        isNotNull(postPublications.platformPostId),
+      ),
+    );
+
+  if (publications.length === 0) {
+    logger.info('[AnalyticsWorker] No published publications to sync.');
+    return { synced: 0, skippedUnsupported: 0, failed: 0, total: 0, skipped: 'no-publications' };
+  }
+
+  // Batch-load every connection in one query to avoid N+1.
+  const connectionIds = Array.from(
+    new Set(publications.map((p) => p.pub.connectionId).filter((id): id is string => !!id)),
   );
-  const baseMultiplier = hoursSincePublished * (Math.random() * 2 + 0.5);
+  const connectionRows = await db
+    .select()
+    .from(platformConnections)
+    .where(inArray(platformConnections.id, connectionIds));
+  const connectionsById = new Map(connectionRows.map((c) => [c.id, c]));
 
-  return {
-    views: Math.floor(baseMultiplier * 150),
-    likes: Math.floor(baseMultiplier * 12),
-    shares: Math.floor(baseMultiplier * 2),
-    commentsCount: Math.floor(baseMultiplier * 3),
-    newComments: Array.from({ length: Math.floor(Math.random() * 3) }).map((_, i) => ({
-      platformCommentId: `comment_${publication.id}_${Date.now()}_${i}`,
-      authorName: `User ${Math.floor(Math.random() * 1000)}`,
-      authorHandle: `@user${Math.floor(Math.random() * 1000)}`,
-      content: 'This is a simulated comment retrieved from the platform API!',
-      publishedAt: new Date().toISOString(),
-    })),
+  let synced = 0;
+  let skippedUnsupported = 0;
+  let failed = 0;
+
+  for (const { pub, post } of publications) {
+    if (!pub.connectionId || !pub.platformPostId) continue;
+    const conn = connectionsById.get(pub.connectionId);
+    if (!conn) continue;
+
+    let metrics: PlatformMetrics;
+    try {
+      const adapter = getPlatform(conn.platform as PlatformId);
+      const accessToken = await ensureFreshToken({
+        id: conn.id,
+        platform: conn.platform,
+        accessToken: conn.accessToken,
+        refreshToken: conn.refreshToken,
+        tokenExpires: conn.tokenExpires,
+      });
+      metrics = await adapter.fetchAnalytics(accessToken, pub.platformPostId);
+    } catch (err) {
+      if (err instanceof NotImplementedError) {
+        skippedUnsupported++;
+        continue;
+      }
+      failed++;
+      logger.error(
+        { err, publicationId: pub.id, platform: conn.platform },
+        '[AnalyticsWorker] Failed to fetch analytics',
+      );
+      continue;
+    }
+
+    // Auto-plug threshold check, now driven by REAL likes (set, not added).
+    let hasAutoPlugged = pub.hasAutoPlugged ?? false;
+    if (
+      post.autoPlugContent &&
+      post.autoPlugThreshold &&
+      metrics.likes >= post.autoPlugThreshold &&
+      !hasAutoPlugged
+    ) {
+      logger.info(
+        { postId: post.id, likes: metrics.likes, threshold: post.autoPlugThreshold },
+        '[AnalyticsWorker] Auto-plug threshold reached — posting comment',
+      );
+      // TODO: call adapter.postComment(...) once that capability is added.
+      hasAutoPlugged = true;
+    }
+
+    await db
+      .update(postPublications)
+      .set({
+        views: metrics.views,
+        likes: metrics.likes,
+        shares: metrics.shares,
+        commentsCount: metrics.commentsCount,
+        hasAutoPlugged,
+        lastSyncedAt: new Date().toISOString(),
+      })
+      .where(eq(postPublications.id, pub.id));
+
+    synced++;
+  }
+
+  const stats: AnalyticsSyncStats = {
+    synced,
+    skippedUnsupported,
+    failed,
+    total: publications.length,
+    skipped: null,
   };
+  logger.info(stats, '[AnalyticsWorker] Sync cycle finished');
+  return stats;
 }
 
 export const analyticsWorker = new Worker(
   'analytics-sync',
-  async (job: Job) => {
-    logger.info('Running scheduled analytics sync...');
-    const db = getDrizzle();
-
-    try {
-      // Find all published posts that haven't been synced in the last hour
-      // For simplicity in this SQLite implementation, we just fetch published posts
-      const publications = await db
-        .select({
-          pub: postPublications,
-          post: posts,
-        })
-        .from(postPublications)
-        .innerJoin(posts, eq(postPublications.postId, posts.id))
-        .where(
-          and(eq(postPublications.status, 'published'), isNotNull(postPublications.connectionId)),
-        );
-
-      for (const { pub, post } of publications) {
-        if (!pub.connectionId) continue;
-
-        const connection = await db.query.platformConnections.findFirst({
-          where: eq(platformConnections.id, pub.connectionId),
-        });
-
-        if (!connection) continue;
-
-        try {
-          // Fetch the real analytics from the platform
-          const analytics = await fetchRealPlatformAnalytics(pub, connection);
-
-          let newLikes = pub.likes ? pub.likes + analytics.likes : analytics.likes;
-          let hasAutoPlugged = pub.hasAutoPlugged;
-
-          // ── Auto-Plug Logic ──
-          if (
-            post.autoPlugContent &&
-            post.autoPlugThreshold &&
-            newLikes >= post.autoPlugThreshold &&
-            !hasAutoPlugged
-          ) {
-            logger.info(
-              `🔥 Auto-Plug threshold reached for post ${post.id}! Publishing comment: "${post.autoPlugContent}"`,
-            );
-            // In a real scenario, call platform API to post the comment here
-            hasAutoPlugged = true;
-          }
-
-          // Update publication stats
-          await db
-            .update(postPublications)
-            .set({
-              views: pub.views ? pub.views + analytics.views : analytics.views,
-              likes: newLikes,
-              shares: pub.shares ? pub.shares + analytics.shares : analytics.shares,
-              commentsCount: pub.commentsCount
-                ? pub.commentsCount + analytics.commentsCount
-                : analytics.commentsCount,
-              hasAutoPlugged,
-              lastSyncedAt: new Date().toISOString(),
-            })
-            .where(eq(postPublications.id, pub.id));
-
-          // Insert new comments if any and enqueue them for the Agent SDR
-          if (analytics.newComments.length > 0) {
-            const commentsToInsert = analytics.newComments.map((c) => ({
-              id: uuidv4(),
-              postPublicationId: pub.id,
-              platformCommentId: c.platformCommentId,
-              authorName: c.authorName,
-              authorHandle: c.authorHandle,
-              content: c.content,
-              publishedAt: c.publishedAt,
-              isReplied: false,
-            }));
-
-            await db.insert(socialComments).values(commentsToInsert);
-
-            // Enqueue each comment to the agent workflow
-            const { agentQueue } = await import('../services/jobs/queue.js');
-            for (const comment of commentsToInsert) {
-              await agentQueue.add('process-comment', { commentId: comment.id });
-              logger.info(`Enqueued new comment ${comment.id} for Agent processing.`);
-            }
-          }
-        } catch (err) {
-          logger.error({ err, publicationId: pub.id }, 'Failed to sync analytics for publication');
-        }
-      }
-      logger.info(`Successfully synced analytics for ${publications.length} publications.`);
-    } catch (error) {
-      logger.error({ error }, 'Analytics worker encountered a fatal error');
-      throw error;
-    }
+  async (_job: Job) => {
+    await runAnalyticsSyncCycle();
   },
-  { connection: connection as any },
+  {
+    connection: connection as any,
+    concurrency: 1,
+  },
 );
 
+attachWorkerObservability(analyticsWorker, 'analytics-sync');
+
 export async function startAnalyticsWorker() {
-  logger.info('Starting Analytics Tracking Worker...');
-  const { analyticsQueue } = await import('../services/jobs/queue.js');
-  
-  // Clean up existing repeatable jobs
+  logger.info('[AnalyticsWorker] Scheduling hourly analytics sync...');
+
+  // Clean up existing repeatable jobs to avoid duplicates after redeploy.
   const repeatableJobs = await analyticsQueue.getRepeatableJobs();
   for (const job of repeatableJobs) {
     await analyticsQueue.removeRepeatableByKey(job.key);
   }
 
-  // Run every hour at minute 0
+  // Deterministic jobId so multi-instance deploys don't double-install.
   await analyticsQueue.add(
     'analytics-sync-job',
     {},
     {
-      repeat: {
-        pattern: '0 * * * *',
-      },
+      jobId: 'analytics-sync-recurring',
+      repeat: { pattern: '0 * * * *' },
     },
   );
-  logger.info('Scheduled repeatable analytics sync job');
 }

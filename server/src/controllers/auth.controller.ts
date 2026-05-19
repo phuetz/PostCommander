@@ -9,6 +9,7 @@ import {
   users as usersTable,
   subscriptions as subscriptionsTable,
   passwordResetTokens as tokensTable,
+  revokedTokens as revokedTokensTable,
 } from '../db/schema.js';
 import { config } from '../config/env.js';
 import { catchAsync } from '../utils/catch-async.js';
@@ -108,7 +109,10 @@ export const AuthController = {
       throw new AppError(401, 'Invalid email or password');
     }
 
-    const token = jwt.sign({ userId: user.id }, config.JWT_SECRET, { expiresIn: '7d' });
+    // jti = JWT ID, used by the revocation table to invalidate this token
+    // on logout / suspected leak without waiting for the 7-day expiry.
+    const jti = uuidv4();
+    const token = jwt.sign({ userId: user.id, jti }, config.JWT_SECRET, { expiresIn: '7d' });
 
     res.cookie('token', token, {
       httpOnly: true,
@@ -175,7 +179,42 @@ export const AuthController = {
     res.json(response);
   }),
 
-  logout: catchAsync(async (_req: Request, res: Response) => {
+  logout: catchAsync(async (req: Request, res: Response) => {
+    // Best-effort revoke: if the request carries a valid token, persist its
+    // jti to revoked_tokens so the same token can't be reused by an attacker
+    // who scraped the cookie before logout. Silent on parse failure — we
+    // still want to clear the client cookie.
+    const tokenStr =
+      (req.cookies?.token as string | undefined) ??
+      (req.headers.authorization?.startsWith('Bearer ')
+        ? req.headers.authorization.slice(7)
+        : undefined);
+    if (tokenStr) {
+      try {
+        const decoded = jwt.verify(tokenStr, config.JWT_SECRET) as {
+          userId: string;
+          jti?: string;
+          exp?: number;
+        };
+        if (decoded.jti) {
+          const db = getDrizzle();
+          const expiresAt = decoded.exp
+            ? new Date(decoded.exp * 1000).toISOString()
+            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+          await db
+            .insert(revokedTokensTable)
+            .values({
+              jti: decoded.jti,
+              userId: decoded.userId,
+              expiresAt,
+            })
+            .onConflictDoNothing();
+        }
+      } catch {
+        // Invalid/expired token — still clear the cookie below.
+      }
+    }
+
     res.clearCookie('token', {
       httpOnly: true,
       secure: config.NODE_ENV === 'production',

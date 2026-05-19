@@ -1,0 +1,268 @@
+[
+  {
+    "ws": "root",
+    "totals": {
+      "info": 0,
+      "low": 0,
+      "moderate": 8,
+      "high": 11,
+      "critical": 0,
+      "total": 19
+    },
+    "direct": [
+      {
+        "name": "@browserbasehq/stagehand",
+        "severity": "high",
+        "range": ">=3.0.0",
+        "titles": [],
+        "fix": {
+          "name": "@browserbasehq/stagehand",
+          "version": "2.5.8",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "ai",
+        "severity": "moderate",
+        "range": "<=5.0.51",
+        "titles": [
+          "Vercel’s AI SDK's filetype whitelists can be bypassed when uploading files"
+        ],
+        "fix": {
+          "name": "ai",
+          "version": "6.0.185",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "axios",
+        "severity": "high",
+        "range": "1.0.0 - 1.15.1",
+        "titles": [
+          "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF",
+          "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain",
+          "Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy",
+          "Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0",
+          "Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`",
+          "Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams",
+          "Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream",
+          "Axios: no_proxy bypass via IP alias allows SSRF",
+          "Axios: unbounded recursion in toFormData causes DoS via deeply nested request data",
+          "Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0",
+          "Axios: HTTP adapter streamed responses bypass maxContentLength",
+          "Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking",
+          "Axios: Header Injection via Prototype Pollution",
+          "Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion",
+          "Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking"
+        ],
+        "fix": {
+          "name": "mem0ai",
+          "version": "1.0.39",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "bullmq",
+        "severity": "moderate",
+        "range": "5.66.1 - 5.76.1",
+        "titles": [],
+        "fix": true
+      },
+      {
+        "name": "drizzle-orm",
+        "severity": "high",
+        "range": "<0.45.2",
+        "titles": [
+          "Drizzle ORM has SQL injection via improperly escaped SQL identifiers"
+        ],
+        "fix": true
+      },
+      {
+        "name": "i18next-http-backend",
+        "severity": "moderate",
+        "range": "<3.0.5",
+        "titles": [
+          " i18next-http-backend has Path Traversal & URL Injection via Unsanitised lng/ns"
+        ],
+        "fix": true
+      },
+      {
+        "name": "mem0ai",
+        "severity": "high",
+        "range": ">=2.0.0",
+        "titles": [],
+        "fix": {
+          "name": "mem0ai",
+          "version": "1.0.39",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "uuid",
+        "severity": "moderate",
+        "range": "11.0.0 - 11.1.0",
+        "titles": [
+          "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided"
+        ],
+        "fix": true
+      }
+    ]
+  },
+  {
+    "ws": "server",
+    "totals": {
+      "info": 0,
+      "low": 0,
+      "moderate": 7,
+      "high": 11,
+      "critical": 0,
+      "total": 18
+    },
+    "direct": [
+      {
+        "name": "@browserbasehq/stagehand",
+        "severity": "high",
+        "range": ">=3.0.0",
+        "titles": [],
+        "fix": {
+          "name": "@browserbasehq/stagehand",
+          "version": "2.5.8",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "ai",
+        "severity": "moderate",
+        "range": "<=5.0.51",
+        "titles": [
+          "Vercel’s AI SDK's filetype whitelists can be bypassed when uploading files"
+        ],
+        "fix": {
+          "name": "ai",
+          "version": "6.0.185",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "axios",
+        "severity": "high",
+        "range": "1.0.0 - 1.15.1",
+        "titles": [
+          "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF",
+          "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain",
+          "Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy",
+          "Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0",
+          "Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`",
+          "Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams",
+          "Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream",
+          "Axios: no_proxy bypass via IP alias allows SSRF",
+          "Axios: unbounded recursion in toFormData causes DoS via deeply nested request data",
+          "Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0",
+          "Axios: HTTP adapter streamed responses bypass maxContentLength",
+          "Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking",
+          "Axios: Header Injection via Prototype Pollution",
+          "Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion",
+          "Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking"
+        ],
+        "fix": {
+          "name": "mem0ai",
+          "version": "1.0.39",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "bullmq",
+        "severity": "moderate",
+        "range": "5.66.1 - 5.76.1",
+        "titles": [],
+        "fix": true
+      },
+      {
+        "name": "drizzle-orm",
+        "severity": "high",
+        "range": "<0.45.2",
+        "titles": [
+          "Drizzle ORM has SQL injection via improperly escaped SQL identifiers"
+        ],
+        "fix": true
+      },
+      {
+        "name": "mem0ai",
+        "severity": "high",
+        "range": ">=2.0.0",
+        "titles": [],
+        "fix": {
+          "name": "mem0ai",
+          "version": "1.0.39",
+          "isSemVerMajor": true
+        }
+      },
+      {
+        "name": "uuid",
+        "severity": "moderate",
+        "range": "11.0.0 - 11.1.0",
+        "titles": [
+          "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided"
+        ],
+        "fix": true
+      }
+    ]
+  },
+  {
+    "ws": "client",
+    "totals": {
+      "info": 0,
+      "low": 0,
+      "moderate": 3,
+      "high": 2,
+      "critical": 0,
+      "total": 5
+    },
+    "direct": [
+      {
+        "name": "axios",
+        "severity": "high",
+        "range": "1.0.0 - 1.15.1",
+        "titles": [
+          "Axios has a NO_PROXY Hostname Normalization Bypass that Leads to SSRF",
+          "Axios has Unrestricted Cloud Metadata Exfiltration via Header Injection Chain",
+          "Axios: Authentication Bypass via Prototype Pollution Gadget in `validateStatus` Merge Strategy",
+          "Axios: Incomplete Fix for CVE-2025-62718 — NO_PROXY Protection Bypassed via RFC 1122 Loopback Subnet (127.0.0.0/8) in Axios 1.15.0",
+          "Axios: Invisible JSON Response Tampering via Prototype Pollution Gadget in `parseReviver`",
+          "Axios: Null Byte Injection via Reverse-Encoding in AxiosURLSearchParams",
+          "Axios: CRLF Injection in multipart/form-data body via unsanitized blob.type in formDataToStream",
+          "Axios: no_proxy bypass via IP alias allows SSRF",
+          "Axios: unbounded recursion in toFormData causes DoS via deeply nested request data",
+          "Axios' HTTP adapter-streamed uploads bypass maxBodyLength when maxRedirects: 0",
+          "Axios: HTTP adapter streamed responses bypass maxContentLength",
+          "Axios: Prototype Pollution Gadgets - Response Tampering, Data Exfiltration, and Request Hijacking",
+          "Axios: Header Injection via Prototype Pollution",
+          "Axios: XSRF Token Cross-Origin Leakage via Prototype Pollution Gadget in `withXSRFToken` Boolean Coercion",
+          "Axios has prototype pollution read-side gadgets in HTTP adapter that allow credential injection and request hijacking"
+        ],
+        "fix": true
+      },
+      {
+        "name": "i18next-http-backend",
+        "severity": "moderate",
+        "range": "<3.0.5",
+        "titles": [
+          " i18next-http-backend has Path Traversal & URL Injection via Unsanitised lng/ns"
+        ],
+        "fix": true
+      }
+    ]
+  },
+  {
+    "ws": "shared",
+    "totals": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "direct": []
+  }
+]

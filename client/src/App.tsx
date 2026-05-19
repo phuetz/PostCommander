@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
 import { MarketingLayout } from '@/components/marketing/MarketingLayout';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 
 /* ---------- Lazy-loaded pages for code splitting ---------- */
@@ -257,12 +258,26 @@ export default function App() {
           <Route path="/app" element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index element={<HubPage />} />
-              <Route path="dashboard" element={<DashboardPage />} />
+              <Route
+                path="dashboard"
+                element={
+                  <ErrorBoundary feature="dashboard">
+                    <DashboardPage />
+                  </ErrorBoundary>
+                }
+              />
               <Route path="w/post" element={<CreatePostWizard />} />
               <Route path="w/autoblog" element={<AutoBlogWizard />} />
               <Route path="w/outreach" element={<OutreachWizard />} />
               <Route path="w/analytics" element={<AnalyticsWizard />} />
-              <Route path="generate" element={<GeneratePage />} />
+              <Route
+                path="generate"
+                element={
+                  <ErrorBoundary feature="generate">
+                    <GeneratePage />
+                  </ErrorBoundary>
+                }
+              />
               <Route path="history" element={<HistoryPage />} />
               <Route path="calendar" element={<CalendarPage />} />
               <Route path="viral" element={<ViralLibraryPage />} />
@@ -279,12 +294,26 @@ export default function App() {
               <Route path="images" element={<ImagesPage />} />
               <Route path="ab-test" element={<ABTestPage />} />
               <Route path="engagement" element={<EngagementPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
+              <Route
+                path="analytics"
+                element={
+                  <ErrorBoundary feature="analytics">
+                    <AnalyticsPage />
+                  </ErrorBoundary>
+                }
+              />
               <Route path="trending" element={<TrendingPage />} />
               <Route path="pillars" element={<PillarsPage />} />
               <Route path="simulator" element={<SimulatorPage />} />
               <Route path="billing" element={<BillingPage />} />
-              <Route path="settings" element={<SettingsPage />} />
+              <Route
+                path="settings"
+                element={
+                  <ErrorBoundary feature="settings">
+                    <SettingsPage />
+                  </ErrorBoundary>
+                }
+              />
               <Route path="approvals" element={<ApprovalsPage />} />
               <Route path="inbox" element={<InboxPage />} />
               <Route path="automations" element={<AutomationsPage />} />

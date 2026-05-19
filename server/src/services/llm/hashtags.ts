@@ -1,6 +1,5 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM, parseJsonResponse } from './_runtime.js';
 
 export interface ResearchHashtagsRequest {
   topic: string;
@@ -18,19 +17,6 @@ export interface HashtagResult {
 
 export interface ResearchHashtagsResult {
   hashtags: HashtagResult[];
-}
-
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
 }
 
 const PLATFORM_HASHTAG_GUIDES: Record<string, string> = {
@@ -82,7 +68,6 @@ export async function researchHashtags(
   request: ResearchHashtagsRequest,
   userId?: string,
 ): Promise<ResearchHashtagsResult> {
-  const model = await createModel(request.provider, request.model, userId);
   const count = request.count ?? 15;
 
   const platformGuide =
@@ -121,17 +106,17 @@ You MUST respond in valid JSON with this exact structure:
 
 Generate exactly ${count} hashtags. Return ONLY valid JSON.`;
 
-  const user = `Research the best hashtags for this topic on ${request.platform}: ${request.topic}`;
-
-  const result = await generateText({
-    model,
+  const { raw } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `Research the best hashtags for this topic on ${request.platform}: ${request.topic}`,
     temperature: 0.7,
     maxTokens: 1024,
   });
 
-  const parsed = parseJsonResponse(result.text);
+  const parsed: any = parseJsonResponse(raw);
   const hashtags: HashtagResult[] = [];
 
   if (Array.isArray(parsed.hashtags)) {

@@ -69,6 +69,41 @@ jobs:
       - name: Build workspaces
         run: npm run build
 
+  security:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Fails the build on HIGH/CRITICAL vulnerabilities. Moderate is allowed
+      # so existing chantiers (mem0ai, langchain transitives, axios SEMVER)
+      # don't block PRs while remediation is in flight. Tighten to `moderate`
+      # once those are resolved (see audit dim 7).
+      - name: npm audit (high+)
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: false
+
+      # Trivy file-system scan: catches OS-level + npm vulns in node_modules
+      # without needing a Docker build. For the Docker image scan, add a
+      # separate job that builds the Dockerfile + runs `trivy image`.
+      - name: Trivy file-system scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0' # warn-only for now; flip to '1' to block
+          ignore-unfixed: true
+          format: 'table'
+
   e2e:
     runs-on: ubuntu-latest
     needs: quality

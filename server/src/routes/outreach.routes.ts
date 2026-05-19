@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
+import { validate } from '../middleware/validate.js';
 import {
   handleGetCampaigns,
   handleCreateCampaign,
@@ -14,6 +15,16 @@ import {
   handleFindContact,
   handleAddFromOSINT,
 } from '../controllers/outreach.controller.js';
+import {
+  outreachSimulateReplySchema,
+  outreachOsintScanSchema,
+  outreachEnrichProfileSchema,
+  outreachDeepDossierSchema,
+  outreachGenerateIcebreakerSchema,
+  outreachFindContactSchema,
+  outreachAddFromOsintSchema,
+  emptyBodySchema,
+} from '../schemas/routes.js';
 
 const router = Router();
 
@@ -27,16 +38,18 @@ router.use((req, res, next) => {
 });
 
 router.get('/campaigns', handleGetCampaigns);
+// handleCreateCampaign/handleUpdateCampaign already call CreateOutreachCampaignSchema.parse()
+// internally — leaving controller-side parse in place since they also handle nested `steps`.
 router.post('/campaigns', handleCreateCampaign);
 router.put('/campaigns/:id', handleUpdateCampaign);
-router.delete('/campaigns/:id', handleDeleteCampaign);
+router.delete('/campaigns/:id', validate(emptyBodySchema), handleDeleteCampaign);
 router.get('/campaigns/:id/prospects', handleGetCampaignProspects);
-router.post('/prospects/:id/simulate-reply', handleSimulateReply);
-router.post('/osint-scan', handleOSINTScan);
-router.post('/enrich-profile', handleEnrichProfile);
-router.post('/deep-dossier', handleDeepDossier);
-router.post('/generate-icebreaker', handleGenerateIcebreaker);
-router.post('/find-contact', handleFindContact);
-router.post('/add-from-osint', handleAddFromOSINT);
+router.post('/prospects/:id/simulate-reply', validate(outreachSimulateReplySchema), handleSimulateReply);
+router.post('/osint-scan', validate(outreachOsintScanSchema), handleOSINTScan);
+router.post('/enrich-profile', validate(outreachEnrichProfileSchema), handleEnrichProfile);
+router.post('/deep-dossier', validate(outreachDeepDossierSchema), handleDeepDossier);
+router.post('/generate-icebreaker', validate(outreachGenerateIcebreakerSchema), handleGenerateIcebreaker);
+router.post('/find-contact', validate(outreachFindContactSchema), handleFindContact);
+router.post('/add-from-osint', validate(outreachAddFromOsintSchema), handleAddFromOSINT);
 
 export const outreachRoutes = router;

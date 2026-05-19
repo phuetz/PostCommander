@@ -8,6 +8,7 @@ import { generatedImages as imagesTable, settings as settingsTable } from '../..
 import { config } from '../../config/env.js';
 import { decryptSecret } from '../../utils/secret-crypto.js';
 import { logger } from '../../utils/logger.js';
+import { safeFetch } from '../../utils/safe-fetch.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +22,10 @@ function ensureImagesDir(): void {
 
 async function downloadImage(url: string, filename: string): Promise<void> {
   ensureImagesDir();
-  const response = await fetch(url);
+  // safeFetch blocks loopback/RFC1918/link-local/cloud-metadata before issuing
+  // the request — SSRF guard for image URLs that originate from third parties
+  // (DALL-E response, scraper extraction, future user-supplied URLs).
+  const response = await safeFetch(url);
   if (!response.ok) {
     throw new Error(`Failed to download image (${response.status} from ${url})`);
   }
@@ -104,7 +108,8 @@ export async function readImageBytes(image: {
     throw new Error('Image has no path or URL to read from');
   }
 
-  const response = await fetch(image.imageUrl);
+  // SSRF guard — imageUrl may point at a third-party CDN (Pinterest, DALL-E, etc).
+  const response = await safeFetch(image.imageUrl);
   if (!response.ok) {
     throw new Error(`Failed to fetch image bytes (${response.status} from ${image.imageUrl})`);
   }

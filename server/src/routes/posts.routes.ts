@@ -24,6 +24,12 @@ import {
   schedulePostSchema,
   repurposeUrlSchema,
 } from '@postcommander/shared';
+import {
+  emptyBodySchema,
+  postCommentBodySchema,
+  postStatusUpdateSchema,
+  postRejectSchema,
+} from '../schemas/routes.js';
 
 const router = Router();
 
@@ -33,15 +39,15 @@ router.get('/', validateQuery(listPostsQuerySchema), listPosts);
 router.get('/:id', getPostById);
 router.post('/', validate(createPostSchema), createPost);
 router.put('/:id', validate(updatePostSchema), updatePost);
-router.delete('/:id', deletePost);
+router.delete('/:id', validate(emptyBodySchema), deletePost);
 router.post('/:id/publish', validate(publishPostSchema), publishPost);
 router.post('/:id/schedule', validate(schedulePostSchema), schedulePost);
 
 router.get('/:id/comments', getPostComments);
-router.post('/:id/comments', addPostComment);
-router.patch('/:id/status', updatePostStatus);
-router.post('/:id/approve', approvePost);
-router.post('/:id/reject', rejectPost);
+router.post('/:id/comments', validate(postCommentBodySchema), addPostComment);
+router.patch('/:id/status', validate(postStatusUpdateSchema), updatePostStatus);
+router.post('/:id/approve', validate(emptyBodySchema), approvePost);
+router.post('/:id/reject', validate(postRejectSchema), rejectPost);
 router.post('/repurpose-url', validate(repurposeUrlSchema), repurposeUrl);
 
 export default router;

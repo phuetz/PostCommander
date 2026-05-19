@@ -1,0 +1,46 @@
+# Dependabot configuration for PostCommander.
+#
+# - npm ecosystem covers the root + each workspace (npm workspaces share a
+#   single lockfile so all 4 workspace package.json files are watched).
+# - GitHub Actions ecosystem keeps CI action versions current.
+# - Schedule weekly to avoid PR fatigue; group minor+patch into single PRs.
+
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+      timezone: 'Europe/Paris'
+    open-pull-requests-limit: 5
+    versioning-strategy: 'increase-if-necessary'
+    groups:
+      minor-and-patch:
+        update-types: ['minor', 'patch']
+      drizzle:
+        patterns: ['drizzle*']
+      sentry:
+        patterns: ['@sentry/*']
+      ai-sdk:
+        patterns: ['ai', '@ai-sdk/*']
+    ignore:
+      # Hold majors until a dedicated upgrade chantier (cf. audit R2/R3/DEP1).
+      - dependency-name: 'ai'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@browserbasehq/stagehand'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'mem0ai'
+        update-types: ['version-update:semver-major']
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: 'ci'

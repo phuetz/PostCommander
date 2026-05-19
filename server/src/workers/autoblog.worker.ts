@@ -1,16 +1,15 @@
 import { Worker, type Job } from 'bullmq';
-import { Redis } from 'ioredis';
-import { config } from '../config/env.js';
 import { getDrizzle } from '../db/connection.js';
 import { autoBlogConfigs, posts } from '../db/schema.js';
 import { generateBlogArticle } from '../services/llm/index.js';
 import { searchWeb } from '../services/web-search.js';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
 import crypto from 'crypto';
 
 import { sharedRedisConnection } from '../utils/redis.js';
 import { liveActivity } from '../services/live-activity.js';
+import { attachWorkerObservability } from '../utils/worker-helpers.js';
 
 const connection = sharedRedisConnection;
 
@@ -161,9 +160,7 @@ export const autoBlogWorker = new Worker(
   },
 );
 
-autoBlogWorker.on('failed', (job, err) => {
-  logger.error({ err }, `[AutoBlogWorker] Job ${job?.name} (${job?.id}) failed`);
-});
+attachWorkerObservability(autoBlogWorker, 'auto-blog');
 
 export async function startAutoBlogWorker() {
   const { autoBlogQueue } = await import('../services/jobs/queue.js');

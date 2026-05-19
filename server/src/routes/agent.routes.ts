@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.js';
+import { validate } from '../middleware/validate.js';
 import {
   simulateCommentHandler,
   scrapeLeadHandler,
@@ -7,23 +8,47 @@ import {
   shadowProfileHandler,
   emergencyStopHandler,
 } from '../controllers/agent.controller.js';
+import {
+  agentSimulateCommentSchema,
+  agentScrapeLeadSchema,
+  agentGhostwriteCommentSchema,
+  agentShadowProfileSchema,
+  agentEmergencyStopSchema,
+} from '../schemas/routes.js';
 
 const router = Router();
 
-// Test endpoint to simulate incoming interaction and trigger the autonomous agent
-router.post('/simulate-comment', authMiddleware, simulateCommentHandler);
+router.post(
+  '/simulate-comment',
+  authMiddleware,
+  validate(agentSimulateCommentSchema),
+  simulateCommentHandler,
+);
 
-// Endpoint for Chrome Extension to push scraped leads
-// Note: In production, we should probably authenticate the extension differently, but for MVP we use requireAuth
-router.post('/scrape-lead', authMiddleware, scrapeLeadHandler);
+// Endpoint for Chrome Extension to push scraped leads.
+// Note: extension auth is still cookie-based; in prod we'd consider an extension
+// API key with rate limits scoped per-installation.
+router.post('/scrape-lead', authMiddleware, validate(agentScrapeLeadSchema), scrapeLeadHandler);
 
-// Endpoint for Chrome Extension to auto-complete comments
-router.post('/ghostwrite-comment', authMiddleware, ghostwriteCommentHandler);
+router.post(
+  '/ghostwrite-comment',
+  authMiddleware,
+  validate(agentGhostwriteCommentSchema),
+  ghostwriteCommentHandler,
+);
 
-// Endpoint for Chrome Extension shadow profiling
-router.post('/shadow-profile', authMiddleware, shadowProfileHandler);
+router.post(
+  '/shadow-profile',
+  authMiddleware,
+  validate(agentShadowProfileSchema),
+  shadowProfileHandler,
+);
 
-// Endpoint for Chrome Extension to trigger an emergency stop (Anti-Bot detection)
-router.post('/emergency-stop', authMiddleware, emergencyStopHandler);
+router.post(
+  '/emergency-stop',
+  authMiddleware,
+  validate(agentEmergencyStopSchema),
+  emergencyStopHandler,
+);
 
 export default router;

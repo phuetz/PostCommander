@@ -1,6 +1,6 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
+import { z } from 'zod';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM } from './_runtime.js';
 
 export interface TrendingRequest {
   platform: string;
@@ -21,18 +21,20 @@ export interface TrendingResult {
   topics: TrendingTopic[];
 }
 
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
+// Lenient schema: the LLM frequently sends extra fields or omits some — we
+// coerce + default rather than reject, then normalize in code after parsing.
+const responseSchema = z.object({
+  topics: z
+    .array(
+      z.object({
+        title: z.string().default('Untitled'),
+        description: z.string().default(''),
+        trendScore: z.number().default(50),
+        suggestedAngles: z.array(z.string()).default([]),
+      }),
+    )
+    .default([]),
+});
 
 /**
  * Get trending topics for a given industry and platform using LLM.
@@ -41,7 +43,6 @@ export async function getTrendingTopics(
   request: TrendingRequest,
   userId?: string,
 ): Promise<TrendingResult> {
-  const model = await createModel(request.provider, request.model, userId);
   const language = request.language || 'English';
 
   const system = `You are a social media trend analyst and content strategist. Your job is to identify current trending topics, conversations, and content themes that are gaining traction on social media.
@@ -90,26 +91,23 @@ Rules:
 - Suggested angles should be specific and actionable
 - Return ONLY valid JSON. No markdown, no extra text.`;
 
-  const user = `What are the current trending topics in ${request.industry} on ${request.platform}? Respond in ${language}.`;
-
-  const result = await generateText({
-    model,
+  const { data } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `What are the current trending topics in ${request.industry} on ${request.platform}? Respond in ${language}.`,
     temperature: 0.8,
     maxTokens: 4096,
+    schema: responseSchema,
   });
 
-  const parsed = parseJsonResponse(result.text);
-
   return {
-    topics: Array.isArray(parsed.topics)
-      ? parsed.topics.map((t: any) => ({
-          title: t.title || 'Untitled',
-          description: t.description || '',
-          trendScore: Math.max(0, Math.min(100, Math.round(t.trendScore ?? 50))),
-          suggestedAngles: Array.isArray(t.suggestedAngles) ? t.suggestedAngles : [],
-        }))
-      : [],
+    topics: (data.topics ?? []).map((t) => ({
+      title: t.title ?? 'Untitled',
+      description: t.description ?? '',
+      trendScore: Math.max(0, Math.min(100, Math.round(t.trendScore ?? 50))),
+      suggestedAngles: t.suggestedAngles ?? [],
+    })),
   };
 }

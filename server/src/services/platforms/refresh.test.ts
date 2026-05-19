@@ -75,7 +75,7 @@ describe('ensureFreshToken', () => {
   }
 
   it('returns the existing token when expiry is far in the future', async () => {
-    const future = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    const future = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     const row = await seedConnection({
       accessToken: 'still-good',
       refreshToken: 'r1',

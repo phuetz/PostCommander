@@ -8,6 +8,7 @@ import {
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { autoBlogConfigSchema, updateAutoBlogConfigSchema } from '@postcommander/shared';
+import { emptyBodySchema } from '../schemas/routes.js';
 
 const router = Router();
 
@@ -16,6 +17,6 @@ router.use(authMiddleware);
 router.get('/', handleGetConfigs);
 router.post('/', validate(autoBlogConfigSchema), handleCreateConfig);
 router.put('/:id', validate(updateAutoBlogConfigSchema), handleUpdateConfig);
-router.delete('/:id', handleDeleteConfig);
+router.delete('/:id', validate(emptyBodySchema), handleDeleteConfig);
 
 export default router;

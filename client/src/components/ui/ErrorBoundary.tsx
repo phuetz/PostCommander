@@ -2,6 +2,12 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children?: ReactNode;
+  /**
+   * Label of the feature being wrapped (e.g. "dashboard", "generate", "analytics").
+   * Used to scope error reporting + display in the fallback UI so users can
+   * tell which area crashed without reloading the whole app.
+   */
+  feature?: string;
 }
 
 interface State {
@@ -16,12 +22,29 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   public static getDerivedStateFromError(error: Error): State {
-    // Update state so the next render will show the fallback UI.
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error(
+      `Uncaught error${this.props.feature ? ` in feature "${this.props.feature}"` : ''}:`,
+      error,
+      errorInfo,
+    );
+    // Sentry breadcrumb hook: when @sentry/react is configured (cf. main.tsx),
+    // it auto-captures via its own ErrorBoundary integration. The dynamic
+    // import is best-effort — no-ops if Sentry isn't loaded yet.
+    void (async () => {
+      try {
+        const sentry = await import('@sentry/react');
+        sentry.captureException(error, {
+          tags: { feature: this.props.feature ?? 'unknown' },
+          contexts: { errorBoundary: { componentStack: errorInfo.componentStack } },
+        });
+      } catch {
+        // Sentry not installed or failed to load — silent.
+      }
+    })();
   }
 
   public render() {
@@ -45,11 +68,14 @@ export class ErrorBoundary extends Component<Props, State> {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-2">
-            Something went wrong
+            {this.props.feature
+              ? `Something went wrong in ${this.props.feature}`
+              : 'Something went wrong'}
           </h1>
           <p className="text-[var(--color-text-muted)] mb-8 max-w-md">
-            We've encountered an unexpected error. Try refreshing the page or contact support if the
-            problem persists.
+            We've encountered an unexpected error
+            {this.props.feature ? ` in this section` : ''}. Try refreshing the page or contact
+            support if the problem persists.
           </p>
           <div className="flex gap-4">
             <button

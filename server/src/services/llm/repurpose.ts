@@ -1,6 +1,5 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM, parseJsonResponse } from './_runtime.js';
 
 export interface RepurposeRequest {
   content: string;
@@ -18,19 +17,6 @@ export interface RepurposeVariant {
 
 export interface RepurposeResult {
   variants: Record<string, RepurposeVariant>;
-}
-
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
 }
 
 const PLATFORM_SPECS: Record<
@@ -88,8 +74,6 @@ export async function repurposePost(
   request: RepurposeRequest,
   userId?: string,
 ): Promise<RepurposeResult> {
-  const model = await createModel(request.provider, request.model, userId);
-
   const sourcePlatformName = PLATFORM_SPECS[request.sourcePlatform]?.name ?? request.sourcePlatform;
 
   const targetSpecs = request.targetPlatforms
@@ -143,15 +127,17 @@ ${request.content}
 
 Adapt this content for each target platform while keeping the core message intact.`;
 
-  const result = await generateText({
-    model,
+  const { raw } = await runLLM({
+    provider: request.provider,
+    model: request.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user,
     temperature: 0.7,
     maxTokens: 3072,
   });
 
-  const parsed = parseJsonResponse(result.text);
+  const parsed = parseJsonResponse<any>(raw);
   const variants: Record<string, RepurposeVariant> = {};
 
   if (parsed.variants && typeof parsed.variants === 'object') {

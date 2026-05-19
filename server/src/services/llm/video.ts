@@ -1,6 +1,5 @@
-import { generateText } from 'ai';
-import { createModel } from './provider-factory.js';
 import type { LLMProviderId } from '@postcommander/shared';
+import { runLLM, parseJsonResponse } from './_runtime.js';
 
 export interface GenerateVideoScriptParams {
   topic: string;
@@ -27,25 +26,10 @@ export interface VideoScriptResult {
   hashtags: string[];
 }
 
-function parseJsonResponse(text: string): any {
-  let cleaned = text.trim();
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7);
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3);
-  }
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3);
-  }
-  return JSON.parse(cleaned.trim());
-}
-
 export async function generateVideoScript(
   params: GenerateVideoScriptParams,
   userId?: string,
 ): Promise<VideoScriptResult> {
-  const model = await createModel(params.provider as LLMProviderId, params.model, userId);
-
   const durationStr =
     params.duration === 'short'
       ? '15-30 seconds'
@@ -79,15 +63,15 @@ You MUST respond in valid JSON with exactly this structure:
   "hashtags": ["#tag1", "#tag2"]
 }`;
 
-  const user = `Topic / Idea: ${params.topic}`;
-
-  const result = await generateText({
-    model,
+  const { raw } = await runLLM({
+    provider: params.provider as LLMProviderId,
+    model: params.model,
+    userId,
     system,
-    messages: [{ role: 'user', content: user }],
+    user: `Topic / Idea: ${params.topic}`,
     temperature: 0.7,
     maxTokens: 2000,
   });
 
-  return parseJsonResponse(result.text) as VideoScriptResult;
+  return parseJsonResponse<VideoScriptResult>(raw);
 }
