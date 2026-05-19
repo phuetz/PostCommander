@@ -39,42 +39,45 @@ export function buildPrompts(params: {
   const platformConstraints = getPlatformConstraints(platforms);
   const platformNames = platforms.map((pid) => PLATFORMS[pid].name).join(', ');
 
-  const system = `You are an expert social media content creator. Your job is to generate engaging, platform-optimized posts based on user prompts.
+  const system = `You are a world-class copywriter and content strategist specializing in high-conversion, viral social media posts.
+Your goal is to transform user prompts into copywriting masterpieces that capture attention, build trust, and spark action.
 
-## Tone
+## Tone & Voice Guidance
 ${toneHint}
 
 ## Language
-Write the post in: ${language || 'English'}
+You must write all content in: ${language || 'English'}
 
-## Platform constraints
+## Platform Constraints
 ${platformConstraints}
 
-## Instructions
-1. Generate a main post that captures the essence of the user's request.
-2. For EACH target platform, generate an optimized variant that respects character limits and platform conventions.
-3. Suggest relevant hashtags that are popular and appropriate.
+## Core Copywriting Rules (To Make Content Look Human and Highly Engaging):
+1. **The Hook (First 1-2 Lines)**: Must capture attention immediately. Use curiosity gaps, a contrarian perspective, a surprising statistic, or a direct statement addressing a major pain point. Avoid generic openings (e.g., "Hello everyone", "In this post", "I am thrilled to share").
+2. **Formatting & Visual Layout**:
+   - Use generous spacing and single-sentence paragraphs. Large text walls are strictly forbidden.
+   - Use bullet points for lists (using simple emojis or clean dashes).
+   - Ensure the content is easily scannable on mobile screens.
+3. **Cliché Elimination**: Avoid artificial, robotic terms that signal AI writing. Specifically, NEVER use: "delve", "testament", "revolutionize", "pioneering", "moreover", "furthermore", "essential", "crucial", "tapestry", "beacon", "in conclusion", "it is important to remember".
+4. **Call to Action (CTA)**: Conclude with a strong, highly natural question or conversational prompt to encourage low-friction engagement in the comments.
+5. **Platform Customization**:
+   - **LinkedIn**: Thoughtful, professional yet relatable, structured as a story or expert insight.
+   - **Twitter/X**: Ultra-punchy, concise, single idea per tweet, highly shareable.
+   - **Instagram/Facebook**: Highly visual, empathetic, conversational, structured with emojis.
 
-## Response format
+## Response Format
 You MUST respond in valid JSON with this exact structure:
 {
   "content": "The main/generic version of the post",
   "platformVariants": {
-    ${platforms.map((pid) => `"${pid}": "Platform-optimized version for ${PLATFORMS[pid].name}"`).join(',\n    ')}
+    ${platforms.map((pid) => `"${pid}": "Platform-optimized variant for ${PLATFORMS[pid].name}"`).join(',\n    ')}
   },
   "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
 }
 
 Important rules:
-- Each platform variant MUST respect that platform's character limit.
-- Hashtags should NOT include the # symbol (just the text).
-- For Twitter/X, keep it concise and punchy.
-- For LinkedIn, be more professional and detailed.
-- For Instagram, make it visually descriptive and emoji-friendly.
-- For TikTok, use trending language and hooks.
-- For Facebook, be conversational and shareable.
-- For Pinterest, be descriptive and keyword-rich.
-- Always return ONLY valid JSON. No markdown code fences, no extra text.`;
+- Respect each platform's character limit exactly.
+- Hashtags in the "hashtags" array should NOT include the # symbol.
+- Always return ONLY valid JSON. No markdown code fences (like \`\`\`json), no introductory or concluding chat text.`;
 
   const user = `Generate a social media post for ${platformNames}.
 
@@ -97,13 +100,19 @@ export function buildStreamingPrompts(params: {
   const toneHint = getToneHint(tone);
   const platformNames = platforms.map((pid) => PLATFORMS[pid].name).join(', ');
 
-  const system = `You are an expert social media content creator. ${toneHint}
-Write in: ${language || 'English'}
+  const system = `You are a world-class copywriter and content strategist.
+${toneHint}
+Language: Write all content in ${language || 'English'}
 
-Generate an engaging social media post for these platforms: ${platformNames}.
-Write a single high-quality post that works well across the requested platforms.
-Be creative, engaging, and on-brand. Do NOT include hashtags in the main text.
-Do NOT use JSON format — just write the post text directly.`;
+Generate a single high-quality post that works well across these platforms: ${platformNames}.
+
+Core Writing Rules:
+1. **The Hook**: Start with a high-impact hook in the first 1-2 lines. Avoid generic openers.
+2. **Formatting**: Use generous spacing (single-sentence paragraphs). Use clean bullets and emojis. No walls of text.
+3. **Cliché Elimination**: Do NOT use AI clichés: "delve", "testament", "revolutionize", "pioneering", "moreover", "furthermore", "essential", "crucial", "tapestry", "beacon".
+4. **Call to Action**: End with a strong conversational question.
+5. **No Hashtags**: Do NOT include hashtags in the main body.
+Do NOT use JSON format — output the raw text of the post directly.`;
 
   const user = `Generate a social media post about: ${prompt}`;
 
@@ -122,25 +131,31 @@ export function buildVariantsPrompt(params: {
   const toneHint = getToneHint(tone);
   const platformConstraints = getPlatformConstraints(platforms);
 
-  const system = `You are an expert social media content optimizer. ${toneHint}
+  const system = `You are a world-class social media content optimizer.
+${toneHint}
 
 ## Platform constraints
 ${platformConstraints}
 
 Given a main post, create optimized variants for each platform and suggest hashtags.
 
+Apply these rules:
+1. Respect character limits for each platform exactly.
+2. Structure the LinkedIn variant for story/value-driven engagement, and Twitter/X as a punchy, highly shareable update.
+3. Absolutely avoid typical AI buzzwords ("delve", "testament", "revolutionize").
+4. Keep the hook and spacing clean across all variants.
+
 Respond in valid JSON ONLY:
 {
   "platformVariants": {
-    ${platforms.map((pid) => `"${pid}": "Optimized for ${PLATFORMS[pid].name}"`).join(',\n    ')}
+    ${platforms.map((pid) => `"${pid}": "Optimized variant for ${PLATFORMS[pid].name}"`).join(',\n    ')}
   },
   "hashtags": ["tag1", "tag2", "tag3"]
 }
 
 Rules:
-- Respect each platform's character limit.
 - Hashtags without the # symbol.
-- Return ONLY valid JSON. No markdown, no extra text.`;
+- Return ONLY valid JSON. No markdown backticks, no extra chat text.`;
 
   const user = `Original post:\n${mainContent}\n\nCreate platform variants and hashtags.`;
 

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -39,10 +39,17 @@ import {
   Sparkles,
   BookOpen,
   Trash2,
+  Database,
+  FileText,
+  Compass,
+  Share2,
+  Rss,
+  Image,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import toast from 'react-hot-toast';
+import api from '@/services/api';
 import { useAutomations, useSaveAutomation, useTriggerAutomation, useAutomationJob } from '../hooks/useAutomations';
 
 // --- ICON MAPPING FOR SERIALIZATION ---
@@ -59,15 +66,18 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Globe,
   Search,
   PenTool,
-  X
+  X,
+  ExternalLink,
+  BookOpen,
+  Database,
+  FileText,
+  Compass,
+  Share2,
+  Rss,
+  Image,
 };
 
-// --- CUSTOM NODE IMPLEMENTATION ---
-const nodeTypes = {
-  customNode: CustomNode,
-};
-
-function CustomNode({ data }: { data: any }) {
+function CustomNode({ id, data, selected, onDelete }: { id: string; data: any; selected?: boolean; onDelete?: (id: string) => void }) {
   const Icon = iconMap[data.iconName] || Zap;
   
   const getTheme = () => {
@@ -118,7 +128,20 @@ function CustomNode({ data }: { data: any }) {
   const theme = getTheme();
 
   return (
-    <div className={`px-4 py-3.5 shadow-lg rounded-xl border bg-white dark:bg-gray-900 min-w-[210px] backdrop-blur-md transition-all hover:scale-[1.02] duration-200 ${theme.border} ${theme.leftBorder} ${theme.shadow}`}>
+    <div className={`px-4 py-3.5 shadow-lg rounded-xl border bg-white dark:bg-gray-900 min-w-[210px] backdrop-blur-md transition-all hover:scale-[1.02] duration-200 group ${theme.border} ${theme.leftBorder} ${theme.shadow} ${selected ? 'ring-2 ring-brand-500 border-transparent' : ''}`}>
+      {onDelete && (
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(id);
+          }}
+          className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 shadow-md flex items-center justify-center text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-20 cursor-pointer"
+          title="Supprimer ce nœud"
+        >
+          <X size={10} />
+        </button>
+      )}
+
       {data.type !== 'trigger' && (
         <Handle type="target" position={Position.Top} className="w-3.5 h-3.5 bg-gray-400 border-2 border-white dark:border-gray-900 hover:bg-brand-500" />
       )}
@@ -136,6 +159,28 @@ function CustomNode({ data }: { data: any }) {
           <div className="text-xs font-bold text-gray-800 dark:text-gray-100 truncate">
             {data.label}
           </div>
+          {(() => {
+            let previewText = '';
+            if (data.rssUrl) previewText = `RSS: ${data.rssUrl}`;
+            else if (data.url) previewText = data.url;
+            else if (data.interval) previewText = `Toutes les ${data.interval} min`;
+            else if (data.instruction) previewText = data.instruction;
+            else if (data.loopOver) previewText = `Sur: ${data.loopOver}`;
+            else if (data.fileName) previewText = `${data.fileType?.toUpperCase() || 'CSV'} : ${data.fileName}`;
+            else if (data.conditionField) previewText = `${data.conditionField} ${data.conditionOperator === 'gt' ? '>' : data.conditionOperator === 'lt' ? '<' : '=='} ${data.conditionValue}`;
+            else if (data.delaySeconds) previewText = `${data.delaySeconds} secondes`;
+            else if (data.imagePrompt) previewText = `Image: ${data.imagePrompt}`;
+            else if (data.hookStyle) previewText = `Style: ${data.hookStyle}`;
+            else if (data.targetTone) previewText = `Ton: ${data.targetTone}`;
+            else if (data.prompt && data.type === 'action') previewText = data.prompt;
+
+            if (!previewText) return null;
+            return (
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 truncate mt-0.5 max-w-[150px] font-medium italic">
+                {previewText}
+              </div>
+            );
+          })()}
         </div>
       </div>
       
@@ -146,10 +191,28 @@ function CustomNode({ data }: { data: any }) {
 
 // --- SIDEBAR DRAG ITEMS ---
 const AVAILABLE_NODES = [
+  // Triggers
   { type: 'trigger', id: 'trig-url', label: 'Cibler URL', iconName: 'Globe' },
+  { type: 'trigger', id: 'trig-rss', label: 'Flux RSS', iconName: 'Rss' },
+  { type: 'trigger', id: 'trig-cron', label: 'Planificateur (Cron)', iconName: 'Clock' },
+  { type: 'trigger', id: 'trig-webhook', label: 'Webhook HTTP', iconName: 'Zap' },
+  
+  // Actions
   { type: 'action', id: 'act-scrape', label: 'Scraper (Stagehand)', iconName: 'Search' },
+  { type: 'action', id: 'act-search', label: 'Recherche Web (Tavily)', iconName: 'Compass' },
+  { type: 'action', id: 'act-http', label: 'Requête HTTP API', iconName: 'ExternalLink' },
+  { type: 'action', id: 'act-file', label: 'Parseur de Fichier', iconName: 'BookOpen' },
+  { type: 'action', id: 'act-format', label: 'Formateur de Texte', iconName: 'FileText' },
   { type: 'action', id: 'act-ai', label: 'Traiter (LLM)', iconName: 'Bot' },
+  { type: 'action', id: 'act-hook', label: 'Générateur d\'accroches', iconName: 'Sparkles' },
+  { type: 'action', id: 'act-tone', label: 'Ajusteur de ton', iconName: 'PenTool' },
+  { type: 'action', id: 'act-image', label: 'Générateur d\'Image', iconName: 'Image' },
+  { type: 'action', id: 'act-db', label: 'Enregistrer en Base', iconName: 'Database' },
+  { type: 'action', id: 'act-publish', label: 'Publier sur Blog/CMS', iconName: 'Share2' },
   { type: 'action', id: 'act-post', label: 'Créer un Brouillon', iconName: 'PenTool' },
+  
+  // Logic
+  { type: 'logic', id: 'log-loop', label: 'Boucle Pour-Chaque', iconName: 'Bot' },
   { type: 'logic', id: 'log-condition', label: 'Condition (Si/Sinon)', iconName: 'GitFork' },
   { type: 'logic', id: 'log-delay', label: 'Délai (Attendre)', iconName: 'Clock' },
 ];
@@ -224,15 +287,572 @@ const WORKFLOW_TEMPLATES = {
       { id: 'e-2-3', source: 'act-ai_2', target: 'act-post_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
     ],
   },
+  loopTechNews: {
+    name: 'Boucle Multi-Articles (HN)',
+    nodes: [
+      {
+        id: 'trig-url_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Cibler URL', type: 'trigger', iconName: 'Globe', url: 'https://news.ycombinator.com', instruction: '', prompt: '' },
+      },
+      {
+        id: 'act-scrape_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Scraper (Stagehand)', type: 'action', iconName: 'Search', url: '', instruction: 'Extract the top 5 articles with titles and links', prompt: '' },
+      },
+      {
+        id: 'log-loop_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Boucle Pour-Chaque', type: 'logic', iconName: 'Bot', loopOver: 'act-scrape_1' },
+      },
+      {
+        id: 'act-ai_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Rédiger par IA', type: 'action', iconName: 'Sparkles', prompt: 'Write a dedicated, insightful tweet discussing this specific news article: Title: {{item.title}} (Link: {{item.link}}).' },
+      },
+      {
+        id: 'act-post_4',
+        type: 'customNode',
+        position: { x: 250, y: 570 },
+        data: { label: 'Créer un Brouillon', type: 'action', iconName: 'PenTool' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-url_0', target: 'act-scrape_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-scrape_1', target: 'log-loop_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'log-loop_2', target: 'act-ai_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-3-4', source: 'act-ai_3', target: 'act-post_4', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  csvImportGenerator: {
+    name: 'Import CSV & Rédaction',
+    nodes: [
+      {
+        id: 'trig-cron_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Planificateur (Cron)', type: 'trigger', iconName: 'Clock', interval: 60 },
+      },
+      {
+        id: 'act-file_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Parseur de Fichier', type: 'action', iconName: 'BookOpen', fileType: 'csv', fileName: 'ideas.csv' },
+      },
+      {
+        id: 'log-loop_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Boucle Pour-Chaque', type: 'logic', iconName: 'Bot', loopOver: 'act-file_1' },
+      },
+      {
+        id: 'act-ai_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Rédiger par IA', type: 'action', iconName: 'Sparkles', prompt: 'Create an expert post on Agile/Product development using this raw idea from the CSV: "{{item.idea}}". Tone: professional and inspiring.' },
+      },
+      {
+        id: 'act-post_4',
+        type: 'customNode',
+        position: { x: 250, y: 570 },
+        data: { label: 'Créer un Brouillon', type: 'action', iconName: 'PenTool' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-cron_0', target: 'act-file_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-file_1', target: 'log-loop_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'log-loop_2', target: 'act-ai_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-3-4', source: 'act-ai_3', target: 'act-post_4', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  webhookApiIntegration: {
+    name: 'Intégration API & Webhook',
+    nodes: [
+      {
+        id: 'trig-webhook_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Webhook HTTP', type: 'trigger', iconName: 'Zap' },
+      },
+      {
+        id: 'act-http_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Requête HTTP API', type: 'action', iconName: 'ExternalLink', method: 'GET', url: 'https://dev.to/api/articles?username=patricehuetz', headers: 'Accept: application/json' },
+      },
+      {
+        id: 'act-ai_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Traiter (LLM)', type: 'action', iconName: 'Bot', prompt: 'Here is the latest published article on Dev.to: Title: {{act-http_1.response.0.title}}. Write a summary update for LinkedIn.' },
+      },
+      {
+        id: 'act-post_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Créer un Brouillon', type: 'action', iconName: 'PenTool' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-webhook_0', target: 'act-http_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-http_1', target: 'act-ai_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'act-ai_2', target: 'act-post_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  tavilySearchAlert: {
+    name: 'Veille & Recherche Web Tavily',
+    nodes: [
+      {
+        id: 'trig-cron_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Planificateur (Cron)', type: 'trigger', iconName: 'Clock', interval: 1440 },
+      },
+      {
+        id: 'act-search_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Recherche Web (Tavily)', type: 'action', iconName: 'Compass', searchQuery: 'dernieres actualites IA agents autonomes', maxResults: 3 },
+      },
+      {
+        id: 'log-loop_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Boucle Pour-Chaque', type: 'logic', iconName: 'Bot', loopOver: 'act-search_1' },
+      },
+      {
+        id: 'act-ai_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Rédiger par IA', type: 'action', iconName: 'Bot', prompt: 'Create an analysis LinkedIn post on this news: Title: {{item.title}}\nContent: {{item.content}}' },
+      },
+      {
+        id: 'act-db_4',
+        type: 'customNode',
+        position: { x: 250, y: 570 },
+        data: { label: 'Enregistrer en Base', type: 'action', iconName: 'Database', dbAction: 'save_post' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-cron_0', target: 'act-search_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-search_1', target: 'log-loop_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'log-loop_2', target: 'act-ai_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-3-4', source: 'act-ai_3', target: 'act-db_4', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  autoBloggingCMS: {
+    name: 'Veille & Publication CMS',
+    nodes: [
+      {
+        id: 'trig-webhook_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Webhook HTTP', type: 'trigger', iconName: 'Zap' },
+      },
+      {
+        id: 'act-search_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Recherche Web (Tavily)', type: 'action', iconName: 'Compass', searchQuery: 'Agile Product Management trends 2026', maxResults: 1 },
+      },
+      {
+        id: 'act-ai_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Rédiger par IA', type: 'action', iconName: 'Bot', prompt: 'Based on this news, write a comprehensive article for a tech blog: {{act-search_1.0.content}}' },
+      },
+      {
+        id: 'act-format_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Formateur de Texte', type: 'action', iconName: 'FileText', textTemplate: 'Article rédigé le {{current_date}}.\nSource: {{act-search_1.0.url}}\n\nContenu:\n{{act-ai_2}}' },
+      },
+      {
+        id: 'act-publish_4',
+        type: 'customNode',
+        position: { x: 250, y: 570 },
+        data: { label: 'Publier sur Blog/CMS', type: 'action', iconName: 'Share2', publishUrl: 'https://patricehuetz.fr/api/publish', publishToken: 'Bearer Secret_Token_123' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-webhook_0', target: 'act-search_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-search_1', target: 'act-ai_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'act-ai_2', target: 'act-format_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-3-4', source: 'act-format_3', target: 'act-publish_4', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  rssToLinkedIn: {
+    name: 'Veille RSS & Rédaction Multi-Réseaux',
+    nodes: [
+      {
+        id: 'trig-rss_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Flux RSS', type: 'trigger', iconName: 'Rss', rssUrl: 'https://news.ycombinator.com/rss' },
+      },
+      {
+        id: 'log-loop_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Boucle Pour-Chaque', type: 'logic', iconName: 'Bot', loopOver: 'trig-rss_0' },
+      },
+      {
+        id: 'act-ai_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Rédiger par IA', type: 'action', iconName: 'Bot', prompt: 'Create an engaging educational post about this article: Title: {{item.title}}\nDescription: {{item.description}}' },
+      },
+      {
+        id: 'act-image_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: "Générateur d'Image", type: 'action', iconName: 'Image', imagePrompt: 'A futuristic tech illustration representing: {{item.title}}' },
+      },
+      {
+        id: 'act-post_4',
+        type: 'customNode',
+        position: { x: 250, y: 570 },
+        data: { label: 'Créer un Brouillon', type: 'action', iconName: 'PenTool' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-rss_0', target: 'log-loop_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'log-loop_1', target: 'act-ai_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'act-ai_2', target: 'act-image_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-3-4', source: 'act-image_3', target: 'act-post_4', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  toneOptimizer: {
+    name: 'Rédaction & Optimisation du Ton',
+    nodes: [
+      {
+        id: 'trig-cron_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Planificateur (Cron)', type: 'trigger', iconName: 'Clock', interval: 1440 },
+      },
+      {
+        id: 'act-search_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Recherche Web (Tavily)', type: 'action', iconName: 'Compass', searchQuery: 'Agile development trends 2026', maxResults: 2 },
+      },
+      {
+        id: 'log-loop_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Boucle Pour-Chaque', type: 'logic', iconName: 'Bot', loopOver: 'act-search_1' },
+      },
+      {
+        id: 'act-ai_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Rédiger par IA', type: 'action', iconName: 'Bot', prompt: 'Summarize the core message of this news: {{item.title}}\nContent: {{item.content}}' },
+      },
+      {
+        id: 'act-tone_4',
+        type: 'customNode',
+        position: { x: 250, y: 570 },
+        data: { label: 'Ajusteur de ton', type: 'action', iconName: 'PenTool', targetTone: 'professional' },
+      },
+      {
+        id: 'act-post_5',
+        type: 'customNode',
+        position: { x: 250, y: 700 },
+        data: { label: 'Créer un Brouillon', type: 'action', iconName: 'PenTool' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-cron_0', target: 'act-search_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-search_1', target: 'log-loop_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'log-loop_2', target: 'act-ai_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-3-4', source: 'act-ai_3', target: 'act-tone_4', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-4-5', source: 'act-tone_4', target: 'act-post_5', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
 };
 
 interface SidebarProps {
-  activeTab: 'toolbox' | 'guide';
-  setActiveTab: (tab: 'toolbox' | 'guide') => void;
-  onLoadTemplate: (templateKey: 'hackerNews' | 'blogRepurpose') => void;
+  activeTab: 'toolbox' | 'guide' | 'chat';
+  setActiveTab: (tab: 'toolbox' | 'guide' | 'chat') => void;
+  onLoadTemplate: (templateKey: keyof typeof WORKFLOW_TEMPLATES) => void;
+  nodes: Node[];
+  edges: Edge[];
+  onWorkflowUpdated: (nodes: Node[], edges: Edge[]) => void;
 }
 
-function Sidebar({ activeTab, setActiveTab, onLoadTemplate }: SidebarProps) {
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  steps?: Array<{
+    text?: string;
+    toolCalls?: Array<{
+      name: string;
+      args: any;
+    }>;
+  }>;
+}
+
+function ChatPanel({
+  nodes,
+  edges,
+  onWorkflowUpdated,
+}: {
+  nodes: Node[];
+  edges: Edge[];
+  onWorkflowUpdated: (nodes: Node[], edges: Edge[]) => void;
+}) {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: 'init',
+      role: 'assistant',
+      content:
+        "Bonjour ! Je suis votre assistant de création de workflows. Décrivez le processus que vous voulez automatiser (ex: \"Crée un workflow qui va sur Hacker News, prend les 3 premiers articles, puis fait un résumé par IA et crée un brouillon\"), et je vais construire le diagramme pour vous !",
+    },
+  ]);
+  const [input, setInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [loadingStep, setLoadingStep] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom of messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isSending]);
+
+  const handleSend = async (textToSend?: string) => {
+    const text = (textToSend || input).trim();
+    if (!text || isSending) return;
+
+    if (!textToSend) {
+      setInput('');
+    }
+
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: text,
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setIsSending(true);
+    setLoadingStep('Analyse de la demande...');
+
+    const stepTimer = setTimeout(() => {
+      setLoadingStep('Conception du workflow...');
+    }, 2500);
+
+    const stepTimer2 = setTimeout(() => {
+      setLoadingStep('Mise à jour des connexions...');
+    }, 5500);
+
+    try {
+      const serverMessages = [...messages, userMsg].map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      const response = await api.post('/automations/agent/build', {
+        messages: serverMessages,
+        currentState: { nodes, edges },
+      });
+
+      const { text: replyText, workflow, steps } = response.data;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: replyText || "J'ai mis à jour le workflow sur le canevas.",
+          steps,
+        },
+      ]);
+
+      if (workflow && Array.isArray(workflow.nodes)) {
+        onWorkflowUpdated(workflow.nodes, workflow.edges || []);
+        toast.success("Workflow mis à jour par l'IA !", {
+          icon: '✨',
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+          },
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to run agent builder:', error);
+      toast.error('Erreur lors de la mise à jour du workflow.');
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content:
+            "Désolé, j'ai rencontré une erreur en essayant de construire ce workflow. Veuillez vérifier vos clés d'API dans les réglages.",
+        },
+      ]);
+    } finally {
+      clearTimeout(stepTimer);
+      clearTimeout(stepTimer2);
+      setIsSending(false);
+      setLoadingStep('');
+    }
+  };
+
+  const suggestions = [
+    { text: 'Veille automatique Hacker News et post LinkedIn', label: 'Veille HN' },
+    { text: 'Scraper un site web et faire un résumé de blog', label: 'Scrape & Résume' },
+    { text: 'Créer une boucle sur les résultats d\'une recherche Tavily', label: 'Recherche + Boucle' },
+  ];
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-140px)] w-full">
+      {/* Scrollable messages list */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs shadow-sm leading-relaxed transition-all duration-200 ${
+                m.role === 'user'
+                  ? 'bg-brand-600 text-white rounded-tr-none font-medium'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-200/50 dark:border-gray-700/50'
+              }`}
+            >
+              {m.role === 'assistant' && (
+                <div className="flex items-center gap-1.5 mb-1 text-[10px] uppercase font-bold tracking-wider text-brand-500">
+                  <Sparkles size={10} className="animate-pulse" />
+                  Assistant PC
+                </div>
+              )}
+              <div className="whitespace-pre-wrap">{m.content}</div>
+              {m.steps && m.steps.length > 0 && (
+                <div className="mt-3 pt-2.5 border-t border-gray-200 dark:border-gray-700/60 space-y-2">
+                  <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <span>Traces de l'Agent</span>
+                    <span className="px-1.5 py-0.2 bg-brand-500/10 text-brand-500 rounded-full text-[9px] lowercase font-normal">
+                      {m.steps.length} {m.steps.length > 1 ? 'étapes' : 'étape'}
+                    </span>
+                  </div>
+                  <div className="space-y-2 pl-1.5 border-l border-brand-500/30 ml-1">
+                    {m.steps.map((step, sIdx) => {
+                      const toolCalls = step.toolCalls || [];
+                      return (
+                        <div key={sIdx} className="text-[10px] text-gray-500 dark:text-gray-400 relative pl-3.5 py-0.5">
+                          <span className="absolute -left-[4.5px] top-1.5 w-2 h-2 rounded-full bg-brand-500 border border-white dark:border-gray-900"></span>
+                          {step.text && <div className="font-medium text-gray-700 dark:text-gray-300 mb-0.5">{step.text}</div>}
+                          {toolCalls.length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {toolCalls.map((tc, tcIdx) => {
+                                let toolLabel = tc.name;
+                                let icon = <Bot size={9} className="text-brand-500" />;
+                                if (tc.name === 'searchWeb') {
+                                  toolLabel = `Recherche : "${tc.args?.query || ''}"`;
+                                  icon = <Search size={9} className="text-teal-500" />;
+                                } else if (tc.name === 'scrapeUrlPreview') {
+                                  toolLabel = `Analyse : ${tc.args?.url || ''}`;
+                                  icon = <Globe size={9} className="text-blue-500" />;
+                                } else if (tc.name === 'setWorkflowState') {
+                                  toolLabel = `Configuration (${tc.args?.nodes?.length || 0} nœuds)`;
+                                  icon = <Zap size={9} className="text-amber-500 animate-pulse" />;
+                                } else if (tc.name === 'getWorkflowState') {
+                                  toolLabel = `Lecture diagramme`;
+                                  icon = <Sparkles size={9} className="text-purple-500" />;
+                                }
+                                return (
+                                  <div
+                                    key={tcIdx}
+                                    className="flex items-center gap-1 px-1.5 py-0.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700/80 rounded text-[9px] text-gray-700 dark:text-gray-300 shadow-sm transition-all hover:bg-gray-50 dark:hover:bg-gray-800"
+                                    title={toolLabel}
+                                  >
+                                    {icon}
+                                    <span className="font-medium text-[9px] max-w-[120px] truncate">
+                                      {toolLabel}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {isSending && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-2xl rounded-tl-none px-3.5 py-2.5 text-xs border border-gray-200/50 dark:border-gray-700/50 flex flex-col gap-2 min-w-[200px]">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-brand-500">
+                <Loader2 size={10} className="animate-spin text-brand-500" />
+                <span>{loadingStep || 'IA en cours de réflexion...'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce delay-0"></span>
+                <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce delay-150"></span>
+                <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce delay-300"></span>
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Suggestion tags (only if there are no user messages yet) */}
+      {messages.length === 1 && !isSending && (
+        <div className="px-4 py-2 space-y-1.5">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Suggestions</p>
+          <div className="flex flex-col gap-1.5">
+            {suggestions.map((s, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSend(s.text)}
+                className="text-left w-full px-3 py-2 text-xs text-gray-600 dark:text-gray-300 bg-gray-50 hover:bg-brand-50 dark:bg-gray-850 dark:hover:bg-brand-950/30 border border-gray-200 dark:border-gray-800 hover:border-brand-300 dark:hover:border-brand-800 rounded-lg transition-all text-ellipsis overflow-hidden whitespace-nowrap"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Fixed input bar */}
+      <div className="p-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center gap-2">
+        <Input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Décrivez votre workflow..."
+          disabled={isSending}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSend();
+          }}
+          className="flex-1 text-xs py-2 bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-850 hover:border-gray-300 focus:border-brand-500 rounded-lg"
+        />
+        <Button
+          onClick={() => handleSend()}
+          disabled={!input.trim() || isSending}
+          className="p-2 h-9 w-9 flex items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-700 text-white shrink-0 shadow-sm"
+        >
+          <Send size={14} />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({ activeTab, setActiveTab, onLoadTemplate, nodes, edges, onWorkflowUpdated }: SidebarProps) {
   const onDragStart = (event: React.DragEvent, nodeData: any) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(nodeData));
     event.dataTransfer.effectAllowed = 'move';
@@ -260,135 +880,278 @@ function Sidebar({ activeTab, setActiveTab, onLoadTemplate }: SidebarProps) {
               : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
           }`}
         >
-          Guide & Exemples
+          Guide
+        </button>
+        <button
+          onClick={() => setActiveTab('chat')}
+          className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider text-center border-b-2 transition-all flex items-center justify-center gap-1 ${
+            activeTab === 'chat'
+              ? 'border-brand-500 text-brand-600 dark:text-brand-400'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+          }`}
+        >
+          <Sparkles size={11} className={activeTab === 'chat' ? 'text-brand-500 animate-pulse' : ''} />
+          Chat IA
         </button>
       </div>
 
-      <div className="flex-1 p-4 overflow-y-auto">
-        {activeTab === 'toolbox' ? (
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 mb-1">Boîte à outils</h3>
-              <p className="text-xs text-gray-500 mb-4">Glissez les éléments sur le canevas.</p>
-            </div>
-
+      {activeTab === 'chat' ? (
+        <ChatPanel nodes={nodes} edges={edges} onWorkflowUpdated={onWorkflowUpdated} />
+      ) : (
+        <div className="flex-1 p-4 overflow-y-auto">
+          {activeTab === 'toolbox' ? (
             <div className="space-y-4">
-              {['trigger', 'logic', 'action'].map((groupType) => (
-                <div key={groupType}>
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
-                    {groupType === 'trigger' ? 'Déclencheurs' : groupType === 'action' ? 'Actions' : 'Logique'}
-                  </h4>
-                  <div className="space-y-2">
-                    {AVAILABLE_NODES.filter(n => n.type === groupType).map((node) => {
-                      const NodeIcon = iconMap[node.iconName] || Zap;
-                      return (
-                        <div
-                          key={node.id}
-                          className="flex items-center gap-2.5 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-brand-300 dark:hover:border-brand-700 cursor-grab active:cursor-grabbing transition-colors"
-                          onDragStart={(event) => onDragStart(event, node)}
-                          draggable
-                        >
-                          <NodeIcon size={16} className={groupType === 'trigger' ? 'text-emerald-500' : groupType === 'action' ? 'text-brand-500' : 'text-amber-500'} />
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{node.label}</span>
+              <div>
+                <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 mb-1">Boîte à outils</h3>
+                <p className="text-xs text-gray-500 mb-4">Glissez les éléments sur le canevas.</p>
+              </div>
+
+              <div className="space-y-4">
+                {['trigger', 'logic', 'action'].map((groupType) => (
+                  <div key={groupType}>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                      {groupType === 'trigger' ? 'Déclencheurs' : groupType === 'action' ? 'Actions' : 'Logique'}
+                    </h4>
+                    <div className="space-y-2">
+                      {AVAILABLE_NODES.filter((n) => n.type === groupType).map((node) => {
+                        const NodeIcon = iconMap[node.iconName] || Zap;
+                        return (
+                          <div
+                            key={node.id}
+                            className="flex items-center gap-2.5 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-brand-300 dark:hover:border-brand-700 cursor-grab active:cursor-grabbing transition-colors"
+                            onDragStart={(event) => onDragStart(event, node)}
+                            draggable
+                          >
+                            <NodeIcon
+                              size={16}
+                              className={
+                                groupType === 'trigger'
+                                  ? 'text-emerald-500'
+                                  : groupType === 'action'
+                                    ? 'text-brand-500'
+                                    : 'text-amber-500'
+                              }
+                            />
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                              {node.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* 1-Click Templates */}
+              <div>
+                <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 mb-1.5 flex items-center gap-1.5">
+                  <Sparkles size={16} className="text-amber-500 animate-pulse" /> Bibliothèque de Modèles
+                </h3>
+                <p className="text-[11px] text-gray-500 mb-4">Chargez un workflow prêt à l'emploi en 1 clic.</p>
+
+                <div className="space-y-4">
+                  {/* Catégorie : Curation & Veille */}
+                  <div>
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
+                      Curation & Veille
+                    </h4>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => onLoadTemplate('rssToLinkedIn')}
+                        className="w-full text-left p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/10 transition-all group"
+                      >
+                        <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center gap-1.5">
+                          Veille RSS Multi-Réseaux
+                          <span className="text-[8px] bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 px-1 py-0.2 rounded font-mono font-bold">RSS</span>
                         </div>
-                      );
-                    })}
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                          Surveille un flux RSS, boucle sur chaque article pour rédiger par IA, génère une image et crée un brouillon.
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => onLoadTemplate('hackerNews')}
+                        className="w-full text-left p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/10 transition-all group"
+                      >
+                        <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                          Veille Hacker News (Tech)
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                          Scrape HN, résume les 3 premières actus en un post LinkedIn et crée un brouillon.
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Catégorie : Recyclage de Contenu */}
+                  <div>
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-brand-650 dark:text-brand-400 mb-2">
+                      Recyclage & Génération
+                    </h4>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => onLoadTemplate('blogRepurpose')}
+                        className="w-full text-left p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 hover:border-brand-500 dark:hover:border-brand-500 hover:bg-brand-50/10 dark:hover:bg-brand-950/10 transition-all group"
+                      >
+                        <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-brand-600 dark:group-hover:text-brand-400">
+                          Recyclage de Blog (Blog Repost)
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                          Extrait le contenu d'un blog et le transforme en un thread Twitter/X sauvegardé en brouillon.
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => onLoadTemplate('csvImportGenerator')}
+                        className="w-full text-left p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 hover:border-brand-500 dark:hover:border-brand-500 hover:bg-brand-50/10 dark:hover:bg-brand-950/10 transition-all group"
+                      >
+                        <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-brand-600 dark:group-hover:text-brand-400 flex items-center gap-1.5">
+                          Génération en Lot (CSV)
+                          <span className="text-[8px] bg-brand-100 dark:bg-brand-950 text-brand-600 dark:text-brand-400 px-1 py-0.2 rounded font-mono font-bold">CSV</span>
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                          Lit un fichier CSV d'idées brutes et boucle sur chaque ligne pour rédiger du contenu.
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Catégorie : Intelligence & Analyse */}
+                  <div>
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-2">
+                      Analyse & Optimisation
+                    </h4>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => onLoadTemplate('tavilySearchAlert')}
+                        className="w-full text-left p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50/10 dark:hover:bg-amber-950/10 transition-all group"
+                      >
+                        <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-amber-650 dark:group-hover:text-amber-400 flex items-center gap-1.5">
+                          Recherche Web Tavily
+                          <span className="text-[8px] bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-450 px-1 py-0.2 rounded font-mono font-bold">Tavily</span>
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                          Recherche sur le web par Tavily, puis boucle sur les résultats pour rédiger des analyses en base.
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => onLoadTemplate('toneOptimizer')}
+                        className="w-full text-left p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50/10 dark:hover:bg-amber-950/10 transition-all group"
+                      >
+                        <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-amber-650 dark:group-hover:text-amber-400 flex items-center gap-1.5">
+                          Optimisation de Ton IA
+                          <span className="text-[8px] bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-450 px-1 py-0.2 rounded font-mono font-bold">Ton</span>
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                          Recherche et rédige des posts par IA, puis utilise l'ajusteur de ton pour affiner le style avant enregistrement.
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Catégorie : Intégrations Techniques */}
+                  <div>
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-650 dark:text-purple-400 mb-2">
+                      Intégrations & Dev
+                    </h4>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => onLoadTemplate('webhookApiIntegration')}
+                        className="w-full text-left p-2.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/10 hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50/10 dark:hover:bg-purple-950/10 transition-all group"
+                      >
+                        <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-purple-600 dark:group-hover:text-purple-400 flex items-center gap-1.5">
+                          Intégration API & Webhook
+                          <span className="text-[8px] bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 px-1 py-0.2 rounded font-mono font-bold">API</span>
+                        </div>
+                        <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                          Attend un webhook HTTP, interroge une API externe via HTTP GET, puis génère une synthèse LinkedIn.
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <hr className="border-gray-200 dark:border-gray-800" />
+
+              {/* Guided Help */}
+              <div>
+                <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-1.5">
+                  <BookOpen size={16} className="text-brand-500" /> Guide de construction
+                </h3>
+                <div className="space-y-4 text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                  <div className="relative pl-6">
+                    <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
+                      1
+                    </span>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">Cibler</p>
+                    <p className="mt-0.5">
+                      Glissez le nœud <strong>Cibler URL</strong>. Double-cliquez dessus pour configurer l'URL de
+                      départ.
+                    </p>
+                  </div>
+
+                  <div className="relative pl-6">
+                    <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
+                      2
+                    </span>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">Extraire</p>
+                    <p className="mt-0.5">
+                      Glissez <strong>Scraper (Stagehand)</strong>. Décrivez ce que vous voulez (ex: <i>"prends le
+                      titre et le lien"</i>).
+                    </p>
+                  </div>
+
+                  <div className="relative pl-6">
+                    <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
+                      3
+                    </span>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">Traiter</p>
+                    <p className="mt-0.5">
+                      Glissez <strong>Traiter (LLM)</strong> et donnez les instructions IA (ex: <i>"rédige un post
+                      Linkedin"</i>).
+                    </p>
+                  </div>
+
+                  <div className="relative pl-6">
+                    <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
+                      4
+                    </span>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">Enregistrer</p>
+                    <p className="mt-0.5">
+                      Glissez <strong>Créer un Brouillon</strong> pour enregistrer automatiquement le post généré
+                      dans PostCommander.
+                    </p>
+                  </div>
+
+                  <div className="relative pl-6">
+                    <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
+                      5
+                    </span>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">Relier & Lancer</p>
+                    <p className="mt-0.5">
+                      Reliez les nœuds en faisant glisser le point bleu inférieur vers le point gris supérieur.
+                      Sauvegardez et cliquez sur tester !
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {/* 1-Click Templates */}
-            <div>
-              <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 mb-1.5 flex items-center gap-1.5">
-                <Sparkles size={16} className="text-amber-500 animate-pulse" /> Modèles de démarrage
-              </h3>
-              <p className="text-[11px] text-gray-500 mb-3">Chargez un workflow prêt à l'emploi en 1 clic.</p>
-              
-              <div className="space-y-2">
-                <button
-                  onClick={() => onLoadTemplate('hackerNews')}
-                  className="w-full text-left p-3 rounded-lg border border-gray-200 dark:border-gray-850 bg-gray-50/50 dark:bg-gray-800/20 hover:border-brand-500 dark:hover:border-brand-500 transition-colors group"
-                >
-                  <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-brand-600 dark:group-hover:text-brand-400">
-                    Veille Hacker News (Tech)
-                  </div>
-                  <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                    Scrape HN, résume les 3 premières actus en un post LinkedIn et crée un brouillon.
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => onLoadTemplate('blogRepurpose')}
-                  className="w-full text-left p-3 rounded-lg border border-gray-200 dark:border-gray-850 bg-gray-50/50 dark:bg-gray-800/20 hover:border-brand-500 dark:hover:border-brand-500 transition-colors group"
-                >
-                  <div className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-brand-600 dark:group-hover:text-brand-400">
-                    Recyclage de Blog (Blog Repost)
-                  </div>
-                  <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                    Extrait le texte d'un blog et le transforme en un thread Twitter/X sauvegardé en brouillon.
-                  </div>
-                </button>
               </div>
             </div>
-
-            <hr className="border-gray-200 dark:border-gray-800" />
-
-            {/* Guided Help */}
-            <div>
-              <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-1.5">
-                <BookOpen size={16} className="text-brand-500" /> Guide de construction
-              </h3>
-              <div className="space-y-4 text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                <div className="relative pl-6">
-                  <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
-                    1
-                  </span>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300">Cibler</p>
-                  <p className="mt-0.5">Glissez le nœud <strong>Cibler URL</strong>. Double-cliquez dessus pour configurer l'URL de départ.</p>
-                </div>
-
-                <div className="relative pl-6">
-                  <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
-                    2
-                  </span>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300">Extraire</p>
-                  <p className="mt-0.5">Glissez <strong>Scraper (Stagehand)</strong>. Décrivez ce que vous voulez (ex: <i>"prends le titre et le lien"</i>).</p>
-                </div>
-
-                <div className="relative pl-6">
-                  <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
-                    3
-                  </span>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300">Traiter</p>
-                  <p className="mt-0.5">Glissez <strong>Traiter (LLM)</strong> et donnez les instructions IA (ex: <i>"rédige un post Linkedin"</i>).</p>
-                </div>
-
-                <div className="relative pl-6">
-                  <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
-                    4
-                  </span>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300">Enregistrer</p>
-                  <p className="mt-0.5">Glissez <strong>Créer un Brouillon</strong> pour enregistrer automatiquement le post généré dans PostCommander.</p>
-                </div>
-
-                <div className="relative pl-6">
-                  <span className="absolute left-0 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/30 text-[9px] font-bold text-brand-600 dark:text-brand-400">
-                    5
-                  </span>
-                  <p className="font-semibold text-gray-700 dark:text-gray-300">Relier & Lancer</p>
-                  <p className="mt-0.5">Reliez les nœuds en faisant glisser le point bleu inférieur vers le point gris supérieur. Sauvegardez et cliquez sur tester !</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </aside>
   );
 }
+
+const nodeTypes = {
+  customNode: CustomNode,
+};
 
 let id = 0;
 const getId = (prefix: string) => `${prefix}_${id++}`;
@@ -401,7 +1164,7 @@ function AutomationsFlow() {
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
-  const [activeTab, setActiveTab] = useState<'toolbox' | 'guide'>('guide');
+  const [activeTab, setActiveTab] = useState<'toolbox' | 'guide' | 'chat'>('guide');
 
   // Execution Modal & Status Poll states
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
@@ -411,8 +1174,51 @@ function AutomationsFlow() {
   const { data: automationsData, isLoading } = useAutomations();
   const saveMutation = useSaveAutomation();
   const triggerMutation = useTriggerAutomation();
+
+  const executionOrder = useMemo(() => {
+    const triggerNodes = nodes.filter((n) => n.data?.type === 'trigger');
+    const visited = new Set<string>();
+    const order: Node[] = [];
+
+    const adj: Record<string, string[]> = {};
+    for (const edge of edges) {
+      if (!adj[edge.source]) adj[edge.source] = [];
+      adj[edge.source].push(edge.target);
+    }
+
+    const queue = [...triggerNodes.map(t => t.id)];
+    triggerNodes.forEach(t => visited.add(t.id));
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      const node = nodes.find((n) => n.id === currentId);
+      if (node) {
+        order.push(node);
+      }
+      const targets = adj[currentId] || [];
+      for (const targetId of targets) {
+        if (!visited.has(targetId)) {
+          visited.add(targetId);
+          queue.push(targetId);
+        }
+      }
+    }
+
+    for (const node of nodes) {
+      if (!visited.has(node.id)) {
+        order.push(node);
+      }
+    }
+
+    return order;
+  }, [nodes, edges]);
   
   const activeAutomation = automationsData?.data?.[0]; // For now, just work with the first one
+
+  const handleWorkflowUpdated = useCallback((newNodes: Node[], newEdges: Edge[]) => {
+    setNodes(newNodes);
+    setEdges(newEdges);
+  }, [setNodes, setEdges]);
 
   // Job query definition
   const { data: jobStatus } = useAutomationJob(activeJobId);
@@ -562,9 +1368,9 @@ function AutomationsFlow() {
     }
   };
 
-  const loadTemplate = (templateKey: 'hackerNews' | 'blogRepurpose') => {
+  const loadTemplate = (templateKey: keyof typeof WORKFLOW_TEMPLATES) => {
     const template = WORKFLOW_TEMPLATES[templateKey];
-    setNodes(template.nodes);
+    setNodes(template.nodes as any);
     setEdges(template.edges);
     setSelectedNode(null);
     setActiveTab('toolbox'); // switch tab to toolbox so they see their nodes controls
@@ -587,16 +1393,11 @@ function AutomationsFlow() {
             <GitFork size={22} />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {activeAutomation?.name || 'Nouvelle Automatisation'}
-              </h2>
-              <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                <CheckCircle2 size={10} /> Actif
-              </span>
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Scraping Visuel & IA
+            <h1 className="font-bold text-sm text-gray-900 dark:text-gray-150">
+              {activeAutomation?.name || "Éditeur d'automatisation"}
+            </h1>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+              Concevez des flux d'extraction et de traitement IA de bout en bout
             </p>
           </div>
         </div>
@@ -612,7 +1413,14 @@ function AutomationsFlow() {
       </div>
 
       <div className="flex-1 flex flex-row w-full h-full relative" ref={reactFlowWrapper}>
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLoadTemplate={loadTemplate} />
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onLoadTemplate={loadTemplate}
+          nodes={nodes}
+          edges={edges}
+          onWorkflowUpdated={handleWorkflowUpdated}
+        />
         
         <div className="flex-1 h-full relative">
           <ReactFlow
@@ -709,6 +1517,41 @@ function AutomationsFlow() {
                     </p>
                   </div>
                 )}
+
+                {selectedNode.id.includes('cron') && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <Clock size={13} className="text-emerald-500" />
+                      <span>Intervalle (Minutes)</span>
+                    </div>
+                    <Input 
+                      type="number"
+                      placeholder="60" 
+                      value={String(selectedNode.data.interval || '60')}
+                      onChange={(e) => updateNodeData(selectedNode.id, { interval: Number(e.target.value) })}
+                    />
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Fréquence d'exécution automatique du workflow en minutes.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('webhook') && (
+                  <div className="bg-emerald-550/5 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/30 rounded-xl p-3.5 space-y-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                      <Zap size={13} className="text-emerald-500" />
+                      <span>URL de Webhook</span>
+                    </div>
+                    <input 
+                      readOnly 
+                      value={`http://localhost:3003/api/automations/webhooks/${activeAutomation?.id || 'workflow_id'}`} 
+                      className="w-full text-[10px] bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg border border-gray-200 dark:border-gray-700 font-mono text-gray-700 dark:text-gray-300 select-all outline-none"
+                    />
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Envoyez une requête HTTP POST sur cette URL pour déclencher le workflow. Le corps de la requête est stocké dans le contexte.
+                    </p>
+                  </div>
+                )}
                 
                 {selectedNode.id.includes('scrape') && (
                   <div className="space-y-2">
@@ -727,13 +1570,208 @@ function AutomationsFlow() {
                     </p>
                   </div>
                 )}
+
+                {selectedNode.id.includes('http') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <ExternalLink size={13} className="text-brand-500" />
+                        <span>Configuration HTTP</span>
+                      </div>
+                      <select 
+                        className="w-full text-xs p-2.5 rounded-xl border border-gray-300 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none focus:border-brand-500"
+                        value={String(selectedNode.data.method || 'GET')} 
+                        onChange={(e) => updateNodeData(selectedNode.id, { method: e.target.value })}
+                      >
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">URL API</label>
+                      <Input 
+                        placeholder="https://api.github.com/..." 
+                        value={String(selectedNode.data.url || '')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { url: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Headers (Clé: Valeur)</label>
+                      <textarea 
+                        className="w-full rounded-xl border border-gray-350 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs p-2 min-h-[60px] outline-none"
+                        placeholder="Content-Type: application/json&#10;Authorization: Bearer KEY"
+                        value={String(selectedNode.data.headers || '')} 
+                        onChange={(e) => updateNodeData(selectedNode.id, { headers: e.target.value })}
+                      />
+                    </div>
+                    {String(selectedNode.data.method) !== 'GET' && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase">Corps de la requête (JSON)</label>
+                        <textarea 
+                          className="w-full rounded-xl border border-gray-350 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs p-2 min-h-[65px] outline-none font-mono"
+                          placeholder='{ "key": "value" }'
+                          value={String(selectedNode.data.body || '')} 
+                          onChange={(e) => updateNodeData(selectedNode.id, { body: e.target.value })}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {selectedNode.id.includes('file') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <BookOpen size={13} className="text-brand-500" />
+                        <span>Fichier Source</span>
+                      </div>
+                      <select 
+                        className="w-full text-xs p-2.5 rounded-xl border border-gray-300 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none"
+                        value={String(selectedNode.data.fileType || 'csv')} 
+                        onChange={(e) => updateNodeData(selectedNode.id, { fileType: e.target.value })}
+                      >
+                        <option value="csv">CSV (Tableur)</option>
+                        <option value="json">JSON</option>
+                        <option value="pdf">PDF (Texte brut)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Nom du fichier</label>
+                      <Input 
+                        placeholder="ideas.csv" 
+                        value={String(selectedNode.data.fileName || '')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { fileName: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('search') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <Compass size={13} className="text-brand-500" />
+                        <span>Recherche Tavily</span>
+                      </div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Requête de recherche</label>
+                      <Input 
+                        placeholder="e.g. dernières actualités IA en France" 
+                        value={String(selectedNode.data.searchQuery || '')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { searchQuery: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Résultats max (1-10)</label>
+                      <Input 
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={String(selectedNode.data.maxResults || '3')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { maxResults: Number(e.target.value) })}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('format') && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <FileText size={13} className="text-brand-500" />
+                      <span>Formateur de Texte</span>
+                    </div>
+                    <textarea
+                      className="w-full rounded-xl border border-gray-350 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-xs p-3 min-h-[140px] outline-none"
+                      placeholder="Sujet: {{item.idea}}&#10;Thème: {{item.topic}}&#10;Rédige à partir de cela..."
+                      value={String(selectedNode.data.textTemplate || '')}
+                      onChange={(e) => updateNodeData(selectedNode.id, { textTemplate: e.target.value })}
+                    />
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Formatez ou fusionnez des variables sans appeler l'IA. Utilisez la notation double accolade.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('db') && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <Database size={13} className="text-brand-500" />
+                      <span>Enregistrer en Base</span>
+                    </div>
+                    <select 
+                      className="w-full text-xs p-2.5 rounded-xl border border-gray-300 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none"
+                      value={String(selectedNode.data.dbAction || 'save_post')} 
+                      onChange={(e) => updateNodeData(selectedNode.id, { dbAction: e.target.value })}
+                    >
+                      <option value="save_post">Créer un brouillon de post (LinkedIn)</option>
+                      <option value="log_event">Loguer un événement d'automatisation</option>
+                    </select>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('publish') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <Share2 size={13} className="text-brand-500" />
+                        <span>Publication Blog/CMS</span>
+                      </div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">URL API de publication</label>
+                      <Input 
+                        placeholder="https://patricehuetz.fr/api/publish" 
+                        value={String(selectedNode.data.publishUrl || '')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { publishUrl: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Jeton d'autorisation (Token)</label>
+                      <Input 
+                        type="password"
+                        placeholder="Bearer/Secret Token" 
+                        value={String(selectedNode.data.publishToken || '')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { publishToken: e.target.value })}
+                      />
+                    </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Envoie une requête POST contenant le titre de l'élément en cours et le contenu rédigé final.
+                    </p>
+                  </div>
+                )}
                 
                 {selectedNode.id.includes('ai') && (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       <Sparkles size={13} className="text-amber-500" />
-                      <span>Prompt de Réécriture IA</span>
+                      <span>Configuration LLM & Prompt</span>
                     </div>
+                    
+                    <div className="grid grid-cols-2 gap-2 bg-gray-50 dark:bg-gray-800/50 p-2.5 rounded-xl border border-gray-100 dark:border-gray-800">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Fournisseur</label>
+                        <select 
+                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-xs p-1.5 outline-none"
+                          value={String(selectedNode.data.provider || 'openai')}
+                          onChange={(e) => updateNodeData(selectedNode.id, { provider: e.target.value })}
+                        >
+                          <option value="openai">OpenAI</option>
+                          <option value="anthropic">Anthropic</option>
+                          <option value="google">Google Gemini</option>
+                          <option value="mistral">Mistral AI</option>
+                          <option value="ollama">Ollama</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold text-gray-500 uppercase tracking-wider block">Modèle</label>
+                        <input 
+                          type="text"
+                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-xs p-1.5 outline-none"
+                          placeholder="e.g. gpt-4o-mini"
+                          value={String(selectedNode.data.model || 'gpt-4o-mini')}
+                          onChange={(e) => updateNodeData(selectedNode.id, { model: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
                     <textarea
                       className="w-full rounded-xl border border-gray-350 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-xs p-3 min-h-[140px] outline-none"
                       placeholder="Prends le JSON extrait et rédige un post LinkedIn attrayant avec une accroche forte..."
@@ -741,7 +1779,174 @@ function AutomationsFlow() {
                       onChange={(e) => updateNodeData(selectedNode.id, { prompt: e.target.value })}
                     />
                     <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
-                      Ce prompt guidera l'IA pour générer le contenu final à partir des données extraites.
+                      Utilisez <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded font-mono text-[10px]">&#123;&#123;item.champ&#125;&#125;</code> pour référencer la ligne courante d'une boucle ou les données parentes.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('loop') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <Bot size={13} className="text-amber-500" />
+                        <span>Boucle Pour-Chaque</span>
+                      </div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Variable Source</label>
+                      <select 
+                        className="w-full text-xs p-2.5 rounded-xl border border-gray-350 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none focus:border-brand-500"
+                        value={String(selectedNode.data.loopOver || '')} 
+                        onChange={(e) => updateNodeData(selectedNode.id, { loopOver: e.target.value })}
+                      >
+                        <option value="">Sélectionnez un nœud source...</option>
+                        {nodes.filter(n => n.id !== selectedNode.id).map(n => (
+                          <option key={n.id} value={n.id}>
+                            {String(n.data?.label || '')} ({n.id})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Exécute tous les nœuds enfants connectés pour chaque élément du tableau renvoyé par ce nœud parent.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('condition') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <GitFork size={13} className="text-amber-500" />
+                        <span>Condition Logique</span>
+                      </div>
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Variable à tester</label>
+                      <Input 
+                        placeholder="item.likes" 
+                        value={String(selectedNode.data.conditionField || '')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { conditionField: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Opérateur</label>
+                      <select 
+                        className="w-full text-xs p-2.5 rounded-xl border border-gray-300 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none"
+                        value={String(selectedNode.data.conditionOperator || 'gt')} 
+                        onChange={(e) => updateNodeData(selectedNode.id, { conditionOperator: e.target.value })}
+                      >
+                        <option value="gt">Supérieur à (&gt;)</option>
+                        <option value="lt">Inférieur à (&lt;)</option>
+                        <option value="eq">Égal à (==)</option>
+                        <option value="contains">Contient</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase">Valeur de comparaison</label>
+                      <Input 
+                        placeholder="10" 
+                        value={String(selectedNode.data.conditionValue || '')}
+                        onChange={(e) => updateNodeData(selectedNode.id, { conditionValue: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('rss') && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <Rss size={13} className="text-emerald-500" />
+                      <span>Flux RSS</span>
+                    </div>
+                    <Input 
+                      placeholder="https://news.ycombinator.com/rss" 
+                      value={String(selectedNode.data.rssUrl || '')}
+                      onChange={(e) => updateNodeData(selectedNode.id, { rssUrl: e.target.value })}
+                    />
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      L'URL XML du flux RSS à surveiller de manière automatique.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('image') && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <Image size={13} className="text-brand-500" />
+                      <span>Prompt de Génération d'Image</span>
+                    </div>
+                    <textarea
+                      className="w-full rounded-xl border border-gray-350 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm focus:border-brand-500 focus:ring-brand-500 text-xs p-3 min-h-[90px] outline-none"
+                      placeholder="Description visuelle de l'image (ex: Un astronaute sur Mars, style cyberpunk)"
+                      value={String(selectedNode.data.imagePrompt || '')}
+                      onChange={(e) => updateNodeData(selectedNode.id, { imagePrompt: e.target.value })}
+                    />
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Entrez la description de l'illustration à associer à votre post. Vous pouvez injecter des variables du type <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded font-mono text-[10px]">&#123;&#123;item.title&#125;&#125;</code>.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('hook') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <Sparkles size={13} className="text-brand-500" />
+                        <span>Style d'accroches</span>
+                      </div>
+                      <select 
+                        className="w-full text-xs p-2.5 rounded-xl border border-gray-300 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none"
+                        value={String(selectedNode.data.hookStyle || 'viral')} 
+                        onChange={(e) => updateNodeData(selectedNode.id, { hookStyle: e.target.value })}
+                      >
+                        <option value="viral">Viral & Court (Ats/LinkedIn)</option>
+                        <option value="question">Question Intrigante</option>
+                        <option value="story">Storytelling (Anecdote)</option>
+                        <option value="stats">Statistique choc</option>
+                      </select>
+                    </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      L'IA générera 3 propositions d'accroches conformes au style sélectionné pour captiver l'attention de vos lecteurs.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('tone') && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <PenTool size={13} className="text-brand-500" />
+                        <span>Ton Cible</span>
+                      </div>
+                      <select 
+                        className="w-full text-xs p-2.5 rounded-xl border border-gray-300 dark:border-gray-750 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 outline-none"
+                        value={String(selectedNode.data.targetTone || 'professional')} 
+                        onChange={(e) => updateNodeData(selectedNode.id, { targetTone: e.target.value })}
+                      >
+                        <option value="professional">Professionnel & Expert</option>
+                        <option value="casual">Décontracté & Amical</option>
+                        <option value="assertive">Direct & Assertif</option>
+                        <option value="humorous">Humoristique & Satirique</option>
+                        <option value="analytical">Analytique & Structuré</option>
+                      </select>
+                    </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Réécrit le post rédigé précédemment pour adopter précisément ce ton.
+                    </p>
+                  </div>
+                )}
+
+                {selectedNode.id.includes('delay') && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      <Clock size={13} className="text-amber-500" />
+                      <span>Délai d'attente</span>
+                    </div>
+                    <Input 
+                      type="number"
+                      placeholder="60" 
+                      value={String(selectedNode.data.delaySeconds || '60')}
+                      onChange={(e) => updateNodeData(selectedNode.id, { delaySeconds: Number(e.target.value) })}
+                    />
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-normal">
+                      Durée de temporisation en secondes avant de passer à l'étape suivante.
                     </p>
                   </div>
                 )}
@@ -836,66 +2041,69 @@ function AutomationsFlow() {
               </div>
 
               {/* Live Stepper */}
-              <div className="space-y-4 relative pl-4 border-l border-gray-200 dark:border-gray-800 ml-2">
-                {/* Step 1: Init */}
-                <div className="relative pl-6">
-                  <div className={`absolute -left-[23px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-bold transition-all ${
-                    elapsedSeconds >= 6 || jobStatus?.state === 'completed'
-                      ? 'bg-emerald-500 border-emerald-500 text-white'
-                      : activeJobId && elapsedSeconds < 6 && jobStatus?.state !== 'failed'
-                      ? 'bg-brand-500 border-brand-500 text-white animate-pulse'
-                      : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-500'
-                  }`}>
-                    {elapsedSeconds >= 6 || jobStatus?.state === 'completed' ? <Check size={10} /> : "1"}
-                  </div>
-                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Initialisation de Stagehand</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">Lancement de l'environnement de navigation local headless.</p>
-                </div>
+              <div className="space-y-4 relative pl-4 border-l border-gray-200 dark:border-gray-800 ml-2 max-h-[300px] overflow-y-auto pr-2">
+                {(() => {
+                  const progress = jobStatus?.progress as {
+                    activeNodeId?: string | null;
+                    completedNodeIds?: string[];
+                    runningNodeErrors?: Record<string, string>;
+                  } | undefined;
 
-                {/* Step 2: Extract */}
-                <div className="relative pl-6">
-                  <div className={`absolute -left-[23px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-bold transition-all ${
-                    elapsedSeconds >= 16 || jobStatus?.state === 'completed'
-                      ? 'bg-emerald-500 border-emerald-500 text-white'
-                      : elapsedSeconds >= 6 && elapsedSeconds < 16 && jobStatus?.state !== 'failed'
-                      ? 'bg-brand-500 border-brand-500 text-white animate-pulse'
-                      : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-500'
-                  }`}>
-                    {elapsedSeconds >= 16 || jobStatus?.state === 'completed' ? <Check size={10} /> : "2"}
-                  </div>
-                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Scraping et Extraction</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">Navigation vers l'URL et récupération intelligente des données.</p>
-                </div>
+                  const activeNodeId = progress?.activeNodeId;
+                  const completedNodeIds = progress?.completedNodeIds || [];
+                  const runningNodeErrors = progress?.runningNodeErrors || {};
 
-                {/* Step 3: LLM Rewrite */}
-                <div className="relative pl-6">
-                  <div className={`absolute -left-[23px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-bold transition-all ${
-                    elapsedSeconds >= 24 || jobStatus?.state === 'completed'
-                      ? 'bg-emerald-500 border-emerald-500 text-white'
-                      : elapsedSeconds >= 16 && elapsedSeconds < 24 && jobStatus?.state !== 'failed'
-                      ? 'bg-brand-500 border-brand-500 text-white animate-pulse'
-                      : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-500'
-                  }`}>
-                    {elapsedSeconds >= 24 || jobStatus?.state === 'completed' ? <Check size={10} /> : "3"}
-                  </div>
-                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Génération du Post (GPT-4o)</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">Application du prompt IA sur les données extraites.</p>
-                </div>
+                  return executionOrder.map((node, index) => {
+                    const isCompleted = completedNodeIds.includes(node.id) || jobStatus?.state === 'completed';
+                    const isActive = activeNodeId === node.id || (index === 0 && !activeNodeId && jobStatus?.state === 'active');
+                    const errorMsg = runningNodeErrors[node.id] || (isActive && jobStatus?.state === 'failed' ? jobStatus?.failedReason : null);
+                    const isFailed = !!errorMsg;
 
-                {/* Step 4: Save Draft */}
-                <div className="relative pl-6">
-                  <div className={`absolute -left-[23px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-bold transition-all ${
-                    jobStatus?.state === 'completed'
-                      ? 'bg-emerald-500 border-emerald-500 text-white'
-                      : elapsedSeconds >= 24 && jobStatus?.state !== 'failed'
-                      ? 'bg-brand-500 border-brand-500 text-white animate-pulse'
-                      : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-500'
-                  }`}>
-                    {jobStatus?.state === 'completed' ? <Check size={10} /> : "4"}
-                  </div>
-                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Sauvegarde dans les Brouillons</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">Création automatique d'une fiche post dans PostCommander.</p>
-                </div>
+                    let nodeIcon = "⚙️";
+                    if (node.data?.type === 'trigger') nodeIcon = "⚡";
+                    else if (node.id.includes('ai')) nodeIcon = "✨";
+                    else if (node.id.includes('image')) nodeIcon = "🎨";
+                    else if (node.id.includes('scrape')) nodeIcon = "🕸️";
+                    else if (node.id.includes('loop')) nodeIcon = "🔄";
+                    else if (node.id.includes('post')) nodeIcon = "📝";
+                    else if (node.id.includes('publish')) nodeIcon = "🚀";
+
+                    return (
+                      <div key={node.id} className="relative pl-6">
+                        <div className={`absolute -left-[23px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full border text-[9px] font-bold transition-all ${
+                          isCompleted
+                            ? 'bg-emerald-500 border-emerald-500 text-white'
+                            : isFailed
+                            ? 'bg-red-500 border-red-500 text-white'
+                            : isActive
+                            ? 'bg-brand-500 border-brand-500 text-white animate-pulse'
+                            : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-500'
+                        }`}>
+                          {isCompleted ? <Check size={10} /> : isFailed ? <X size={10} /> : index + 1}
+                        </div>
+                        <p className={`text-xs font-semibold flex items-center gap-1.5 ${
+                          isActive ? 'text-brand-600 dark:text-brand-400 font-bold' : 'text-gray-800 dark:text-gray-200'
+                        }`}>
+                          <span>{nodeIcon}</span>
+                          <span>{(node.data as any)?.label || node.id}</span>
+                          {isActive && (
+                            <span className="text-[9px] font-normal text-brand-500 animate-pulse bg-brand-500/10 px-1 py-0.2 rounded-full">
+                              En cours...
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
+                          {(node.data as any)?.description || `Exécution du nœud de type ${(node.data as any)?.type || 'action'}.`}
+                        </p>
+                        {errorMsg && (
+                          <p className="text-[9px] text-red-500 bg-red-500/10 border border-red-500/20 rounded px-2 py-1 mt-1 font-mono leading-tight">
+                            Erreur : {errorMsg}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  });
+                })()}
               </div>
 
               {/* Output Preview */}

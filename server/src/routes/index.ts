@@ -88,4 +88,14 @@ router.get('/health', async (_req, res) => {
   });
 });
 
+// Liveness check (checks only that the process is running)
+router.get('/live', (_req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 export default router;
+

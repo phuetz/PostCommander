@@ -11,7 +11,7 @@ import {
   getInvoices,
   getPlansHandler,
 } from '../controllers/stripe.controller.js';
-import { emptyBodySchema } from '../schemas/routes.js';
+import { emptyBodySchema, stripeCancelSchema } from '../schemas/routes.js';
 
 const router = Router();
 
@@ -25,8 +25,9 @@ router.post('/create-portal', validate(emptyBodySchema), createPortal);
 
 // Subscription management
 router.get('/subscription', getSubscriptionStatus);
-router.post('/cancel', validate(emptyBodySchema), cancelUserSubscription);
+router.post('/cancel', validate(stripeCancelSchema), cancelUserSubscription);
 router.post('/resume', validate(emptyBodySchema), resumeUserSubscription);
+
 
 // Invoices
 router.get('/invoices', getInvoices);

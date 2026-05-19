@@ -8,8 +8,55 @@ import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { scraperFlowQueue } from '../services/jobs/queue.js';
 import { logger } from '../utils/logger.js';
+import { runWorkflowBuilderAgent } from '../services/agent/workflow-builder.js';
 
 export const automationsRoutes = Router();
+
+// Unauthenticated Webhook Endpoint to trigger an automation
+automationsRoutes.post('/webhooks/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const db = getDrizzle();
+
+    const [automation] = await db
+      .select()
+      .from(flowAutomations)
+      .where(eq(flowAutomations.id, id));
+
+    if (!automation) {
+      return res.status(404).json({ error: 'Automation not found' });
+    }
+
+    // Add job to scraperFlowQueue
+    const job = await scraperFlowQueue.add(
+      'execute-flow',
+      {
+        automationId: automation.id,
+        flowData: JSON.parse(automation.flowData),
+        userId: automation.userId,
+        workspaceId: automation.workspaceId,
+        webhookPayload: req.body,
+      },
+      {
+        jobId: `execute-flow:webhook:${automation.id}:${Date.now()}`,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
+    );
+
+    // Update last run time
+    await db
+      .update(flowAutomations)
+      .set({ lastRunAt: new Date().toISOString() })
+      .where(eq(flowAutomations.id, id));
+
+    logger.info(`Webhook triggered automation flow ${automation.id}`);
+
+    res.json({ message: 'Automation triggered by webhook successfully', jobId: job.id });
+  } catch (error) {
+    next(error);
+  }
+});
 
 automationsRoutes.use(authMiddleware);
 
@@ -178,4 +225,31 @@ automationsRoutes.get('/jobs/:jobId', async (req, res, next) => {
     next(error);
   }
 });
+
+// AI Agent workflow builder endpoint
+automationsRoutes.post('/agent/build', async (req, res, next) => {
+  try {
+    const { messages, currentState } = req.body;
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: 'Missing or invalid messages array' });
+    }
+    const nodes = currentState?.nodes || [];
+    const edges = currentState?.edges || [];
+
+    const result = await runWorkflowBuilderAgent(
+      req.user!.id,
+      messages,
+      { nodes, edges }
+    );
+
+    res.json({
+      text: result.text,
+      workflow: result.nextState,
+      steps: result.steps,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 

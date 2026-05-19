@@ -8,7 +8,7 @@ const mockedAdapter = vi.hoisted(() => ({
   exchangeCode: vi.fn(async () => ({
     accessToken: 'platform-access-token',
     refreshToken: 'platform-refresh-token',
-    expiresAt: Date.now() + 3600_000,
+    expiresAt: new Date(Date.now() + 3600_000).toISOString(),
     scopes: 'publish,read',
   })),
   getAccountInfo: vi.fn(async () => ({
@@ -42,9 +42,9 @@ describe('Platforms Routes', () => {
     closeTestDatabase();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    resetTestDatabase();
+    await resetTestDatabase();
   });
 
   it('requires authentication for list', async () => {

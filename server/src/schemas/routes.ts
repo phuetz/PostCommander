@@ -185,3 +185,10 @@ export const videoScriptGenerateSchema = z
     model: z.string().min(1).max(200),
   })
   .strict();
+
+export const stripeCancelSchema = z
+  .object({
+    email: z.string().email().optional(),
+  })
+  .strict();
+

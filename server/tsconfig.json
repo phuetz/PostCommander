@@ -7,9 +7,20 @@
     "moduleResolution": "bundler",
     "types": ["node"],
     "incremental": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "declaration": false,
+    "declarationMap": false,
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "coverage", "playwright-report"],
+  "exclude": [
+    "node_modules",
+    "../node_modules",
+    "**/node_modules/**",
+    "dist",
+    "coverage",
+    "playwright-report"
+  ],
   "references": [{ "path": "../shared" }]
 }

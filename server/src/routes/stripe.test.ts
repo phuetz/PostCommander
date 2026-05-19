@@ -41,9 +41,9 @@ describe('Stripe Routes', () => {
     closeTestDatabase();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    resetTestDatabase();
+    await resetTestDatabase();
   });
 
   it('requires authentication for subscription details', async () => {

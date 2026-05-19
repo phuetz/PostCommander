@@ -197,6 +197,46 @@ export function AutoBlogPage() {
                   rows={2}
                 />
 
+                <div className="space-y-2 bg-brand-50/50 dark:bg-brand-900/10 p-3 rounded-xl border border-brand-100 dark:border-brand-900/30">
+                  <span className="text-[10px] font-bold text-brand-700 dark:text-brand-400 uppercase tracking-wider block">Intégration patricehuetz.fr</span>
+                  <label className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                      checked={formData.authorReferences.includes('patricehuetz.fr')}
+                      onChange={(e) => {
+                        const hasRef = formData.authorReferences.includes('patricehuetz.fr');
+                        let nextRefs = formData.authorReferences;
+                        if (e.target.checked && !hasRef) {
+                          nextRefs = nextRefs ? `${nextRefs}, patricehuetz.fr` : 'patricehuetz.fr';
+                        } else if (!e.target.checked && hasRef) {
+                          nextRefs = nextRefs.split(',').map(s => s.trim()).filter(s => s !== 'patricehuetz.fr').join(', ');
+                        }
+                        setFormData((prev) => ({ ...prev, authorReferences: nextRefs }));
+                      }}
+                    />
+                    <span>Rechercher les sujets sur patricehuetz.fr</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 cursor-pointer mt-1">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                      checked={formData.authorReferences.includes('publish:patricehuetz.fr')}
+                      onChange={(e) => {
+                        const hasRef = formData.authorReferences.includes('publish:patricehuetz.fr');
+                        let nextRefs = formData.authorReferences;
+                        if (e.target.checked && !hasRef) {
+                          nextRefs = nextRefs ? `${nextRefs}, publish:patricehuetz.fr` : 'publish:patricehuetz.fr';
+                        } else if (!e.target.checked && hasRef) {
+                          nextRefs = nextRefs.split(',').map(s => s.trim()).filter(s => s !== 'publish:patricehuetz.fr').join(', ');
+                        }
+                        setFormData((prev) => ({ ...prev, authorReferences: nextRefs }));
+                      }}
+                    />
+                    <span>Activer la publication automatique sur patricehuetz.fr</span>
+                  </label>
+                </div>
+
                 <div className="flex gap-3 justify-end pt-4">
                   <Button variant="ghost" onClick={() => setIsCreating(false)} disabled={isSubmitting}>Annuler</Button>
                   <Button onClick={handleCreate} loading={isSubmitting}>Créer et Activer</Button>

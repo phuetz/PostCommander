@@ -24,8 +24,8 @@ describe('Admin support routes', () => {
     closeTestDatabase();
   });
 
-  beforeEach(() => {
-    resetTestDatabase();
+  beforeEach(async () => {
+    await resetTestDatabase();
   });
 
   it('rejects non-admin users from deleted account archives', async () => {
@@ -101,7 +101,7 @@ describe('Admin support routes', () => {
       plan: 'pro',
     });
     expect(response.body.data.audits[0].snapshot.user.email).toBeUndefined();
-    expect(response.body.data.audits[0].snapshot.contentCounts.posts).toBe(false);
+    expect(response.body.data.audits[0].snapshot.contentCounts.posts).toBe(0);
     expect(response.body.data.audits[0].billingRecords).toHaveLength(2);
     expect(
       response.body.data.audits[0].billingRecords
