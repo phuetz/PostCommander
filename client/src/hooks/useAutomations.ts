@@ -52,3 +52,34 @@ export function useTriggerAutomation() {
     },
   });
 }
+
+export interface AutomationJobStatus {
+  id: string;
+  state: 'waiting' | 'active' | 'completed' | 'failed' | 'delayed' | 'paused';
+  progress: number | object;
+  result?: {
+    success: boolean;
+    finalContent?: string;
+  };
+  failedReason?: string;
+}
+
+export function useAutomationJob(jobId: string | null) {
+  return useQuery<AutomationJobStatus>({
+    queryKey: ['automation-job', jobId],
+    queryFn: async () => {
+      if (!jobId) throw new Error('No job ID provided');
+      const { data } = await api.get<AutomationJobStatus>(`/automations/jobs/${jobId}`);
+      return data;
+    },
+    enabled: !!jobId,
+    refetchInterval: (query) => {
+      const state = query.state.data?.state;
+      if (state === 'completed' || state === 'failed') {
+        return false;
+      }
+      return 1500; // Poll every 1.5 seconds
+    },
+  });
+}
+

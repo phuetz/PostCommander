@@ -154,3 +154,28 @@ automationsRoutes.post('/:id/trigger', async (req, res, next) => {
     next(error);
   }
 });
+
+// Get the status and result of an automation run/job
+automationsRoutes.get('/jobs/:jobId', async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+    const job = await scraperFlowQueue.getJob(jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+    const state = await job.getState();
+    const result = job.returnvalue;
+    const failedReason = job.failedReason;
+
+    res.json({
+      id: job.id,
+      state,
+      progress: job.progress,
+      result,
+      failedReason,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
