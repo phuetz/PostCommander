@@ -10,6 +10,7 @@ import { handleBridgeProposal } from './controllers/bridge-proposal.controller.j
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import { mcpRouter } from './mcp/server.js';
+import * as Sentry from '@sentry/node';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,6 +55,9 @@ export function createApp(): express.Application {
   }
 
   // ── Error handler (must be last) ───────────────────────────
+  if (process.env.SENTRY_DSN) {
+    Sentry.setupExpressErrorHandler(app);
+  }
   app.use(errorHandler);
 
   return app;

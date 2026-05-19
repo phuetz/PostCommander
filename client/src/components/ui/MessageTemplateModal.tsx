@@ -79,7 +79,7 @@ export function MessageTemplateModal({ open, onClose, onApply, recipientName = '
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Insérer un modèle de message" maxWidth="3xl">
+    <Modal open={open} onClose={onClose} title="Insérer un modèle de message" maxWidth="xl">
       <div className="grid md:grid-cols-2 gap-6 max-h-[70vh]">
         {/* Left: Template Selection */}
         <div className="flex flex-col gap-3 overflow-y-auto pr-2">

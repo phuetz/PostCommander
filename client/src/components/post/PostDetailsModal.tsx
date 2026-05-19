@@ -49,14 +49,14 @@ export function PostDetailsModal({ post, onClose }: PostDetailsModalProps) {
         <div className="flex gap-3 justify-end border-b border-gray-100 dark:border-gray-800 pb-4">
           {post.status === 'draft' && (
             <Button
-              onClick={() => handleStatusUpdate('pending_approval')}
+              onClick={() => handleStatusUpdate('needs_approval')}
               loading={updateStatusMutation.isPending}
               icon={<Send size={16} />}
             >
               {t('postDetails.requestApproval', 'Request Approval')}
             </Button>
           )}
-          {post.status === 'pending_approval' && (
+          {post.status === 'needs_approval' && (
             <>
               <Button
                 variant="danger"

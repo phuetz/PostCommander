@@ -1,29 +1,29 @@
 #!/usr/bin/env node
 /**
- * Backs up server/data/postcommander.db using SQLite's online backup API
- * (better-sqlite3's `db.backup()`), which is safe to run while the server is
- * writing — unlike a plain file copy, which can capture a torn -wal/-shm pair.
+ * Backs up PostgreSQL database using pg_dump.
  *
  * Usage:
  *   node scripts/backup-db.mjs                 # writes one backup, prunes to 7
  *   node scripts/backup-db.mjs --keep 30       # keep 30 most recent
  *   node scripts/backup-db.mjs --out /mnt/x    # custom destination directory
- *
- * Schedule via cron / Task Scheduler. Exits non-zero on failure so the
- * scheduler can alert.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+import { config } from 'dotenv';
 
-const require = createRequire(import.meta.url);
+const execAsync = promisify(exec);
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
-const DB_PATH = path.join(REPO_ROOT, 'server', 'data', 'postcommander.db');
+
+// Load environment variables for DATABASE_URL
+config({ path: path.join(REPO_ROOT, '.env') });
 
 function parseArgs(argv) {
-  const args = { keep: 7, out: path.join(REPO_ROOT, 'server', 'data', 'backups') };
+  const args = { keep: 7, out: path.join(REPO_ROOT, 'backups') };
   for (let i = 2; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--keep') args.keep = Number(argv[++i]);
@@ -45,39 +45,28 @@ function parseArgs(argv) {
 
 async function main() {
   const { keep, out } = parseArgs(process.argv);
-
-  if (!fs.existsSync(DB_PATH)) {
-    console.error(`No database found at ${DB_PATH} — nothing to back up.`);
-    process.exit(1);
-  }
+  
+  const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postcommander';
 
   fs.mkdirSync(out, { recursive: true });
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const target = path.join(out, `postcommander-${stamp}.db`);
+  const target = path.join(out, `postcommander-${stamp}.sql`);
 
-  // Lazy require so this script can be run without installing devDependencies
-  // in a minimal ops container, as long as @postcommander/server is installed.
-  let Database;
   try {
-    Database = require('better-sqlite3');
+    console.log(`Starting backup to ${target}...`);
+    // Execute pg_dump
+    await execAsync(`pg_dump "${dbUrl}" -f "${target}"`);
   } catch (err) {
-    console.error('better-sqlite3 not installed — run `npm install` first.');
+    console.error('pg_dump failed. Is PostgreSQL installed and available in PATH?');
     console.error(err.message);
     process.exit(1);
-  }
-
-  const db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
-  try {
-    await db.backup(target);
-  } finally {
-    db.close();
   }
 
   // Prune oldest beyond `keep` count.
   const existing = fs
     .readdirSync(out)
-    .filter((name) => /^postcommander-.*\.db$/.test(name))
+    .filter((name) => /^postcommander-.*\.sql$/.test(name))
     .map((name) => ({
       name,
       full: path.join(out, name),

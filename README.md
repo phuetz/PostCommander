@@ -41,7 +41,7 @@ PostCommander intègre des modules conversationnels avancés.
 Le projet utilise les npm workspaces pour structurer le code en trois parties distinctes :
 
 *   **`client/` (Frontend) :** React 19, Vite, Tailwind CSS, TanStack Query, Framer Motion. 
-*   **`server/` (Backend) :** Node.js, Express, better-sqlite3 (SQLite), Drizzle ORM, BullMQ (Redis), Vercel AI SDK, Mem0 (Vector DB), Stagehand / Browserbase (Headless Browser Automation).
+*   **`server/` (Backend) :** Node.js, Express, PostgreSQL (pg, pg-pool), Drizzle ORM, BullMQ (Redis), Vercel AI SDK, Mem0 (Vector DB), Stagehand / Browserbase (Headless Browser Automation).
 *   **`shared/` (Types & Contrats) :** Zod schemas et types TypeScript partagés.
 
 ---
@@ -50,7 +50,8 @@ Le projet utilise les npm workspaces pour structurer le code en trois parties di
 
 ### Prérequis
 - **Node.js** (v18+)
-- **Redis** (Requis pour BullMQ et l'Autoblog/Outreach engine)
+- **PostgreSQL** & **Redis** (Requis pour la DB, BullMQ et l'Autoblog/Outreach engine)
+- **Docker** (recommandé pour lancer les bases de données)
 - **Clés API requises :** 
   - OpenAI / Anthropic (LLM)
   - Browserbase (`BROWSERBASE_API_KEY` & `PROJECT_ID` pour l'OSINT furtif)
@@ -64,7 +65,10 @@ Le projet utilise les npm workspaces pour structurer le code en trois parties di
    npm install
    ```
 2. Configurer les variables d'environnement en copiant le fichier `.env.example` vers `.env` à la racine.
-3. Lancer la base de données Redis localement.
+3. Lancer l'infrastructure (PostgreSQL & Redis) avec Docker :
+   ```bash
+   docker-compose up -d
+   ```
 4. Lancer le frontend, le backend et les workers en parallèle :
    ```bash
    npm run dev
@@ -72,8 +76,8 @@ Le projet utilise les npm workspaces pour structurer le code en trois parties di
 
 ### Commandes Utiles
 *   **Build de production :** `npm run build` (Compile `shared`, `server` et `client`).
-*   **Tests :** `npm test -w @postcommander/server` ou `npm run typecheck`.
-*   **Linting :** `npm run lint` et `npm run format`.
+*   **Tests :** `npm test` (Unit/Integration Vitest), `npm run test:e2e` (Playwright), ou `npm run typecheck`.
+*   **Linting & CI :** `npm run lint` et `npm run format`. L'application dispose d'un pipeline complet GitHub Actions.
 
 ---
 

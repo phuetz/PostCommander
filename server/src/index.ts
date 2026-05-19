@@ -1,4 +1,18 @@
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { config } from './config/env.js';
+
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    // @ts-expect-error - dsn is valid but type definitions might be mismatched
+    dsn: process.env.SENTRY_DSN,
+    integrations: [
+      nodeProfilingIntegration(),
+    ],
+    tracesSampleRate: 1.0,
+    profilesSampleRate: 1.0,
+  });
+}
 import { initDb, closeDb } from './db/connection.js';
 import { createApp } from './app.js';
 import { seedViralPosts } from './services/viral/index.js';

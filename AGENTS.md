@@ -2,11 +2,11 @@
 
 ## Project Structure & Module Organization
 
-`PostCommander` is an npm workspace monorepo with three packages. `client/` contains the React 19 + Vite frontend; feature pages live in `client/src/pages`, reusable UI in `client/src/components`, hooks in `client/src/hooks`, and translations in `client/public/locales`. `server/` contains the Express API, SQLite migration logic, and external integrations; start in `server/src/index.ts`, `server/src/app.ts`, `server/src/routes`, and `server/src/services`. `shared/` holds common types and constants in `shared/src`. Treat `client/dist` and `shared/dist` as generated output, not hand-edited source.
+`PostCommander` is an npm workspace monorepo with three packages. `client/` contains the React 19 + Vite frontend; feature pages live in `client/src/pages`, reusable UI in `client/src/components`, hooks in `client/src/hooks`, and translations in `client/public/locales`. `server/` contains the Express API, PostgreSQL (Drizzle) migration logic, and external integrations; start in `server/src/index.ts`, `server/src/app.ts`, `server/src/routes`, and `server/src/services`. `shared/` holds common types and constants in `shared/src`. Treat `client/dist` and `shared/dist` as generated output, not hand-edited source.
 
 ## Build, Test, and Development Commands
 
-Run `npm install` once at the repo root. Use `npm run dev` to start the server and client together. Use `npm run build` to compile `shared`, `server`, and `client` in workspace order. Run `npm run lint` for ESLint and `npm run format` for Prettier. For focused work, use `npm test -w @postcommander/server` for API tests and `npm test -w @postcommander/shared` for shared-module tests.
+Run `npm install` once at the repo root. Use `docker-compose up -d` to start the PostgreSQL & Redis infrastructure. Use `npm run dev` to start the server and client together. Use `npm run build` to compile `shared`, `server`, and `client` in workspace order. Run `npm run lint` for ESLint and `npm run typecheck` for strict TypeScript checks. For focused work, use `npm test` for Vitest unit tests, and `npm run test:e2e` for Playwright end-to-end tests.
 
 ## Coding Style & Naming Conventions
 
@@ -22,4 +22,4 @@ Git history is not available in this workspace snapshot, so commit conventions c
 
 ## Security & Configuration Tips
 
-Copy `.env.example` to `.env` and keep secrets out of Git. Review API keys, OAuth credentials, Stripe settings, and `ENCRYPTION_KEY` before running the server. Name new SQL migrations sequentially, for example `006_feature_name.sql`, in `server/src/db/migrations`.
+Copy `.env.example` to `.env` and keep secrets out of Git. Review API keys, OAuth credentials, Stripe settings, and `ENCRYPTION_KEY` before running the server. Generate new SQL migrations using `npx drizzle-kit generate`, which output to `server/drizzle`.

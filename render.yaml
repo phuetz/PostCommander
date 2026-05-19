@@ -1,0 +1,67 @@
+services:
+  # Base de données PostgreSQL gérée
+  - type: pgo
+    name: postcommander-db
+    plan: starter
+    version: 16
+
+  # Cache et File d'attente Redis gérée
+  - type: redis
+    name: postcommander-redis
+    plan: starter
+    ipAllowList: [] # Accessible depuis Render interne
+
+  # Service Web Backend (Node.js)
+  - type: web
+    name: postcommander-api
+    env: node
+    plan: starter
+    region: frankfurt
+    buildCommand: npm install && npm run build -w shared && npm run build -w server
+    startCommand: npm run start -w server
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: postcommander-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: postcommander-redis
+          property: connectionString
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: CORS_ORIGIN
+        value: https://postcommander-app.onrender.com
+      # Variables secrètes à définir manuellement dans le dashboard Render
+      - key: JWT_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+
+  # Service Web Frontend (Static React SPA)
+  - type: web
+    name: postcommander-app
+    env: static
+    plan: free
+    region: frankfurt
+    buildCommand: npm install && npm run build -w shared && npm run build -w client
+    staticPublishPath: ./client/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: postcommander-api
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: VITE_POSTHOG_KEY
+        sync: false
+      - key: VITE_SENTRY_DSN
+        sync: false

@@ -24,7 +24,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w client",
-    "db:reset": "node -e \"require('node:fs').rmSync('server/data', { recursive: true, force: true })\"",
+    "db:reset": "tsx server/src/db/reset.ts",
     "db:backup": "node scripts/backup-db.mjs"
   },
   "devDependencies": {

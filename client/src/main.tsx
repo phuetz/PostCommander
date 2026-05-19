@@ -1,13 +1,45 @@
-import { StrictMode, Suspense } from 'react';
+import { StrictMode, Suspense, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useLocation } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
+import posthog from 'posthog-js';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import './i18n';
 import './index.css';
 import App from './App';
 import { Spinner } from '@/components/ui/Spinner';
-import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { ErrorBoundary as UIErrorBoundary } from './components/ui/ErrorBoundary';
+
+if (import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.replayIntegration(),
+    ],
+    tracesSampleRate: 1.0,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+  });
+}
+
+if (import.meta.env.VITE_POSTHOG_KEY) {
+  posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
+    api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://eu.i.posthog.com',
+    person_profiles: 'identified_only',
+  });
+}
+
+function RouteTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    if (import.meta.env.VITE_POSTHOG_KEY) {
+      posthog.capture('$pageview');
+    }
+  }, [location]);
+  return null;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,8 +65,9 @@ function LoadingFallback() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
+      <UIErrorBoundary>
         <BrowserRouter>
+          <RouteTracker />
           <Suspense fallback={<LoadingFallback />}>
             <App />
           </Suspense>
@@ -52,7 +85,7 @@ createRoot(document.getElementById('root')!).render(
             },
           }}
         />
-      </ErrorBoundary>
+      </UIErrorBoundary>
     </QueryClientProvider>
   </StrictMode>,
 );

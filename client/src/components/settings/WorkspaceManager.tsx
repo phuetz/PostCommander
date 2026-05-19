@@ -22,7 +22,8 @@ interface WorkspaceMember {
 
 export function WorkspaceManager() {
   const { t } = useTranslation();
-  const { currentWorkspace } = useWorkspace();
+  const { workspaces, activeWorkspaceId } = useWorkspace();
+  const currentWorkspace = workspaces.find((w) => w.id === activeWorkspaceId);
   const { user } = useAuth();
   const queryClient = useQueryClient();
 

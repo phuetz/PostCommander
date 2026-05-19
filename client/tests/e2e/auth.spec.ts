@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('auth page should load', async ({ page }) => {
   await page.goto('/login');
+  await page.waitForLoadState('networkidle');
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/PostCommander/);
