@@ -37,13 +37,30 @@ import { Input } from '@/components/ui/Input';
 import toast from 'react-hot-toast';
 import { useAutomations, useSaveAutomation, useTriggerAutomation } from '../hooks/useAutomations';
 
+// --- ICON MAPPING FOR SERIALIZATION ---
+const iconMap: Record<string, React.ComponentType<any>> = {
+  Play,
+  Zap,
+  Target,
+  Send,
+  GitFork,
+  Clock,
+  Bot,
+  Save,
+  CheckCircle2,
+  Globe,
+  Search,
+  PenTool,
+  X
+};
+
 // --- CUSTOM NODE IMPLEMENTATION ---
 const nodeTypes = {
   customNode: CustomNode,
 };
 
 function CustomNode({ data }: { data: any }) {
-  const Icon = data.icon || Zap;
+  const Icon = iconMap[data.iconName] || Zap;
   
   const getTheme = () => {
     switch (data.type) {
@@ -81,12 +98,12 @@ function CustomNode({ data }: { data: any }) {
 
 // --- SIDEBAR DRAG ITEMS ---
 const AVAILABLE_NODES = [
-  { type: 'trigger', id: 'trig-url', label: 'Cibler URL', icon: Globe },
-  { type: 'action', id: 'act-scrape', label: 'Scraper (Stagehand)', icon: Search },
-  { type: 'action', id: 'act-ai', label: 'Traiter (LLM)', icon: Bot },
-  { type: 'action', id: 'act-post', label: 'Créer un Brouillon', icon: PenTool },
-  { type: 'logic', id: 'log-condition', label: 'Condition (Si/Sinon)', icon: GitFork },
-  { type: 'logic', id: 'log-delay', label: 'Délai (Attendre)', icon: Clock },
+  { type: 'trigger', id: 'trig-url', label: 'Cibler URL', iconName: 'Globe' },
+  { type: 'action', id: 'act-scrape', label: 'Scraper (Stagehand)', iconName: 'Search' },
+  { type: 'action', id: 'act-ai', label: 'Traiter (LLM)', iconName: 'Bot' },
+  { type: 'action', id: 'act-post', label: 'Créer un Brouillon', iconName: 'PenTool' },
+  { type: 'logic', id: 'log-condition', label: 'Condition (Si/Sinon)', iconName: 'GitFork' },
+  { type: 'logic', id: 'log-delay', label: 'Délai (Attendre)', iconName: 'Clock' },
 ];
 
 function Sidebar() {
@@ -109,17 +126,20 @@ function Sidebar() {
               {groupType === 'trigger' ? 'Déclencheurs' : groupType === 'action' ? 'Actions' : 'Logique'}
             </h4>
             <div className="space-y-2">
-              {AVAILABLE_NODES.filter(n => n.type === groupType).map((node) => (
-                <div
-                  key={node.id}
-                  className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-brand-300 dark:hover:border-brand-700 cursor-grab active:cursor-grabbing transition-colors"
-                  onDragStart={(event) => onDragStart(event, node)}
-                  draggable
-                >
-                  <node.icon size={16} className={groupType === 'trigger' ? 'text-emerald-500' : groupType === 'action' ? 'text-brand-500' : 'text-amber-500'} />
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{node.label}</span>
-                </div>
-              ))}
+              {AVAILABLE_NODES.filter(n => n.type === groupType).map((node) => {
+                const NodeIcon = iconMap[node.iconName] || Zap;
+                return (
+                  <div
+                    key={node.id}
+                    className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-brand-300 dark:hover:border-brand-700 cursor-grab active:cursor-grabbing transition-colors"
+                    onDragStart={(event) => onDragStart(event, node)}
+                    draggable
+                  >
+                    <NodeIcon size={16} className={groupType === 'trigger' ? 'text-emerald-500' : groupType === 'action' ? 'text-brand-500' : 'text-amber-500'} />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{node.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
@@ -191,7 +211,7 @@ function AutomationsFlow() {
         id: getId(nodeData.id),
         type: 'customNode',
         position,
-        data: { label: nodeData.label, type: nodeData.type, icon: nodeData.icon, url: '', instruction: '', prompt: '' },
+        data: { label: nodeData.label, type: nodeData.type, iconName: nodeData.iconName, url: '', instruction: '', prompt: '' },
       };
 
       setNodes((nds) => nds.concat(newNode));
@@ -242,6 +262,11 @@ function AutomationsFlow() {
     }
     
     const automationId = activeAutomation?.id || saveMutation.data?.data?.id;
+
+    if (!automationId) {
+      toast.error("Identifiant de l'automatisation manquant.");
+      return;
+    }
 
     try {
       await triggerMutation.mutateAsync(automationId);
@@ -327,12 +352,12 @@ function AutomationsFlow() {
              </div>
              
              <div className="text-sm font-medium text-brand-600 mb-4 flex items-center gap-2">
-               {selectedNode.data.icon ? (() => {
-                 const SelectedIcon = selectedNode.data.icon as React.ElementType;
-                 return <SelectedIcon size={16} />;
-               })() : null}
-               {String(selectedNode.data.label || '')}
-             </div>
+                {selectedNode.data.iconName ? (() => {
+                  const SelectedIcon = iconMap[selectedNode.data.iconName as string] || Zap;
+                  return <SelectedIcon size={16} />;
+                })() : null}
+                {String(selectedNode.data.label || '')}
+              </div>
              
              {selectedNode.id.includes('url') && (
                <div className="space-y-4">
