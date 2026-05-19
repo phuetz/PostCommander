@@ -13,7 +13,7 @@ export function useAgentStream(moduleFilter: 'outreach' | 'autoblog') {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3003/api';
     const eventSource = new EventSource(`${apiUrl}/live/stream?module=${moduleFilter}`);
 
     eventSource.onopen = () => {

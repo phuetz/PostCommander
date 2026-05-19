@@ -14,7 +14,7 @@ dotenv.config({ path: path.join(REPO_ROOT, '.env') });
 dotenv.config({ path: path.join(SERVER_ROOT, '.env'), override: true });
 
 const envSchema = z.object({
-  PORT: z.coerce.number().default(3001),
+  PORT: z.coerce.number().default(3003),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   JWT_SECRET: z.string().default('supersecretdevkey'),
   ENCRYPTION_KEY: z.string().optional(),
@@ -46,7 +46,7 @@ const envSchema = z.object({
   PINTEREST_APP_SECRET: z.string().optional(),
 
   // Base URL for OAuth callbacks
-  BASE_URL: z.string().default('http://localhost:3001'),
+  BASE_URL: z.string().default('http://localhost:3003'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
 
   // Redis
