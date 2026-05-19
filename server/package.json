@@ -16,7 +16,7 @@
     "@ai-sdk/mistral": "^1.1.0",
     "@ai-sdk/openai": "^1.1.0",
     "@browserbasehq/stagehand": "^3.4.0",
-    "@bull-board/api": "^6.20.5",
+    "@bull-board/api": "^7.1.5",
     "@bull-board/express": "^6.20.5",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@postcommander/shared": "*",
