@@ -13,8 +13,6 @@ import { Stagehand } from '@browserbasehq/stagehand';
 import { liveActivity } from '../services/live-activity.js';
 import { Resend } from 'resend';
 
-const resend = new Resend(config.RESEND_API_KEY);
-
 const connection = sharedRedisConnection;
 
 export const outreachWorker = new Worker(
@@ -230,6 +228,7 @@ export const outreachWorker = new Worker(
               if (!config.RESEND_API_KEY) {
                 throw new Error("RESEND_API_KEY is not configured. Cannot send emails.");
               }
+              const resend = new Resend(config.RESEND_API_KEY);
               
               // Extract email from bio or metadata if possible, otherwise skip or use a dummy for dry run
               const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/;
