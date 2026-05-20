@@ -43,10 +43,12 @@ import './services/jobs/agent.worker.js';
 import './workers/autoblog.worker.js';
 import './workers/outreach.worker.js';
 import './services/jobs/scraper.worker.js';
+import './workers/workflow-scheduler.worker.js';
 import { startAnalyticsWorker } from './workers/analytics.worker.js';
 import { startAutoBlogWorker } from './workers/autoblog.worker.js';
 import { startOutreachWorker } from './workers/outreach.worker.js';
 import { startPublishingWorker } from './workers/publishing.worker.js';
+import { startWorkflowScheduler } from './workers/workflow-scheduler.worker.js';
 
 async function main(): Promise<void> {
   // Initialize the database
@@ -67,6 +69,7 @@ async function main(): Promise<void> {
   startAutoBlogWorker();
   startOutreachWorker();
   startPublishingWorker();
+  startWorkflowScheduler();
 
   // Create the Express app
   const app = createApp();

@@ -20,12 +20,13 @@ describe('runWorkflowBuilderAgent', () => {
     // Since our implementation runs generateText with toolCalls,
     // let's simulate a response that provides a final text summary and tool call result.
     generateTextMock.mockImplementation(async (options: any) => {
-      if (options.tools?.setWorkflowState?.execute) {
-        await options.tools.setWorkflowState.execute({
-          nodes: [
-            { id: 'node_1', type: 'customNode', data: { label: 'Scraper', type: 'action', iconName: 'Search' }, position: { x: 100, y: 100 } }
-          ],
-          edges: []
+      if (options.tools?.addNode?.execute) {
+        await options.tools.addNode.execute({
+          kind: 'trig-url',
+          label: 'Scraper',
+          iconName: 'Search',
+          data: { type: 'action' },
+          position: { x: 100, y: 100 }
         });
       }
       return {
@@ -43,12 +44,13 @@ describe('runWorkflowBuilderAgent', () => {
         ],
         toolResults: [
           {
-            toolName: 'setWorkflowState',
+            toolName: 'addNode',
             args: {
-              nodes: [
-                { id: 'node_1', type: 'customNode', data: { label: 'Scraper', type: 'action', iconName: 'Search' }, position: { x: 100, y: 100 } }
-              ],
-              edges: []
+              kind: 'trig-url',
+              label: 'Scraper',
+              iconName: 'Search',
+              data: { type: 'action' },
+              position: { x: 100, y: 100 }
             },
             result: { success: true }
           }
@@ -68,7 +70,7 @@ describe('runWorkflowBuilderAgent', () => {
     expect(generateTextMock).toHaveBeenCalled();
     expect(result.text).toContain('configuré');
     expect(result.nextState.nodes).toHaveLength(1);
-    expect(result.nextState.nodes[0].id).toBe('node_1');
+    expect(result.nextState.nodes[0].id).toBe('trig-url_0');
     expect(result.steps).toBeDefined();
     expect(result.steps![0].toolCalls![0].name).toBe('searchWeb');
   });

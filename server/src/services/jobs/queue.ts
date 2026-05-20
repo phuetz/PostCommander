@@ -32,6 +32,7 @@ export const autoBlogQueue = makeQueue('auto-blog');
 export const outreachQueue = makeQueue('outreach-campaigns');
 export const analyticsQueue = makeQueue('analytics-sync');
 export const scraperFlowQueue = makeQueue('scraper-flow');
+export const workflowSchedulerQueue = makeQueue('workflow-scheduler');
 
 export interface QueueHealth {
   redis: 'ok' | 'error';

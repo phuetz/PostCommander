@@ -14,7 +14,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
-import { Play, GitFork, Save, Undo2, Redo2, History } from 'lucide-react';
+import { Play, GitFork, Save, Undo2, Redo2, History, Power, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 import { useAutomations, useSaveAutomation, useTriggerAutomation, useAutomationJob } from '../hooks/useAutomations';
@@ -307,17 +307,22 @@ function AutomationsFlow() {
     [nodes, reactFlowInstance],
   );
 
-  const handleSave = async () => {
+  const handleSave = async (statusOverride?: 'draft' | 'active') => {
     if (!reactFlowInstance) return;
     const flowData = JSON.stringify({ nodes, edges });
+    const targetStatus = statusOverride || activeAutomation?.status || 'draft';
     try {
       await saveMutation.mutateAsync({
         id: activeAutomation?.id,
         name: activeAutomation?.name || 'My Scraper Automation',
-        status: 'draft',
+        status: targetStatus,
         flowData,
       });
-      toast.success('Automatisation sauvegardée avec succès !');
+      toast.success(
+        statusOverride
+          ? `Flux ${statusOverride === 'active' ? 'activé' : 'désactivé'} et sauvegardé !`
+          : 'Automatisation sauvegardée avec succès !'
+      );
     } catch (e) {
       toast.error('Erreur lors de la sauvegarde');
     }
@@ -392,9 +397,28 @@ function AutomationsFlow() {
             <GitFork size={22} />
           </div>
           <div>
-            <h1 className="font-bold text-sm text-gray-900 dark:text-gray-150">
-              {activeAutomation?.name || "Éditeur d'automatisation"}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-bold text-sm text-gray-900 dark:text-gray-150">
+                {activeAutomation?.name || "Éditeur d'automatisation"}
+              </h1>
+              {activeAutomation && (
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all duration-300 ${
+                  activeAutomation.status === 'active'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/30 shadow-[0_0_8px_rgba(16,185,129,0.1)]'
+                    : 'bg-gray-100 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700/50'
+                }`}>
+                  {activeAutomation.status === 'active' ? (
+                    <>
+                      <span className="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500 animate-ping inline-block absolute" />
+                      <span className="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-500 inline-block relative" />
+                      Actif
+                    </>
+                  ) : (
+                    'Brouillon'
+                  )}
+                </span>
+              )}
+            </div>
             <p className="text-[10px] text-gray-500 dark:text-gray-400">
               Concevez des flux d'extraction et de traitement IA de bout en bout
             </p>
@@ -436,7 +460,22 @@ function AutomationsFlow() {
           >
             ⌘K
           </button>
-          <Button variant="ghost" onClick={handleSave} loading={saveMutation.isPending} icon={<Save size={16} />}>
+          {activeAutomation && (
+            <Button
+              variant="ghost"
+              className={
+                activeAutomation.status === 'active'
+                  ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30'
+                  : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-900/30'
+              }
+              onClick={() => handleSave(activeAutomation.status === 'active' ? 'draft' : 'active')}
+              loading={saveMutation.isPending}
+              icon={activeAutomation.status === 'active' ? <Power size={16} /> : <Activity size={16} />}
+            >
+              {activeAutomation.status === 'active' ? 'Désactiver' : 'Activer le flux'}
+            </Button>
+          )}
+          <Button variant="ghost" onClick={() => handleSave()} loading={saveMutation.isPending} icon={<Save size={16} />}>
             Sauvegarder
           </Button>
           <Button onClick={handleTrigger} loading={triggerMutation.isPending} icon={<Play size={16} className="fill-current" />}>

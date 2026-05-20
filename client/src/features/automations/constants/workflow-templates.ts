@@ -356,6 +356,108 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
       { id: 'e-4-5', source: 'act-tone_4', target: 'act-post_5', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
     ],
   },
+  youtubeToThread: {
+    name: 'YouTube to Twitter Thread',
+    nodes: [
+      {
+        id: 'trig-url_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Cibler URL', type: 'trigger', iconName: 'Globe', url: 'https://youtube.com/watch?v=dQw4w9WgXcQ' },
+      },
+      {
+        id: 'act-scrape_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Scraper (Stagehand)', type: 'action', iconName: 'Search', instruction: 'Extract the video title, description, and target channel name from the page' },
+      },
+      {
+        id: 'act-ai_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Traiter (LLM)', type: 'action', iconName: 'Bot', prompt: 'Create an engaging 5-tweet thread summarizing the concepts discussed in this YouTube video: Title: {{act-scrape_1.title}}, Description: {{act-scrape_1.description}}' },
+      },
+      {
+        id: 'act-post_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Créer un Brouillon', type: 'action', iconName: 'PenTool' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-url_0', target: 'act-scrape_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-scrape_1', target: 'act-ai_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'act-ai_2', target: 'act-post_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  linkedinPollAnalysis: {
+    name: 'Analyse de Sondage LinkedIn',
+    nodes: [
+      {
+        id: 'trig-url_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Cibler URL', type: 'trigger', iconName: 'Globe', url: 'https://linkedin.com/feed/update/urn:li:activity:123456' },
+      },
+      {
+        id: 'act-scrape_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Scraper (Stagehand)', type: 'action', iconName: 'Search', instruction: 'Extract the poll question, options, and vote counts if available' },
+      },
+      {
+        id: 'act-ai_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Traiter (LLM)', type: 'action', iconName: 'Bot', prompt: 'Perform a detailed audience and interest analysis based on these poll results: {{act-scrape_1}}. Highlight key trends and suggest future content strategies.' },
+      },
+      {
+        id: 'act-db_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Enregistrer en Base', type: 'action', iconName: 'Database', dbAction: 'save_post' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-url_0', target: 'act-scrape_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-scrape_1', target: 'act-ai_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'act-ai_2', target: 'act-db_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
+  outreachEmailGenerator: {
+    name: 'Email Outreach Personnalisé',
+    nodes: [
+      {
+        id: 'trig-url_0',
+        type: 'customNode',
+        position: { x: 250, y: 50 },
+        data: { label: 'Cibler URL', type: 'trigger', iconName: 'Globe', url: 'https://stripe.com' },
+      },
+      {
+        id: 'act-scrape_1',
+        type: 'customNode',
+        position: { x: 250, y: 180 },
+        data: { label: 'Scraper (Stagehand)', type: 'action', iconName: 'Search', instruction: 'Find the company value proposition, products, and target audience info' },
+      },
+      {
+        id: 'act-ai_2',
+        type: 'customNode',
+        position: { x: 250, y: 310 },
+        data: { label: 'Traiter (LLM)', type: 'action', iconName: 'Bot', prompt: 'Write a highly personalized B2B outreach email pitching our AI content automation solutions to this company. Use their extracted value proposition: {{act-scrape_1.value_prop}}' },
+      },
+      {
+        id: 'act-post_3',
+        type: 'customNode',
+        position: { x: 250, y: 440 },
+        data: { label: 'Créer un Brouillon', type: 'action', iconName: 'PenTool' },
+      },
+    ],
+    edges: [
+      { id: 'e-0-1', source: 'trig-url_0', target: 'act-scrape_1', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-1-2', source: 'act-scrape_1', target: 'act-ai_2', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+      { id: 'e-2-3', source: 'act-ai_2', target: 'act-post_3', animated: true, style: { stroke: '#8b5cf6', strokeWidth: 2 } },
+    ],
+  },
 };
 
 export type WorkflowTemplateKey = keyof typeof WORKFLOW_TEMPLATES;
