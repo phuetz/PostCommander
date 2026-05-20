@@ -6,7 +6,8 @@ import { openai } from '@ai-sdk/openai';
 import { sharedRedisConnection } from '../../utils/redis.js';
 import { logger } from '../../utils/logger.js';
 import { getDrizzle } from '../../db/connection.js';
-import { posts } from '../../db/schema.js';
+import { posts, automationRuns } from '../../db/schema.js';
+import { eq } from 'drizzle-orm';
 import crypto from 'node:crypto';
 import { searchWeb } from '../web-search.js';
 
@@ -78,6 +79,27 @@ export const scraperWorker = new Worker<ScraperJobData>(
   async (job: Job<ScraperJobData>) => {
     const { automationId, flowData, userId, workspaceId, webhookPayload } = job.data as any;
     logger.info(`Starting execution for automation flow: ${automationId}`);
+    const runStartMs = Date.now();
+
+    // Persist run start in automation_runs (insert; on conflict by jobId, just skip).
+    // Test-node sub-jobs share this same path — they end up in history too.
+    try {
+      const db = getDrizzle();
+      await db
+        .insert(automationRuns)
+        .values({
+          id: crypto.randomUUID(),
+          automationId,
+          userId,
+          workspaceId,
+          jobId: String(job.id ?? ''),
+          status: 'running',
+          startedAt: new Date(runStartMs).toISOString(),
+        })
+        .onConflictDoNothing({ target: automationRuns.jobId });
+    } catch (e: any) {
+      logger.warn(`Failed to record run start in automation_runs: ${e.message}`);
+    }
 
     const { nodes, edges } = flowData;
     const nodeOutputs: Record<string, any> = {};
@@ -652,10 +674,41 @@ Post content:
   }
 );
 
-scraperWorker.on('completed', (job) => {
+scraperWorker.on('completed', async (job) => {
   logger.info(`Scraper Job ${job.id} has completed successfully`);
+  try {
+    const db = getDrizzle();
+    const finishedAt = new Date();
+    await db
+      .update(automationRuns)
+      .set({
+        status: 'completed',
+        finishedAt: finishedAt.toISOString(),
+        durationMs: finishedAt.getTime() - new Date(job.processedOn ?? finishedAt).getTime(),
+        summary: (job.returnvalue ?? null) as any,
+      })
+      .where(eq(automationRuns.jobId, String(job.id ?? '')));
+  } catch (e: any) {
+    logger.warn(`Failed to record run completion in automation_runs: ${e.message}`);
+  }
 });
 
-scraperWorker.on('failed', (job, err) => {
+scraperWorker.on('failed', async (job, err) => {
   logger.error(`Scraper Job ${job?.id} has failed: ${err.message}`);
+  if (!job) return;
+  try {
+    const db = getDrizzle();
+    const finishedAt = new Date();
+    await db
+      .update(automationRuns)
+      .set({
+        status: 'failed',
+        finishedAt: finishedAt.toISOString(),
+        durationMs: finishedAt.getTime() - new Date(job.processedOn ?? finishedAt).getTime(),
+        errorMessage: err.message,
+      })
+      .where(eq(automationRuns.jobId, String(job.id ?? '')));
+  } catch (e: any) {
+    logger.warn(`Failed to record run failure in automation_runs: ${e.message}`);
+  }
 });

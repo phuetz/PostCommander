@@ -29,6 +29,13 @@
       "when": 1779200000000,
       "tag": "0003_revoked_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779255426055,
+      "tag": "0004_low_hemingway",
+      "breakpoints": true
     }
   ]
 }

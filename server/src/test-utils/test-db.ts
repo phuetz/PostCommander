@@ -50,6 +50,18 @@ export async function resetTestDatabase() {
     DELETE FROM settings;
     DELETE FROM users;
   `);
+  // Phase 1 chat/runs tables. Wrap in a DO block so a fresh dev DB that hasn't
+  // applied migration 0004 yet still passes the rest of the cleanup (each
+  // table_exists check short-circuits the DELETE if absent).
+  await db.query(`
+    DO $$
+    BEGIN
+      IF to_regclass('public.chat_messages') IS NOT NULL THEN DELETE FROM chat_messages; END IF;
+      IF to_regclass('public.chat_sessions') IS NOT NULL THEN DELETE FROM chat_sessions; END IF;
+      IF to_regclass('public.automation_runs') IS NOT NULL THEN DELETE FROM automation_runs; END IF;
+    END
+    $$;
+  `);
 }
 
 export async function createTestUser(

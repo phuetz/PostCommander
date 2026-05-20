@@ -34,8 +34,10 @@
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^15.1.0",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.1.0",
-    "recharts": "^3.8.1"
+    "recharts": "^3.8.1",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

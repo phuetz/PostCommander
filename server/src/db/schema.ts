@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, index, uniqueIndex, jsonb } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -559,5 +559,73 @@ export const flowAutomations = pgTable(
   (table) => ({
     userIdx: index('idx_flow_automations_user').on(table.userId),
     workspaceIdx: index('idx_flow_automations_workspace').on(table.workspaceId),
+  }),
+);
+
+export const chatSessions = pgTable(
+  'chat_sessions',
+  {
+    id: text('id').primaryKey(),
+    automationId: text('automation_id')
+      .notNull()
+      .references(() => flowAutomations.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    title: text('title').notNull().default('Nouvelle conversation'),
+    lastMessageAt: timestamp('last_message_at', { mode: 'string' }),
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  },
+  (table) => ({
+    automationIdx: index('idx_chat_sessions_automation').on(table.automationId),
+    userIdx: index('idx_chat_sessions_user').on(table.userId),
+  }),
+);
+
+export const chatMessages = pgTable(
+  'chat_messages',
+  {
+    id: text('id').primaryKey(),
+    sessionId: text('session_id')
+      .notNull()
+      .references(() => chatSessions.id, { onDelete: 'cascade' }),
+    role: text('role').notNull(), // 'user' | 'assistant' | 'system'
+    content: text('content').notNull().default(''),
+    toolCalls: jsonb('tool_calls'), // null or Array<{ name, args, result? }>
+    createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
+  },
+  (table) => ({
+    sessionIdx: index('idx_chat_messages_session').on(table.sessionId),
+  }),
+);
+
+export const automationRuns = pgTable(
+  'automation_runs',
+  {
+    id: text('id').primaryKey(),
+    automationId: text('automation_id')
+      .notNull()
+      .references(() => flowAutomations.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    workspaceId: text('workspace_id')
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    jobId: text('job_id').notNull(),
+    status: text('status').notNull().default('queued'), // 'queued'|'running'|'completed'|'failed'
+    startedAt: timestamp('started_at', { mode: 'string' }).notNull().defaultNow(),
+    finishedAt: timestamp('finished_at', { mode: 'string' }),
+    durationMs: integer('duration_ms'),
+    errorMessage: text('error_message'),
+    summary: jsonb('summary'), // job returnvalue snapshot
+  },
+  (table) => ({
+    automationIdx: index('idx_automation_runs_automation').on(table.automationId),
+    userIdx: index('idx_automation_runs_user').on(table.userId),
+    jobIdx: uniqueIndex('idx_automation_runs_job').on(table.jobId),
   }),
 );
