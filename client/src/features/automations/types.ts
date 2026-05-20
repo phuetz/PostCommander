@@ -51,4 +51,6 @@ export interface SidebarProps {
   onAutomationCreated?: (id: string) => void;
   chatSessionId: string | null;
   onChatSessionChange: (id: string | null) => void;
+  selectedNodeId?: string | null;
+  stream: any;
 }

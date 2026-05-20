@@ -8,6 +8,7 @@ import {
   Controls,
   Background,
   MiniMap,
+  BackgroundVariant,
   type Connection,
   type Edge,
   type Node,
@@ -32,6 +33,8 @@ import { useWorkflowHistory } from '../features/automations/hooks/useWorkflowHis
 import { useKeyboardShortcuts } from '../features/automations/hooks/useKeyboardShortcuts';
 import { validateWorkflow } from '../features/automations/utils/validate-workflow';
 import { autoLayout } from '../features/automations/utils/auto-layout';
+import { getPreviewState } from '../features/automations/utils/apply-mutation';
+import { useChatStream } from '../features/automations/hooks/useChatStream';
 import type { AutomationTab } from '../features/automations/types';
 
 let nodeIdCounter = 0;
@@ -60,10 +63,19 @@ function AutomationsFlow() {
   // Undo/redo history
   const history = useWorkflowHistory();
   const testNodeMutation = useTestNode();
+  const stream = useChatStream();
 
   const { data: automationsData } = useAutomations();
   const saveMutation = useSaveAutomation();
   const triggerMutation = useTriggerAutomation();
+
+  const { previewNodes, previewEdges } = useMemo(() => {
+    if (stream.pendingMutations.length > 0) {
+      const preview = getPreviewState(nodes, edges, stream.pendingMutations);
+      return { previewNodes: preview.nodes, previewEdges: preview.edges };
+    }
+    return { previewNodes: nodes, previewEdges: edges };
+  }, [nodes, edges, stream.pendingMutations]);
 
   const executionOrder = useMemo(() => {
     const triggerNodes = nodes.filter((n) => (n.data as any)?.type === 'trigger');
@@ -496,12 +508,14 @@ function AutomationsFlow() {
           onAutomationCreated={setOverrideAutomationId}
           chatSessionId={chatSessionId}
           onChatSessionChange={setChatSessionId}
+          selectedNodeId={selectedNode?.id}
+          stream={stream}
         />
 
         <div className="flex-1 h-full relative">
           <ReactFlow
-            nodes={nodes}
-            edges={edges}
+            nodes={previewNodes}
+            edges={previewEdges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
@@ -515,16 +529,25 @@ function AutomationsFlow() {
             fitView
             className="bg-gray-50/50 dark:bg-gray-900/50"
           >
-            <Background color="#9ca3af" gap={16} size={1} />
-            <Controls className="bg-white dark:bg-gray-850 border-gray-200 dark:border-gray-850 fill-gray-600 dark:fill-gray-300" />
+            <Background 
+              variant={BackgroundVariant.Dots}
+              color="rgb(99, 102, 241)" 
+              gap={24} 
+              size={1.5} 
+              style={{ opacity: 0.15 }}
+            />
+            <Controls className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-850/50 rounded-xl overflow-hidden shadow-md" />
             <MiniMap
-              className="bg-white dark:bg-gray-850 border-gray-200 dark:border-gray-850"
-              maskColor="rgba(0,0,0,0.1)"
+              style={{ borderRadius: '12px', border: '1px solid rgba(0, 0, 0, 0.08)' }}
+              className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border border-gray-200/50 dark:border-gray-850/50 shadow-md"
+              maskColor="rgba(99, 102, 241, 0.05)"
               nodeColor={(n) => {
                 if ((n.data as any)?.type === 'trigger') return '#10b981';
                 if ((n.data as any)?.type === 'logic') return '#f59e0b';
                 return '#8b5cf6';
               }}
+              zoomable
+              pannable
             />
           </ReactFlow>
         </div>

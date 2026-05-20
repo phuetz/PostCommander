@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Node, Edge } from '@xyflow/react';
-import { Send, Loader2, Square } from 'lucide-react';
+import { Send, Loader2, Square, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import toast from 'react-hot-toast';
 
-import { useChatStream, type LiveToolCall } from '../hooks/useChatStream';
+import { type LiveToolCall } from '../hooks/useChatStream';
 import {
   useChatSessions,
   useChatMessages,
@@ -17,6 +17,7 @@ import { MessageBubble } from './MessageBubble';
 import { ChatSessionList } from './ChatSessionList';
 import { WorkflowDiffPreview } from './WorkflowDiffPreview';
 import { applyMutations } from '../utils/apply-mutation';
+import { autoLayout } from '../utils/auto-layout';
 
 interface ChatPanelProps {
   automationId: string | undefined;
@@ -26,6 +27,8 @@ interface ChatPanelProps {
   onAutomationCreated?: (id: string) => void;
   activeSessionId: string | null;
   onActiveSessionChange: (id: string | null) => void;
+  selectedNodeId?: string | null;
+  stream: any;
 }
 
 interface UiMessage {
@@ -56,6 +59,8 @@ export function ChatPanel({
   onAutomationCreated,
   activeSessionId,
   onActiveSessionChange,
+  selectedNodeId,
+  stream,
 }: ChatPanelProps) {
   const setActiveSessionId = onActiveSessionChange;
   const [input, setInput] = useState('');
@@ -67,9 +72,108 @@ export function ChatPanel({
   const createSession = useCreateChatSession();
   const deleteSession = useDeleteChatSession();
   const saveAutomation = useSaveAutomation();
-  const stream = useChatStream();
 
   const sessions = sessionsQuery.data?.data ?? [];
+
+  const selectedNode = useMemo(() => {
+    if (!selectedNodeId) return null;
+    return nodes.find((n) => n.id === selectedNodeId) || null;
+  }, [selectedNodeId, nodes]);
+
+  const SLASH_COMMANDS = [
+    { cmd: '/ai', label: 'Ajouter une étape IA', desc: 'Insère un nœud de traitement LLM' },
+    { cmd: '/scrape', label: 'Ajouter un scrapeur', desc: "Insère un nœud d'extraction de page web" },
+    { cmd: '/search', label: 'Ajouter une recherche', desc: 'Insère un nœud de recherche Tavily' },
+    { cmd: '/format', label: 'Ajouter un formateur', desc: 'Insère un nœud de structuration de texte' },
+    { cmd: '/loop', label: 'Ajouter une boucle', desc: 'Insère une boucle pour-chaque' },
+    { cmd: '/condition', label: 'Ajouter une condition', desc: 'Insère un branchement Si/Sinon' },
+    { cmd: '/layout', label: 'Aligner le canevas', desc: 'Réordonne la disposition des nœuds' },
+    { cmd: '/clear', label: 'Effacer le canevas', desc: 'Supprime tous les nœuds et liens' },
+  ];
+
+  const filteredCommands = useMemo(() => {
+    if (!input.startsWith('/')) return [];
+    const query = input.toLowerCase();
+    return SLASH_COMMANDS.filter(
+      (c) => c.cmd.toLowerCase().startsWith(query) || c.label.toLowerCase().includes(query.slice(1))
+    );
+  }, [input]);
+
+  const handleExecuteSlash = (cmd: string) => {
+    setInput('');
+    if (cmd === '/layout') {
+      const next = autoLayout(nodes, edges);
+      onWorkflowUpdated(next, edges);
+      toast.success('Canevas réorganisé', { icon: '✨' });
+      return;
+    }
+    if (cmd === '/clear') {
+      onWorkflowUpdated([], []);
+      toast.success('Canevas effacé', { icon: '🗑️' });
+      return;
+    }
+    
+    let nodeTypeId = '';
+    let label = '';
+    let iconName = '';
+    let type = '';
+    
+    if (cmd === '/ai') { nodeTypeId = 'act-ai'; label = 'Traiter (LLM)'; iconName = 'Bot'; type = 'action'; }
+    else if (cmd === '/scrape') { nodeTypeId = 'act-scrape'; label = 'Scraper (Stagehand)'; iconName = 'Search'; type = 'action'; }
+    else if (cmd === '/search') { nodeTypeId = 'act-search'; label = 'Recherche Web (Tavily)'; iconName = 'Compass'; type = 'action'; }
+    else if (cmd === '/format') { nodeTypeId = 'act-format'; label = 'Formateur de Texte'; iconName = 'FileText'; type = 'action'; }
+    else if (cmd === '/loop') { nodeTypeId = 'log-loop'; label = 'Boucle Pour-Chaque'; iconName = 'Bot'; type = 'logic'; }
+    else if (cmd === '/condition') { nodeTypeId = 'log-condition'; label = 'Condition (Si/Sinon)'; iconName = 'GitFork'; type = 'logic'; }
+
+    if (nodeTypeId) {
+      const maxId = Math.max(
+        0,
+        ...nodes.map((n) => {
+          const parts = n.id.split('_');
+          return parseInt(parts[parts.length - 1] || '0');
+        })
+      );
+      const newId = `${nodeTypeId}_${maxId + 1}`;
+      
+      let newY = 100;
+      let newX = 250;
+      if (nodes.length > 0) {
+        const lowestNode = nodes.reduce((lowest, current) => 
+          current.position.y > lowest.position.y ? current : lowest
+        , nodes[0]);
+        newY = lowestNode.position.y + 140;
+        newX = lowestNode.position.x;
+      }
+      
+      const newNode: Node = {
+        id: newId,
+        type: 'customNode',
+        position: { x: newX, y: newY },
+        data: {
+          label,
+          type,
+          iconName,
+          url: '',
+          instruction: '',
+          prompt: '',
+        },
+      };
+      
+      const newEdges = [...edges];
+      if (selectedNodeId) {
+        newEdges.push({
+          id: `edge_${selectedNodeId}_to_${newId}`,
+          source: selectedNodeId,
+          target: newId,
+          animated: true,
+          style: { stroke: '#8b5cf6', strokeWidth: 2 },
+        });
+      }
+      
+      onWorkflowUpdated(nodes.concat(newNode), newEdges);
+      toast.success(`Nœud "${label}" ajouté`, { icon: '➕' });
+    }
+  };
 
   // Pick an active session when sessions list arrives and none selected yet.
   useEffect(() => {
@@ -166,8 +270,13 @@ export function ChatPanel({
       .filter((m) => m.id !== 'init') // drop the canned greeting
       .map((m) => ({ id: m.id, role: m.role, content: m.content, toolCalls: m.toolCalls }));
 
+    let finalPrompt = text;
+    if (selectedNode) {
+      finalPrompt = `[Note: L'utilisateur a sélectionné le nœud "${selectedNode.data.label}" (ID: ${selectedNode.id}) de type "${selectedNode.data.type}" dans l'interface. Vos modifications ou explications doivent cibler ce nœud en priorité.] ${text}`;
+    }
+
     const result = await stream.send({
-      text,
+      text: finalPrompt,
       sessionId: setup.sessionId,
       history: historyForServer,
       state: { nodes, edges },
@@ -189,8 +298,6 @@ export function ChatPanel({
 
   function handleAcceptDiff() {
     if (stream.pendingMutations.length === 0) return;
-    // Prefer the server's final state if available — it includes any field we couldn't
-    // reconstruct purely from mutations (e.g. positions computed server-side).
     if (stream.pendingFinalState) {
       onWorkflowUpdated(stream.pendingFinalState.nodes as Node[], stream.pendingFinalState.edges as Edge[]);
     } else {
@@ -203,7 +310,6 @@ export function ChatPanel({
 
   function handleNewSession() {
     if (!automationId) {
-      // No automation yet → just reset local state. Will be created on first send.
       setActiveSessionId(null);
       setLocalMessages([INITIAL_GREETING]);
       return;
@@ -233,7 +339,7 @@ export function ChatPanel({
   const showSuggestions = localMessages.length <= 1 && !stream.isStreaming && !draftBubble;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] w-full">
+    <div className="flex flex-col h-[calc(100vh-140px)] w-full relative">
       {automationId && (
         <ChatSessionList
           sessions={sessions}
@@ -285,14 +391,52 @@ export function ChatPanel({
         </div>
       )}
 
+      {selectedNode && (
+        <div className="px-4 py-1.5 bg-brand-50 dark:bg-brand-950/20 border-t border-brand-200 dark:border-brand-900/30 flex items-center justify-between text-[10px]">
+          <div className="flex items-center gap-1.5 text-brand-700 dark:text-brand-400 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+            <span>Nœud ciblé : <strong>{String(selectedNode.data.label || '')}</strong> ({selectedNode.id})</span>
+          </div>
+          <span className="text-gray-400 dark:text-gray-500 italic">Actions contextuelles activées</span>
+        </div>
+      )}
+
+      {input.startsWith('/') && filteredCommands.length > 0 && (
+        <div className="absolute bottom-[56px] left-3 right-3 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl z-50 max-h-[180px] overflow-y-auto py-1">
+          <div className="px-3 py-1 text-[9px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-850 mb-1">
+            Commandes rapides (Slash)
+          </div>
+          {filteredCommands.map((c) => (
+            <button
+              key={c.cmd}
+              onClick={() => handleExecuteSlash(c.cmd)}
+              className="w-full text-left px-3 py-1.5 hover:bg-brand-50 dark:hover:bg-brand-950/30 flex flex-col transition-colors cursor-pointer group"
+            >
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-250 group-hover:text-brand-650 dark:group-hover:text-brand-400">
+                {c.cmd} — {c.label}
+              </span>
+              <span className="text-[10px] text-gray-450 dark:text-gray-500">
+                {c.desc}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="p-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-center gap-2">
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Décrivez votre workflow…"
+          placeholder="Décrivez votre workflow ou utilisez /..."
           disabled={stream.isStreaming}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) handleSend();
+            if (e.key === 'Enter' && !e.shiftKey) {
+              if (input.startsWith('/') && filteredCommands.length > 0) {
+                handleExecuteSlash(filteredCommands[0].cmd);
+              } else {
+                handleSend();
+              }
+            }
           }}
           className="flex-1 text-xs py-2 bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-850 hover:border-gray-300 focus:border-brand-500 rounded-lg"
         />

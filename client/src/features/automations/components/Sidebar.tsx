@@ -150,6 +150,8 @@ export function Sidebar({
   onAutomationCreated,
   chatSessionId,
   onChatSessionChange,
+  selectedNodeId,
+  stream,
 }: SidebarProps) {
   const [templateQuery, setTemplateQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -218,6 +220,8 @@ export function Sidebar({
           onAutomationCreated={onAutomationCreated}
           activeSessionId={chatSessionId}
           onActiveSessionChange={onChatSessionChange}
+          selectedNodeId={selectedNodeId}
+          stream={stream}
         />
       ) : (
         <div className="flex-1 p-4 overflow-y-auto">

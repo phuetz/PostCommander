@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react';
-import { Zap, X, Trash2, Variable } from 'lucide-react';
+import { Zap, X, Trash2, Variable, CheckCircle2, AlertCircle, Clock, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import type { Node, Edge } from '@xyflow/react';
 import { Input } from '@/components/ui/Input';
 import { iconMap } from '../constants/icon-map';
 import { getSchemaForNode, type FieldSchema } from '../constants/node-schemas';
 import { VariablePicker } from './VariablePicker';
+import { useAutomationRuns } from '../hooks/useAutomationRuns';
 
 interface NodeInspectorProps {
   selectedNode: Node;
@@ -66,6 +67,14 @@ export function NodeInspector({
   const SelectedIcon = iconName ? iconMap[iconName] || Zap : Zap;
   const schema = getSchemaForNode(selectedNode);
 
+  const [activeTab, setActiveTab] = useState<'config' | 'history'>('config');
+  const [expandedRunId, setExpandedRunId] = useState<string | null>(null);
+
+  const { data: runsData, isLoading: runsLoading } = useAutomationRuns(automationId, {
+    enabled: activeTab === 'history' && !!automationId,
+  });
+  const runs = runsData?.data || [];
+
   return (
     <aside className="w-80 bg-white/95 dark:bg-gray-900/95 border-l border-gray-200 dark:border-gray-800 p-5 flex flex-col gap-5 overflow-y-auto z-10 absolute right-0 top-0 bottom-0 shadow-2xl backdrop-blur-md animate-in slide-in-from-right duration-200">
       {/* Header */}
@@ -83,32 +92,154 @@ export function NodeInspector({
         </div>
         <button
           onClick={onClose}
-          className="p-1 rounded-lg text-gray-400 hover:text-gray-650 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-850 transition-colors"
+          className="p-1 rounded-lg text-gray-400 hover:text-gray-650 dark:hover:text-gray-300 transition-colors"
         >
           <X size={18} />
         </button>
       </div>
 
-      <div className="h-px bg-gray-100 dark:bg-gray-800" />
+      {/* Tabs */}
+      <div className="flex border-b border-gray-100 dark:border-gray-800 -mx-5 px-5">
+        <button
+          type="button"
+          onClick={() => setActiveTab('config')}
+          className={`flex-1 pb-2.5 text-xs font-bold transition-all border-b-2 text-center ${
+            activeTab === 'config'
+              ? 'border-brand-500 text-brand-650 dark:text-brand-400'
+              : 'border-transparent text-gray-400 hover:text-gray-650 dark:hover:text-gray-300'
+          }`}
+        >
+          Configuration
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('history')}
+          className={`flex-1 pb-2.5 text-xs font-bold transition-all border-b-2 text-center ${
+            activeTab === 'history'
+              ? 'border-brand-500 text-brand-650 dark:text-brand-400'
+              : 'border-transparent text-gray-400 hover:text-gray-650 dark:hover:text-gray-300'
+          }`}
+        >
+          Historique
+        </button>
+      </div>
 
-      <div className="flex-1 space-y-5">
-        {schema === null ? (
-          <p className="text-[11px] text-gray-500 italic">
-            Aucune configuration pour ce type de nœud.
-          </p>
+      <div className="flex-1 overflow-y-auto -mx-2 px-2 py-1 space-y-5">
+        {activeTab === 'config' ? (
+          schema === null ? (
+            <p className="text-[11px] text-gray-500 italic">
+              Aucune configuration pour ce type de nœud.
+            </p>
+          ) : (
+            schema.map((field) => (
+              <FieldRenderer
+                key={field.key}
+                field={field}
+                data={selectedNode.data}
+                selectedNode={selectedNode}
+                nodes={nodes}
+                edges={edges}
+                automationId={automationId}
+                onUpdate={(patch) => updateNodeData(selectedNode.id, patch)}
+              />
+            ))
+          )
         ) : (
-          schema.map((field) => (
-            <FieldRenderer
-              key={field.key}
-              field={field}
-              data={selectedNode.data}
-              selectedNode={selectedNode}
-              nodes={nodes}
-              edges={edges}
-              automationId={automationId}
-              onUpdate={(patch) => updateNodeData(selectedNode.id, patch)}
-            />
-          ))
+          /* History View */
+          <div className="space-y-3">
+            {!automationId ? (
+              <p className="text-[11px] text-gray-500 italic">
+                Sauvegardez l'automatisation pour voir l'historique d'exécution.
+              </p>
+            ) : runsLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="animate-spin text-brand-500" size={20} />
+              </div>
+            ) : runs.length === 0 ? (
+              <p className="text-[11px] text-gray-500 italic">
+                Aucune exécution enregistrée pour cette automatisation.
+              </p>
+            ) : (
+              runs.map((run) => {
+                const isExpanded = expandedRunId === run.id;
+                const summary = run.summary || {};
+                const nodeOutput = summary.nodeOutputs?.[selectedNode.id];
+                const nodeError = summary.runningNodeErrors?.[selectedNode.id] || (run.status === 'failed' && run.errorMessage ? run.errorMessage : null);
+                const wasExecuted = summary.completedNodeIds?.includes(selectedNode.id) || !!nodeOutput || !!nodeError;
+                
+                return (
+                  <div 
+                    key={run.id} 
+                    className="border border-gray-150 dark:border-gray-800 rounded-xl overflow-hidden bg-gray-50/30 dark:bg-gray-900/10"
+                  >
+                    {/* Run Header */}
+                    <button
+                      type="button"
+                      onClick={() => setExpandedRunId(isExpanded ? null : run.id)}
+                      className="w-full p-3 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-850/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        {run.status === 'completed' && <CheckCircle2 size={13} className="text-emerald-500" />}
+                        {run.status === 'failed' && <AlertCircle size={13} className="text-red-500" />}
+                        {(run.status === 'running' || run.status === 'queued') && (
+                          <Loader2 size={13} className="text-brand-500 animate-spin" />
+                        )}
+                        <div>
+                          <p className="text-[11px] font-bold text-gray-700 dark:text-gray-300">
+                            {new Date(run.startedAt).toLocaleString('fr-FR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                          <p className="text-[9px] text-gray-450 flex items-center gap-1">
+                            <Clock size={10} />
+                            {run.durationMs ? `${(run.durationMs / 1000).toFixed(2)}s` : '--'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {!wasExecuted && (
+                          <span className="text-[8px] bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded font-medium">
+                            Non exécuté
+                          </span>
+                        )}
+                        {isExpanded ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
+                      </div>
+                    </button>
+
+                    {/* Run Details */}
+                    {isExpanded && (
+                      <div className="p-3 border-t border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-950 text-[10px] space-y-2.5">
+                        {nodeError && (
+                          <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-red-750 dark:text-red-400 font-mono text-[9px] leading-relaxed break-words">
+                            <div className="font-bold mb-0.5">Erreur du nœud :</div>
+                            {String(nodeError)}
+                          </div>
+                        )}
+
+                        {nodeOutput !== undefined && nodeOutput !== null ? (
+                          <div className="space-y-1">
+                            <span className="font-bold text-gray-500 dark:text-gray-400">Sortie :</span>
+                            <pre className="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-800 font-mono text-[9px] overflow-x-auto max-h-[140px] text-gray-700 dark:text-gray-300">
+                              {typeof nodeOutput === 'object' 
+                                ? JSON.stringify(nodeOutput, null, 2) 
+                                : String(nodeOutput)}
+                            </pre>
+                          </div>
+                        ) : !nodeError ? (
+                          <p className="text-gray-450 dark:text-gray-500 italic">
+                            Aucune donnée de sortie ou ce nœud n'a pas été atteint.
+                          </p>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
         )}
       </div>
 

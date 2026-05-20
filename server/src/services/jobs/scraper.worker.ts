@@ -636,6 +636,7 @@ Post content:
             activeNodeId,
             completedNodeIds,
             runningNodeErrors,
+            nodeOutputs,
           });
         } catch (err: any) {
           logger.warn(`Failed to update progress: ${err.message}`);
@@ -649,6 +650,7 @@ Post content:
             activeNodeId,
             completedNodeIds,
             runningNodeErrors,
+            nodeOutputs,
           });
         } catch (err: any) {
           logger.warn(`Failed to update progress: ${err.message}`);
@@ -667,7 +669,7 @@ Post content:
       await executeNode(trig.id);
     }
 
-    return { success: true, finalContent };
+    return { success: true, finalContent, nodeOutputs, runningNodeErrors, completedNodeIds };
   },
   {
     connection: sharedRedisConnection as WorkerOptions['connection'],
@@ -699,6 +701,7 @@ scraperWorker.on('failed', async (job, err) => {
   try {
     const db = getDrizzle();
     const finishedAt = new Date();
+    const progress = job.progress || {};
     await db
       .update(automationRuns)
       .set({
@@ -706,6 +709,13 @@ scraperWorker.on('failed', async (job, err) => {
         finishedAt: finishedAt.toISOString(),
         durationMs: finishedAt.getTime() - new Date(job.processedOn ?? finishedAt).getTime(),
         errorMessage: err.message,
+        summary: {
+          success: false,
+          error: err.message,
+          nodeOutputs: progress.nodeOutputs || {},
+          runningNodeErrors: progress.runningNodeErrors || {},
+          completedNodeIds: progress.completedNodeIds || [],
+        },
       })
       .where(eq(automationRuns.jobId, String(job.id ?? '')));
   } catch (e: any) {

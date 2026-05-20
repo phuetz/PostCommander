@@ -1,4 +1,5 @@
-import { Handle, Position } from '@xyflow/react';
+import { useState } from 'react';
+import { Handle, Position, useReactFlow, type Node, type Edge } from '@xyflow/react';
 import { Zap, X } from 'lucide-react';
 import { iconMap } from '../constants/icon-map';
 
@@ -9,8 +10,26 @@ interface CustomNodeProps {
   onDelete?: (id: string) => void;
 }
 
+const INSERTABLE_NODES = [
+  { type: 'action', id: 'act-ai', label: 'Traiter (LLM)', iconName: 'Bot' },
+  { type: 'action', id: 'act-scrape', label: 'Scraper (Stagehand)', iconName: 'Search' },
+  { type: 'action', id: 'act-search', label: 'Recherche Web (Tavily)', iconName: 'Compass' },
+  { type: 'action', id: 'act-format', label: 'Formateur de Texte', iconName: 'FileText' },
+  { type: 'action', id: 'act-hook', label: "Générateur d'accroches", iconName: 'Sparkles' },
+  { type: 'action', id: 'act-tone', label: 'Ajusteur de ton', iconName: 'PenTool' },
+  { type: 'action', id: 'act-image', label: "Générateur d'Image", iconName: 'Image' },
+  { type: 'action', id: 'act-db', label: 'Enregistrer en Base', iconName: 'Database' },
+  { type: 'action', id: 'act-publish', label: 'Publier sur CMS', iconName: 'Share2' },
+  { type: 'action', id: 'act-post', label: 'Créer un Brouillon', iconName: 'PenTool' },
+  { type: 'logic', id: 'log-loop', label: 'Boucle Pour-Chaque', iconName: 'Bot' },
+  { type: 'logic', id: 'log-condition', label: 'Condition (Si/Sinon)', iconName: 'GitFork' },
+  { type: 'logic', id: 'log-delay', label: 'Délai (Attendre)', iconName: 'Clock' },
+];
+
 export function CustomNode({ id, data, selected, onDelete }: CustomNodeProps) {
   const Icon = iconMap[data.iconName] || Zap;
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
+  const { getNodes, setNodes, setEdges } = useReactFlow();
 
   const getTheme = () => {
     switch (data.type) {
@@ -59,9 +78,66 @@ export function CustomNode({ id, data, selected, onDelete }: CustomNodeProps) {
 
   const theme = getTheme();
 
+  const handleAddNode = (nodeTypeId: string, label: string, iconName: string, type: string) => {
+    const currentNodes = getNodes();
+    
+    // Find node ID counter dynamically by parsing existing node IDs
+    const maxId = Math.max(
+      0,
+      ...currentNodes.map((n) => {
+        const parts = n.id.split('_');
+        return parseInt(parts[parts.length - 1] || '0');
+      })
+    );
+    
+    const newId = `${nodeTypeId}_${maxId + 1}`;
+    
+    // Position new node downstream
+    const currentNode = currentNodes.find((n) => n.id === id);
+    const position = currentNode 
+      ? { x: currentNode.position.x, y: currentNode.position.y + 140 }
+      : { x: 250, y: 250 };
+
+    const newNode: Node = {
+      id: newId,
+      type: 'customNode',
+      position,
+      data: {
+        label,
+        type,
+        iconName,
+        url: '',
+        instruction: '',
+        prompt: '',
+      },
+    };
+
+    const newEdge: Edge = {
+      id: `edge_${id}_to_${newId}`,
+      source: id,
+      target: newId,
+      animated: true,
+      style: { stroke: '#8b5cf6', strokeWidth: 2 },
+    };
+
+    setNodes((nds) => nds.concat(newNode));
+    setEdges((eds) => eds.concat(newEdge));
+  };
+
+  const previewBorder = data.previewStatus === 'add'
+    ? 'border-emerald-500 dark:border-emerald-500 ring-4 ring-emerald-500/25 bg-emerald-50/10 dark:bg-emerald-950/10 animate-pulse'
+    : data.previewStatus === 'delete'
+    ? 'border-red-500 dark:border-red-500 border-dashed opacity-50 grayscale scale-95 ring-4 ring-red-500/10 bg-red-500/5'
+    : data.previewStatus === 'update'
+    ? 'border-amber-500 dark:border-amber-500 ring-4 ring-amber-500/25 bg-amber-50/10 dark:bg-amber-950/10 animate-pulse'
+    : '';
+
   return (
-    <div className={`px-4 py-3.5 shadow-lg rounded-xl border bg-white dark:bg-gray-900 min-w-[210px] backdrop-blur-md transition-all hover:scale-[1.02] duration-200 group ${theme.border} ${theme.leftBorder} ${theme.shadow} ${selected ? 'ring-2 ring-brand-500 border-transparent' : ''}`}>
-      {onDelete && (
+    <div 
+      onMouseLeave={() => setIsAddMenuOpen(false)}
+      className={`px-4 py-3.5 shadow-lg rounded-xl border bg-white dark:bg-gray-900 min-w-[210px] backdrop-blur-md transition-all hover:scale-[1.02] duration-200 group ${previewBorder || `${theme.border} ${theme.leftBorder} ${theme.shadow}`} ${selected && !previewBorder ? 'ring-2 ring-brand-500 border-transparent' : ''}`}
+    >
+      {onDelete && !data.previewStatus && (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -87,6 +163,17 @@ export function CustomNode({ id, data, selected, onDelete }: CustomNodeProps) {
             <span className={`text-[8px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded ${theme.badgeBg}`}>
               {theme.badgeText}
             </span>
+            {data.previewStatus && (
+              <span className={`text-[7px] font-extrabold px-1.5 py-0.5 rounded leading-none shrink-0 ${
+                data.previewStatus === 'add'
+                  ? 'bg-emerald-500 text-white'
+                  : data.previewStatus === 'delete'
+                  ? 'bg-red-500 text-white'
+                  : 'bg-amber-500 text-white'
+              }`}>
+                {data.previewStatus === 'add' ? '+ NOUVEAU' : data.previewStatus === 'delete' ? '- SUPPRIMER' : '• MODIFIÉ'}
+              </span>
+            )}
           </div>
           <div className="text-xs font-bold text-gray-800 dark:text-gray-100 truncate">
             {data.label}
@@ -117,6 +204,47 @@ export function CustomNode({ id, data, selected, onDelete }: CustomNodeProps) {
       </div>
 
       <Handle type="source" position={Position.Bottom} className="w-3.5 h-3.5 bg-brand-500 border-2 border-white dark:border-gray-900 hover:bg-brand-600" />
+      
+      {/* Floating Downstream Node Quick Insert button */}
+      {selected && (
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsAddMenuOpen(!isAddMenuOpen);
+            }}
+            className="w-5 h-5 rounded-full bg-brand-500 hover:bg-brand-650 text-white flex items-center justify-center shadow-md hover:scale-110 transition-all cursor-pointer border border-white dark:border-gray-900"
+            title="Ajouter un nœud suivant"
+          >
+            <span className="text-[14px] font-extrabold leading-none">+</span>
+          </button>
+          
+          {isAddMenuOpen && (
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 mt-1 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 shadow-xl rounded-xl py-1.5 min-w-[180px] z-50 text-left max-h-[220px] overflow-y-auto">
+              <div className="px-2.5 py-1 text-[9px] font-extrabold text-gray-400 dark:text-gray-500 uppercase tracking-wider border-b border-gray-150 dark:border-gray-800 mb-1">
+                Insérer une étape après
+              </div>
+              {INSERTABLE_NODES.map((opt) => {
+                const OptIcon = iconMap[opt.iconName] || Zap;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddNode(opt.id, opt.label, opt.iconName, opt.type);
+                      setIsAddMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-1.5 text-xs text-gray-700 dark:text-gray-200 hover:bg-brand-50 dark:hover:bg-brand-950/30 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-2 transition-colors cursor-pointer text-left"
+                  >
+                    <OptIcon size={12} className="text-gray-400" />
+                    <span>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
