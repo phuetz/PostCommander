@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { useWorkspace } from '../contexts/WorkspaceContext';
 import api from '@/services/api';
 
@@ -83,3 +84,47 @@ export function useAutomationJob(jobId: string | null) {
   });
 }
 
+export function useAutomationJobStream(jobId: string | null) {
+  const [status, setStatus] = useState<AutomationJobStatus | null>(null);
+
+  useEffect(() => {
+    if (!jobId) {
+      setStatus(null);
+      return;
+    }
+
+    // Reset state for new job
+    setStatus({ id: jobId, state: 'waiting', progress: 0 });
+
+    const token = localStorage.getItem('token');
+    const source = new EventSource(`/api/automations/jobs/${jobId}/stream${token ? `?auth=${token}` : ''}`, {
+      withCredentials: true,
+    });
+
+    source.addEventListener('initial', (e) => {
+      const data = JSON.parse(e.data);
+      setStatus((prev) => ({ ...prev, id: jobId, state: data.state, progress: data.progress, result: data.result }));
+    });
+
+    source.addEventListener('progress', (e) => {
+      const data = JSON.parse(e.data);
+      setStatus((prev) => ({ ...prev, id: jobId, state: 'active', progress: data }));
+    });
+
+    source.addEventListener('done', (e) => {
+      const data = JSON.parse(e.data);
+      setStatus((prev) => ({ ...prev, id: jobId, state: data.state, result: data.result, failedReason: data.failedReason }));
+      source.close();
+    });
+
+    source.addEventListener('error', () => {
+      source.close();
+    });
+
+    return () => {
+      source.close();
+    };
+  }, [jobId]);
+
+  return { data: status };
+}

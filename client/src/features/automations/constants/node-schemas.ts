@@ -63,6 +63,7 @@ export const NODE_SCHEMAS: Record<string, FieldSchema[]> = {
   ],
   'trig-webhook': [
     { key: '__webhook_url', label: 'URL de webhook', type: 'webhook-url' },
+    { key: 'webhookSecret', label: 'Secret (Optionnel)', type: 'password', description: 'Si défini, la requête POST devra inclure ce secret dans le header Authorization: Bearer <secret>' },
   ],
   'trig-rss': [
     {
@@ -263,12 +264,81 @@ export const NODE_SCHEMAS: Record<string, FieldSchema[]> = {
       description: 'Réécrit le post rédigé précédemment pour adopter précisément ce ton.',
     },
   ],
+  'act-jsonpath': [
+    {
+      key: 'sourceVar',
+      label: 'Nœud Source (Payload JSON)',
+      type: 'node-ref',
+      required: true,
+      description: 'Sélectionnez le nœud fournissant la donnée JSON à extraire.',
+    },
+    {
+      key: 'jsonPath',
+      label: 'Expression JSONPath',
+      type: 'text',
+      placeholder: 'items[0].title',
+      required: true,
+      description: "L'expression pour extraire la donnée (ex: 'data[0].attributes.title').",
+    },
+  ],
+  'act-filter': [
+    {
+      key: 'sourceArray',
+      label: 'Tableau source',
+      type: 'node-ref',
+      required: true,
+    },
+    {
+      key: 'filterField',
+      label: 'Champ à filtrer',
+      type: 'text',
+      placeholder: 'item.likes',
+      required: true,
+    },
+    {
+      key: 'filterOperator',
+      label: 'Opérateur',
+      type: 'select',
+      defaultValue: 'gt',
+      options: [
+        { value: 'gt', label: 'Supérieur à (>)' },
+        { value: 'lt', label: 'Inférieur à (<)' },
+        { value: 'eq', label: 'Égal à (==)' },
+        { value: 'contains', label: 'Contient' },
+      ],
+    },
+    {
+      key: 'filterValue',
+      label: 'Valeur de filtrage',
+      type: 'text',
+      placeholder: '10',
+      required: true,
+    },
+  ],
   'log-loop': [
     {
       key: 'loopOver',
       label: 'Variable source',
       type: 'node-ref',
       description: 'Exécute tous les nœuds enfants connectés pour chaque élément du tableau renvoyé par ce nœud parent.',
+    },
+  ],
+  'log-batch': [
+    {
+      key: 'batchArray',
+      label: 'Tableau source (Batch)',
+      type: 'node-ref',
+      required: true,
+      description: 'Le tableau des éléments à traiter en parallèle.',
+    },
+    {
+      key: 'concurrency',
+      label: 'Concurrence maximale',
+      type: 'number',
+      defaultValue: 3,
+      min: 1,
+      max: 10,
+      description: 'Nombre de sous-workflows exécutés en même temps.',
     },
   ],
   'log-condition': [

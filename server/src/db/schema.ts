@@ -552,6 +552,7 @@ export const flowAutomations = pgTable(
     name: text('name').notNull(),
     status: text('status').notNull().default('draft'), // 'draft' or 'active'
     flowData: text('flow_data').notNull(), // JSON string representing ReactFlow nodes & edges
+    webhookSecret: text('webhook_secret'),
     lastRunAt: timestamp('last_run_at', { mode: 'string' }),
     createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow(),

@@ -144,6 +144,22 @@ export function RunModal({
             })}
           </div>
 
+          {/* Live Terminal Logs */}
+          <div className="bg-gray-950 text-gray-300 font-mono text-[10px] p-3 rounded-lg max-h-40 overflow-y-auto mt-4 border border-gray-800 flex flex-col gap-1 shadow-inner">
+            <div className="text-gray-500 text-[9px] uppercase tracking-wider mb-1 sticky top-0 bg-gray-950/80 backdrop-blur-sm py-1 border-b border-gray-800">
+              Terminal Log Output
+            </div>
+            {((progress as any)?.logs || []).map((log: any, idx: number) => (
+              <div key={idx} className={`flex gap-2 ${log.type === 'error' ? 'text-red-400' : log.type === 'warn' ? 'text-yellow-400' : 'text-gray-300'}`}>
+                <span className="text-gray-600 shrink-0">[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                <span>{log.message}</span>
+              </div>
+            ))}
+            {!(progress as any)?.logs?.length && (
+              <div className="text-gray-600 italic">En attente des logs système...</div>
+            )}
+          </div>
+
           {/* Output Preview */}
           {jobStatus?.state === 'completed' && jobStatus?.result?.finalContent && (
             <div className="space-y-2 mt-4 border-t border-gray-100 dark:border-gray-850 pt-4 animate-in slide-in-from-bottom-3 duration-300">

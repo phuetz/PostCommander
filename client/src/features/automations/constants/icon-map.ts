@@ -20,6 +20,9 @@ import {
   Share2,
   Rss,
   Image,
+  List,
+  Filter,
+  Braces,
 } from 'lucide-react';
 
 export const iconMap: Record<string, React.ComponentType<any>> = {
@@ -44,4 +47,7 @@ export const iconMap: Record<string, React.ComponentType<any>> = {
   Share2,
   Rss,
   Image,
+  List,
+  Filter,
+  Braces,
 };

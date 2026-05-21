@@ -19,6 +19,12 @@ interface ScraperJobData {
   };
   userId: string;
   workspaceId: string;
+  webhookPayload?: any;
+  resumeState?: {
+    nodeOutputs: Record<string, any>;
+    context: Record<string, any>;
+    completedNodeIds: string[];
+  };
 }
 
 // Helper to evaluate simple template expressions, e.g. {{item.title}} or {{act-http_1.response.0.name}}
@@ -77,8 +83,8 @@ async function parseRss(url: string): Promise<any[]> {
 export const scraperWorker = new Worker<ScraperJobData>(
   'scraper-flow',
   async (job: Job<ScraperJobData>) => {
-    const { automationId, flowData, userId, workspaceId, webhookPayload } = job.data as any;
-    logger.info(`Starting execution for automation flow: ${automationId}`);
+    const { automationId, flowData, userId, workspaceId, webhookPayload, resumeState } = job.data as any;
+    logger.info(`Starting execution for automation flow: ${automationId}${resumeState ? ' (RESUMED)' : ''}`);
     const runStartMs = Date.now();
 
     // Persist run start in automation_runs (insert; on conflict by jobId, just skip).
@@ -102,8 +108,8 @@ export const scraperWorker = new Worker<ScraperJobData>(
     }
 
     const { nodes, edges } = flowData;
-    const nodeOutputs: Record<string, any> = {};
-    const context: Record<string, any> = {
+    const nodeOutputs: Record<string, any> = resumeState?.nodeOutputs || {};
+    const context: Record<string, any> = resumeState?.context || {
       webhook: { body: webhookPayload || {} },
       item: {},
     };
@@ -127,27 +133,51 @@ export const scraperWorker = new Worker<ScraperJobData>(
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     let finalContent = '';
 
-    const completedNodeIds: string[] = [];
+    const completedNodeIds: string[] = resumeState?.completedNodeIds || [];
     let activeNodeId: string | null = null;
     const runningNodeErrors: Record<string, string> = {};
+    const executionLogs: Array<{ timestamp: string; message: string; type: 'info' | 'error' | 'warn' }> = [];
 
-    // Recursive executor
-    async function executeNode(nodeId: string) {
-      const node = nodes.find((n) => n.id === nodeId);
-      if (!node) return;
-
-      activeNodeId = nodeId;
+    async function pushProgress() {
       try {
         await job.updateProgress({
           activeNodeId,
           completedNodeIds,
           runningNodeErrors,
+          nodeOutputs,
+          logs: executionLogs,
         });
       } catch (err: any) {
         logger.warn(`Failed to update progress: ${err.message}`);
       }
+    }
 
-      logger.info(`Executing workflow node: ${node.id} (${node.data?.label})`);
+    function addLog(msg: string, type: 'info' | 'error' | 'warn' = 'info') {
+      executionLogs.push({ timestamp: new Date().toISOString(), message: msg, type });
+      if (type === 'error') logger.error(`[Job ${job.id}] ${msg}`);
+      else if (type === 'warn') logger.warn(`[Job ${job.id}] ${msg}`);
+      else logger.info(`[Job ${job.id}] ${msg}`);
+      pushProgress().catch(() => {});
+    }
+
+    // Recursive executor
+    async function executeNode(nodeId: string, currentContext: Record<string, any> = context) {
+      if (completedNodeIds.includes(nodeId)) {
+        addLog(`Skipping already completed node: ${nodeId}`);
+        const targets = adj[nodeId] || [];
+        for (const targetId of targets) {
+          await executeNode(targetId, currentContext);
+        }
+        return;
+      }
+
+      const node = nodes.find((n) => n.id === nodeId);
+      if (!node) return;
+
+      activeNodeId = nodeId;
+      await pushProgress();
+
+      addLog(`Executing workflow node: ${node.id} (${node.data?.label})`);
       let output: any = null;
 
       try {
@@ -162,36 +192,39 @@ export const scraperWorker = new Worker<ScraperJobData>(
           } else if (node.id.includes('webhook')) {
             output = { timestamp: new Date().toISOString() };
           } else if (node.id.includes('rss')) {
-            const rssUrl = evaluateTemplate(node.data.rssUrl || 'https://news.ycombinator.com/rss', context);
-            logger.info(`RSS Trigger: Fetching feed from ${rssUrl}`);
+            const rssUrl = evaluateTemplate(node.data.rssUrl || 'https://news.ycombinator.com/rss', currentContext);
+            addLog(`RSS Trigger: Fetching feed from ${rssUrl}`);
             const items = await parseRss(rssUrl);
             output = items;
-            logger.info(`RSS Trigger: Found ${items.length} items.`);
+            addLog(`RSS Trigger: Found ${items.length} items.`);
           }
         } 
         // ACTION NODES
         else if (nodeType === 'action') {
           if (node.id.includes('scrape')) {
-            const urlToScrape = evaluateTemplate(node.data.url || context['trig-url_0']?.url || 'https://news.ycombinator.com', context);
-            const scrapeInstruction = evaluateTemplate(node.data.instruction || 'Extract the top 3 news articles and their URLs', context);
+            const urlToScrape = evaluateTemplate(node.data.url || currentContext['trig-url_0']?.url || 'https://news.ycombinator.com', currentContext);
+            const scrapeInstruction = evaluateTemplate(node.data.instruction || 'Extract the top 3 news articles and their URLs', currentContext);
             
-            logger.info(`Stagehand: Navigating to ${urlToScrape}`);
+            addLog(`Stagehand: Navigating to ${urlToScrape}`);
             const stagehand = new Stagehand({
               env: 'LOCAL',
               verbose: 1,
-              logger: (msg) => logger.debug(`[Stagehand] ${msg.message}`)
+              logger: (msg) => {
+                if (msg.message.includes('error')) addLog(`[Stagehand] ${msg.message}`, 'error');
+                else addLog(`[Stagehand] ${msg.message}`);
+              }
             });
 
             try {
               await stagehand.init();
               const page = (stagehand as any).page;
               await page.goto(urlToScrape);
-              logger.info(`Stagehand: Extracting with instruction: "${scrapeInstruction}"`);
+              addLog(`Stagehand: Extracting with instruction: "${scrapeInstruction}"`);
               const extraction = await page.extract(scrapeInstruction);
               output = extraction;
-              logger.info('Stagehand: Extraction successful.');
+              addLog('Stagehand: Extraction successful.');
             } catch (e: any) {
-              logger.error(`Stagehand error: ${e.message}. Using mock fallback for simulation.`);
+              addLog(`Stagehand error: ${e.message}. Using mock fallback for simulation.`, 'error');
               // Simulation fallback to prevent workflow failure when not connected to browserbase
               output = [
                 { title: "Stagehand web scraping releases V3 with direct AI extraction capabilities", link: "https://github.com/browserbase/stagehand" },
@@ -205,11 +238,11 @@ export const scraperWorker = new Worker<ScraperJobData>(
           
           else if (node.id.includes('http')) {
             const method = node.data.method || 'GET';
-            const url = evaluateTemplate(node.data.url || '', context);
+            const url = evaluateTemplate(node.data.url || '', currentContext);
             const rawHeaders = node.data.headers || '';
             const rawBody = node.data.body || '';
 
-            logger.info(`HTTP Action: Sending ${method} request to ${url}`);
+            addLog(`HTTP Action: Sending ${method} request to ${url}`);
 
             const headers: Record<string, string> = {
               'Content-Type': 'application/json',
@@ -230,16 +263,16 @@ export const scraperWorker = new Worker<ScraperJobData>(
             };
 
             if (method !== 'GET' && rawBody) {
-              fetchOptions.body = evaluateTemplate(rawBody, context);
+              fetchOptions.body = evaluateTemplate(rawBody, currentContext);
             }
 
             try {
               const res = await fetch(url, fetchOptions);
               const responseData = await res.json();
               output = { response: responseData, status: res.status };
-              logger.info(`HTTP Action response status: ${res.status}`);
+              addLog(`HTTP Action response status: ${res.status}`);
             } catch (e: any) {
-              logger.error(`HTTP Action error: ${e.message}. Using mock response fallback.`);
+              addLog(`HTTP Action error: ${e.message}. Using mock response fallback.`, 'error');
               output = { 
                 response: [
                   { title: "Mock HTTP Article 1", body: "L'impact du scraping stealth en production..." },
@@ -253,7 +286,7 @@ export const scraperWorker = new Worker<ScraperJobData>(
           else if (node.id.includes('file')) {
             const fileType = node.data.fileType || 'csv';
             const fileName = node.data.fileName || 'ideas.csv';
-            logger.info(`File Parser: Reading ${fileName} (${fileType})`);
+            addLog(`File Parser: Reading ${fileName} (${fileType})`);
             
             // Mock file parsing data
             if (fileType === 'csv') {
@@ -269,18 +302,71 @@ export const scraperWorker = new Worker<ScraperJobData>(
             }
           } 
           
+          else if (node.id.includes('jsonpath')) {
+            const sourceVar = node.data.sourceVar || '';
+            const jsonPathExpr = node.data.jsonPath || '';
+            addLog(`JSONPath Action: Extracting "${jsonPathExpr}" from ${sourceVar}`);
+            
+            const sourceData = currentContext[sourceVar] || currentContext.item;
+            if (jsonPathExpr) {
+               const evalStr = `{{source.${jsonPathExpr}}}`;
+               output = evaluateTemplate(evalStr, { source: sourceData });
+               
+               // Attempt to parse stringified JSON if evaluateTemplate stringified it
+               if (typeof output === 'string' && (output.startsWith('{') || output.startsWith('['))) {
+                 try { output = JSON.parse(output); } catch {}
+               }
+            } else {
+               output = sourceData;
+            }
+            addLog(`JSONPath Extracted: ${JSON.stringify(output)?.substring(0,50)}...`);
+          }
+          
+          else if (node.id.includes('filter')) {
+            const sourceArrayVar = node.data.sourceArray || '';
+            const filterField = node.data.filterField || '';
+            const filterOperator = node.data.filterOperator || 'eq';
+            const filterValue = String(node.data.filterValue || '');
+
+            addLog(`Filter Action: Filtering array ${sourceArrayVar}`);
+            let arrayToFilter: any[] = currentContext[sourceArrayVar] || [];
+            if (!Array.isArray(arrayToFilter)) {
+                const potentialData = currentContext[sourceArrayVar];
+                if (potentialData && Array.isArray(potentialData.response)) arrayToFilter = potentialData.response;
+                else if (potentialData && Array.isArray(potentialData.items)) arrayToFilter = potentialData.items;
+                else arrayToFilter = [];
+            }
+            
+            output = arrayToFilter.filter(item => {
+               let testVal = item;
+               if (filterField) {
+                  const parts = filterField.split('.');
+                  for (const p of parts) { if(testVal) testVal = testVal[p]; }
+               }
+               
+               let proceed = false;
+               if (filterOperator === 'gt') proceed = Number(testVal) > Number(filterValue);
+               else if (filterOperator === 'lt') proceed = Number(testVal) < Number(filterValue);
+               else if (filterOperator === 'eq') proceed = String(testVal) === String(filterValue);
+               else if (filterOperator === 'contains') proceed = String(testVal).includes(filterValue);
+               return proceed;
+            });
+            
+            addLog(`Filter Action: Kept ${output.length}/${arrayToFilter.length} items`);
+          }
+
           else if (node.id.includes('ai')) {
-            const prompt = evaluateTemplate(node.data.prompt || 'Summarize this data into a social post', context);
+            const prompt = evaluateTemplate(node.data.prompt || 'Summarize this data into a social post', currentContext);
             const provider = node.data.provider || 'openai';
             const modelId = node.data.model || 'gpt-4o-mini';
-            logger.info(`AI Prompt: Sending evaluated prompt to model ${provider}/${modelId}`);
+            addLog(`AI Prompt: Sending evaluated prompt to model ${provider}/${modelId}`);
 
             try {
               let model;
               try {
                 model = await createModel(provider as any, modelId, userId);
               } catch (modelErr: any) {
-                logger.warn(`Failed to build model ${provider}/${modelId}: ${modelErr.message}. Falling back to default gpt-4o-mini.`);
+                addLog(`Failed to build model ${provider}/${modelId}: ${modelErr.message}. Falling back to default gpt-4o-mini.`, 'warn');
                 model = openai('gpt-4o-mini');
               }
 
@@ -300,25 +386,25 @@ Follow these constraints meticulously:
               });
               output = response.text;
               finalContent = response.text;
-              logger.info(`AI Response generated successfully.`);
+              addLog(`AI Response generated successfully.`);
             } catch (e: any) {
-              logger.error(`AI Error: ${e.message}. Using mock response.`);
+              addLog(`AI Error: ${e.message}. Using mock response.`, 'error');
               output = `[RÉDACTION IA SIMULÉE]\nVoici un contenu expert rédigé automatiquement par l'intelligence artificielle pour vos réseaux sociaux !\n#Veille #Technologie`;
               finalContent = output;
             }
           } 
           
           else if (node.id.includes('image')) {
-            const imagePrompt = evaluateTemplate(node.data.imagePrompt || 'A social media visual representation', context);
-            logger.info(`Image Action: Generating image with prompt "${imagePrompt}"`);
+            const imagePrompt = evaluateTemplate(node.data.imagePrompt || 'A social media visual representation', currentContext);
+            addLog(`Image Action: Generating image with prompt "${imagePrompt}"`);
             try {
               const { generateImage } = await import('../images/index.js');
               const img = await generateImage(userId, imagePrompt, 'openai');
               output = img;
-              context.lastGeneratedImageId = img.id;
-              logger.info(`Image Action successful. Image ID: ${img.id}`);
+              currentContext.lastGeneratedImageId = img.id;
+              addLog(`Image Action successful. Image ID: ${img.id}`);
             } catch (e: any) {
-              logger.error(`Image Action error: ${e.message}. Using mock image output.`);
+              addLog(`Image Action error: ${e.message}. Using mock image output.`, 'error');
               output = {
                 id: crypto.randomUUID(),
                 imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800',
@@ -329,8 +415,8 @@ Follow these constraints meticulously:
 
           else if (node.id.includes('hook')) {
             const hookStyle = node.data.hookStyle || 'viral';
-            logger.info(`Hook Action: Generating hooks with style ${hookStyle}`);
-            const contentToHook = finalContent || context.item?.title || 'a social media topic';
+            addLog(`Hook Action: Generating hooks with style ${hookStyle}`);
+            const contentToHook = finalContent || currentContext.item?.title || 'a social media topic';
             
             try {
               let model = openai('gpt-4o-mini');
@@ -348,17 +434,17 @@ Return only the 3 options, one per line, starting with 1., 2., 3.`;
                 prompt: hookPrompt,
               });
               output = response.text;
-              logger.info(`Hook Action successful.`);
+              addLog(`Hook Action successful.`);
             } catch (e: any) {
-              logger.error(`Hook Action error: ${e.message}. Using mock hooks.`);
+              addLog(`Hook Action error: ${e.message}. Using mock hooks.`, 'error');
               output = `1. C'est l'erreur la plus courante en production...\n2. 99% des développeurs se trompent sur ce sujet.\n3. Voici comment diviser par 2 vos temps de chargement.`;
             }
           }
 
           else if (node.id.includes('tone')) {
             const targetTone = node.data.targetTone || 'professional';
-            logger.info(`Tone Action: Rewriting content in tone ${targetTone}`);
-            const textToRewrite = finalContent || context.item?.idea || 'No content provided';
+            addLog(`Tone Action: Rewriting content in tone ${targetTone}`);
+            const textToRewrite = finalContent || currentContext.item?.idea || 'No content provided';
             
             try {
               let model = openai('gpt-4o-mini');
@@ -374,18 +460,18 @@ Post content:
               });
               output = response.text;
               finalContent = response.text;
-              logger.info(`Tone Action successful.`);
+              addLog(`Tone Action successful.`);
             } catch (e: any) {
-              logger.error(`Tone Action error: ${e.message}.`);
+              addLog(`Tone Action error: ${e.message}.`, 'error');
               output = textToRewrite;
             }
           }
           
           else if (node.id.includes('post')) {
             const targetPrompt = node.data.prompt || '';
-            const draftContent = targetPrompt ? evaluateTemplate(targetPrompt, context) : finalContent;
+            const draftContent = targetPrompt ? evaluateTemplate(targetPrompt, currentContext) : finalContent;
             
-            logger.info('Saving Draft Post to database...');
+            addLog('Saving Draft Post to database...');
             const db = getDrizzle();
             const postId = crypto.randomUUID();
             await db.insert(posts).values({
@@ -400,30 +486,30 @@ Post content:
             });
 
             // Link last generated image if any
-            if (context.lastGeneratedImageId) {
+            if (currentContext.lastGeneratedImageId) {
               try {
                 const { updateImagePostLink } = await import('../images/index.js');
-                await updateImagePostLink(userId, context.lastGeneratedImageId, postId);
-                logger.info(`Linked image ${context.lastGeneratedImageId} to post ${postId}`);
+                await updateImagePostLink(userId, currentContext.lastGeneratedImageId, postId);
+                addLog(`Linked image ${currentContext.lastGeneratedImageId} to post ${postId}`);
               } catch (linkErr: any) {
-                logger.error(`Failed to link image to post: ${linkErr.message}`);
+                addLog(`Failed to link image to post: ${linkErr.message}`, 'error');
               }
             }
 
             output = { success: true, postId };
-            logger.info('Draft Post saved successfully!');
+            addLog('Draft Post saved successfully!');
           }
           
           else if (node.id.includes('search')) {
-            const searchQuery = evaluateTemplate(node.data.searchQuery || '', context);
+            const searchQuery = evaluateTemplate(node.data.searchQuery || '', currentContext);
             const limit = Number(node.data.maxResults || 3);
-            logger.info(`Web Search Action: Query: "${searchQuery}" with limit: ${limit}`);
+            addLog(`Web Search Action: Query: "${searchQuery}" with limit: ${limit}`);
             try {
               const results = await searchWeb(searchQuery, limit);
               output = results;
-              logger.info(`Web Search successful. Found ${results.length} results.`);
+              addLog(`Web Search successful. Found ${results.length} results.`);
             } catch (e: any) {
-              logger.error(`Web Search Action error: ${e.message}. Using mock search result.`);
+              addLog(`Web Search Action error: ${e.message}. Using mock search result.`, 'error');
               output = [
                 { title: `Simulated Search for: ${searchQuery}`, url: 'https://example.com/mock', content: 'Mock search content.' }
               ];
@@ -432,14 +518,14 @@ Post content:
           
           else if (node.id.includes('format')) {
             const textTemplate = node.data.textTemplate || '';
-            const formatted = evaluateTemplate(textTemplate, context);
+            const formatted = evaluateTemplate(textTemplate, currentContext);
             output = formatted;
-            logger.info(`Format Action: Template formatted successfully.`);
+            addLog(`Format Action: Template formatted successfully.`);
           }
           
           else if (node.id.includes('db')) {
             const dbAction = node.data.dbAction || 'save_post';
-            logger.info(`Database Action: Executing ${dbAction}`);
+            addLog(`Database Action: Executing ${dbAction}`);
             const db = getDrizzle();
             
             if (dbAction === 'save_post') {
@@ -456,28 +542,28 @@ Post content:
               });
 
               // Link last generated image if any
-              if (context.lastGeneratedImageId) {
+              if (currentContext.lastGeneratedImageId) {
                 try {
                   const { updateImagePostLink } = await import('../images/index.js');
-                  await updateImagePostLink(userId, context.lastGeneratedImageId, postId);
-                  logger.info(`Linked image ${context.lastGeneratedImageId} to post ${postId}`);
+                  await updateImagePostLink(userId, currentContext.lastGeneratedImageId, postId);
+                  addLog(`Linked image ${currentContext.lastGeneratedImageId} to post ${postId}`);
                 } catch (linkErr: any) {
-                  logger.error(`Failed to link image to post: ${linkErr.message}`);
+                  addLog(`Failed to link image to post: ${linkErr.message}`, 'error');
                 }
               }
 
-              logger.info(`Database Action: Post saved successfully.`);
+              addLog(`Database Action: Post saved successfully.`);
               output = { success: true, postId };
             } else {
-              logger.info(`Database Action: Mock database operation completed.`);
+              addLog(`Database Action: Mock database operation completed.`);
               output = { success: true };
             }
           }
           
           else if (node.id.includes('publish')) {
-            const publishUrl = evaluateTemplate(node.data.publishUrl || '', context);
+            const publishUrl = evaluateTemplate(node.data.publishUrl || '', currentContext);
             const publishToken = node.data.publishToken || '';
-            logger.info(`Publish CMS Action: Sending content to ${publishUrl}`);
+            addLog(`Publish CMS Action: Sending content to ${publishUrl}`);
             
             try {
               const res = await fetch(publishUrl, {
@@ -487,7 +573,7 @@ Post content:
                   'Authorization': publishToken ? `Bearer ${publishToken}` : '',
                 },
                 body: JSON.stringify({
-                  title: context.item?.title || 'Workflow Publication',
+                  title: currentContext.item?.title || 'Workflow Publication',
                   content: finalContent,
                   date: new Date().toISOString(),
                 }),
@@ -500,23 +586,25 @@ Post content:
                 responseBody = await res.text();
               }
               output = { success: res.ok, response: responseBody, status: res.status };
-              logger.info(`Publish CMS Action completed with status: ${res.status}`);
+              addLog(`Publish CMS Action completed with status: ${res.status}`);
             } catch (e: any) {
-              logger.error(`Publish CMS Action error: ${e.message}. Using mock success callback.`);
+              addLog(`Publish CMS Action error: ${e.message}. Using mock success callback.`, 'error');
               output = { success: true, mock: true };
             }
           }
         } 
         // LOGIC NODES
         else if (nodeType === 'logic') {
-          if (node.id.includes('loop')) {
-            const sourceVar = node.data.loopOver || '';
-            logger.info(`Loop node starting loop over: "${sourceVar}"`);
+          if (node.id.includes('loop') || node.id.includes('batch')) {
+            const isBatch = node.id.includes('batch');
+            const sourceVar = node.data.loopOver || node.data.batchArray || '';
+            const concurrencyLimit = Number(node.data.concurrency || 3);
+            addLog(`${isBatch ? 'Batch' : 'Loop'} node starting over: "${sourceVar}"`);
             
             let arrayToLoop: any[] = [];
             
-            if (sourceVar && context[sourceVar]) {
-              let val = context[sourceVar];
+            if (sourceVar && currentContext[sourceVar]) {
+              let val = currentContext[sourceVar];
               
               // If it's a string, try parsing it as JSON first
               if (typeof val === 'string') {
@@ -568,23 +656,38 @@ Post content:
             }
             
             if (arrayToLoop.length === 0) {
-              logger.warn(`No list found for variable "${sourceVar}". Initializing mock loop array.`);
+              addLog(`No list found for variable "${sourceVar}". Initializing mock loop array.`, 'warn');
               arrayToLoop = [
                 { title: "Article de simulation 1", link: "https://example.com/1", idea: "Idée de post 1" },
                 { title: "Article de simulation 2", link: "https://example.com/2", idea: "Idée de post 2" }
               ];
             }
 
-            logger.info(`Looping over ${arrayToLoop.length} items.`);
+            addLog(`${isBatch ? 'Batching' : 'Looping'} over ${arrayToLoop.length} items.`);
             const loopTargets = adj[node.id] || [];
 
-            for (let i = 0; i < arrayToLoop.length; i++) {
-              logger.info(`Loop Iteration ${i + 1}/${arrayToLoop.length}`);
-              context.item = arrayToLoop[i];
-              context.index = i;
-
-              for (const targetId of loopTargets) {
-                await executeNode(targetId);
+            if (isBatch) {
+              for (let i = 0; i < arrayToLoop.length; i += concurrencyLimit) {
+                const chunk = arrayToLoop.slice(i, i + concurrencyLimit);
+                await Promise.all(chunk.map(async (item, idx) => {
+                  const globalIdx = i + idx;
+                  addLog(`Batch Iteration ${globalIdx + 1}/${arrayToLoop.length}`);
+                  const clonedContext = { ...currentContext, item, index: globalIdx };
+                  for (const targetId of loopTargets) {
+                    await executeNode(targetId, clonedContext);
+                  }
+                }));
+              }
+            } else {
+              for (let i = 0; i < arrayToLoop.length; i++) {
+                addLog(`Loop Iteration ${i + 1}/${arrayToLoop.length}`);
+                // Mutating currentContext for loop maintains legacy behavior
+                currentContext.item = arrayToLoop[i];
+                currentContext.index = i;
+  
+                for (const targetId of loopTargets) {
+                  await executeNode(targetId, currentContext);
+                }
               }
             }
             return;
@@ -598,9 +701,9 @@ Post content:
             let testVal: any = '';
             if (varName.startsWith('item.')) {
               const field = varName.substring(5);
-              testVal = context.item?.[field];
+              testVal = currentContext.item?.[field];
             } else {
-              testVal = context[varName];
+              testVal = currentContext[varName];
             }
 
             let proceed = false;
@@ -609,58 +712,40 @@ Post content:
             else if (operator === 'eq') proceed = String(testVal) === String(valueToCompare);
             else if (operator === 'contains') proceed = String(testVal).includes(String(valueToCompare));
 
-            logger.info(`Condition: ${varName} (${testVal}) ${operator} ${valueToCompare} => ${proceed}`);
+            addLog(`Condition: ${varName} (${testVal}) ${operator} ${valueToCompare} => ${proceed}`);
 
             if (!proceed) {
-              logger.info(`Condition not met. Stopping branch.`);
+              addLog(`Condition not met. Stopping branch.`);
               return;
             }
           } 
           
           else if (node.id.includes('delay')) {
             const delaySec = node.data.delaySeconds || 5;
-            logger.info(`Waiting for ${delaySec} seconds...`);
+            addLog(`Waiting for ${delaySec} seconds...`);
             await delay(delaySec * 1000);
           }
         }
 
         nodeOutputs[node.id] = output;
-        context[node.id] = output;
+        currentContext[node.id] = output;
 
         completedNodeIds.push(node.id);
         if (activeNodeId === node.id) {
           activeNodeId = null;
         }
-        try {
-          await job.updateProgress({
-            activeNodeId,
-            completedNodeIds,
-            runningNodeErrors,
-            nodeOutputs,
-          });
-        } catch (err: any) {
-          logger.warn(`Failed to update progress: ${err.message}`);
-        }
+        await pushProgress();
 
       } catch (e: any) {
-        logger.error(`Error executing node ${node.id}: ${e.message}`);
+        addLog(`Error executing node ${node.id}: ${e.message}`, 'error');
         runningNodeErrors[node.id] = e.message;
-        try {
-          await job.updateProgress({
-            activeNodeId,
-            completedNodeIds,
-            runningNodeErrors,
-            nodeOutputs,
-          });
-        } catch (err: any) {
-          logger.warn(`Failed to update progress: ${err.message}`);
-        }
+        await pushProgress();
         throw e;
       }
 
       const targets = adj[node.id] || [];
       for (const targetId of targets) {
-        await executeNode(targetId);
+        await executeNode(targetId, currentContext);
       }
     }
 

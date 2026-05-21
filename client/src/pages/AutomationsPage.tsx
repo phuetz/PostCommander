@@ -18,7 +18,7 @@ import '@xyflow/react/dist/style.css';
 import { Play, GitFork, Save, Undo2, Redo2, History, Power, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
-import { useAutomations, useSaveAutomation, useTriggerAutomation, useAutomationJob } from '../hooks/useAutomations';
+import { useAutomations, useSaveAutomation, useTriggerAutomation, useAutomationJobStream } from '../hooks/useAutomations';
 
 import { Sidebar } from '../features/automations/components/Sidebar';
 import { NodeInspector } from '../features/automations/components/NodeInspector';
@@ -125,7 +125,7 @@ function AutomationsFlow() {
     [setNodes, setEdges, history, nodes, edges],
   );
 
-  const { data: jobStatus } = useAutomationJob(activeJobId);
+  const { data: jobStatus } = useAutomationJobStream(activeJobId);
 
   useEffect(() => {
     let interval: any;

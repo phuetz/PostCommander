@@ -12,6 +12,10 @@ import {
 import { authMiddleware } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import { scraperFlowQueue } from '../services/jobs/queue.js';
+import { QueueEvents } from 'bullmq';
+import { sharedRedisConnection } from '../utils/redis.js';
+
+const scraperQueueEvents = new QueueEvents('scraper-flow', { connection: sharedRedisConnection as any });
 import { logger } from '../utils/logger.js';
 import {
   runWorkflowBuilderAgent,
@@ -36,12 +40,33 @@ automationsRoutes.post('/webhooks/:id', async (req, res, next) => {
     if (!automation) {
       return res.status(404).json({ error: 'Automation not found' });
     }
+    
+    let flowData;
+    try {
+      flowData = JSON.parse(automation.flowData);
+    } catch {
+      return res.status(400).json({ error: 'Invalid automation flow data' });
+    }
+    
+    const webhookNode = flowData.nodes?.find((n: any) => n.data?.type === 'trigger' && n.id.includes('webhook'));
+    if (!webhookNode) {
+      return res.status(400).json({ error: 'This automation does not have a webhook trigger' });
+    }
+    
+    const secret = webhookNode.data?.webhookSecret;
+    if (secret) {
+      const authHeader = req.headers.authorization || '';
+      const providedSecret = authHeader.replace(/^Bearer\s+/i, '').trim();
+      if (providedSecret !== secret) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid webhook secret' });
+      }
+    }
 
     const job = await scraperFlowQueue.add(
       'execute-flow',
       {
         automationId: automation.id,
-        flowData: JSON.parse(automation.flowData),
+        flowData,
         userId: automation.userId,
         workspaceId: automation.workspaceId,
         webhookPayload: req.body,
@@ -227,6 +252,142 @@ automationsRoutes.get('/jobs/:jobId', async (req, res, next) => {
       result,
       failedReason,
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Resume a failed job
+automationsRoutes.post('/jobs/:jobId/resume', async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+    const db = getDrizzle();
+
+    const [run] = await db
+      .select()
+      .from(automationRuns)
+      .where(and(eq(automationRuns.jobId, jobId), eq(automationRuns.userId, req.user!.id)));
+
+    if (!run) {
+      return res.status(404).json({ error: 'Run not found' });
+    }
+
+    if (run.status !== 'failed') {
+      return res.status(400).json({ error: 'Only failed runs can be resumed' });
+    }
+
+    const [automation] = await db
+      .select()
+      .from(flowAutomations)
+      .where(eq(flowAutomations.id, run.automationId));
+
+    if (!automation) {
+      return res.status(404).json({ error: 'Associated automation not found' });
+    }
+
+    const summary = run.summary as any;
+    if (!summary || !summary.completedNodeIds) {
+      return res.status(400).json({ error: 'Cannot resume: missing state snapshot' });
+    }
+
+    const newJob = await scraperFlowQueue.add(
+      'execute-flow',
+      {
+        automationId: automation.id,
+        flowData: JSON.parse(automation.flowData),
+        userId: automation.userId,
+        workspaceId: automation.workspaceId,
+        resumeState: {
+          nodeOutputs: summary.nodeOutputs || {},
+          context: {}, // Note: root context is rebuilt, nodeOutputs restore the critical values
+          completedNodeIds: summary.completedNodeIds || [],
+        },
+      },
+      {
+        jobId: `execute-flow:resume:${automation.id}:${Date.now()}`,
+        removeOnComplete: true,
+        removeOnFail: false,
+      },
+    );
+
+    await db
+      .update(flowAutomations)
+      .set({ lastRunAt: new Date().toISOString() })
+      .where(eq(flowAutomations.id, automation.id));
+
+    res.json({ message: 'Automation resumed successfully', jobId: newJob.id });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// SSE endpoint to stream job execution progress
+automationsRoutes.get('/jobs/:jobId/stream', async (req, res, next) => {
+  try {
+    const { jobId } = req.params;
+    const job = await scraperFlowQueue.getJob(jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+    res.flushHeaders();
+
+    const sendEvent = (event: string, data: any) => {
+      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+
+    const keepAlive = setInterval(() => res.write(': keepalive\n\n'), 15000);
+    
+    // Check initial state
+    const state = await job.getState();
+    sendEvent('initial', { state, progress: job.progress, result: job.returnvalue });
+    if (state === 'completed' || state === 'failed') {
+      sendEvent('done', { state, result: job.returnvalue, failedReason: job.failedReason });
+      clearInterval(keepAlive);
+      res.end();
+      return;
+    }
+
+    const onProgress = (args: { jobId: string; data: number | object }) => {
+      if (args.jobId === jobId) sendEvent('progress', args.data);
+    };
+    const onCompleted = (args: { jobId: string; returnvalue: string; prev?: string }) => {
+      if (args.jobId === jobId) {
+        let result;
+        try { result = JSON.parse(args.returnvalue); } catch { result = args.returnvalue; }
+        sendEvent('done', { state: 'completed', result });
+        cleanup();
+      }
+    };
+    const onFailed = (args: { jobId: string; failedReason: string; prev?: string }) => {
+      if (args.jobId === jobId) {
+        sendEvent('done', { state: 'failed', failedReason: args.failedReason });
+        cleanup();
+      }
+    };
+
+    scraperQueueEvents.on('progress', onProgress);
+    scraperQueueEvents.on('completed', onCompleted);
+    scraperQueueEvents.on('failed', onFailed);
+
+    let aborted = false;
+    const cleanup = () => {
+      if (aborted) return;
+      aborted = true;
+      clearInterval(keepAlive);
+      scraperQueueEvents.off('progress', onProgress);
+      scraperQueueEvents.off('completed', onCompleted);
+      scraperQueueEvents.off('failed', onFailed);
+      res.end();
+    };
+
+    req.on('close', cleanup);
   } catch (error) {
     next(error);
   }
